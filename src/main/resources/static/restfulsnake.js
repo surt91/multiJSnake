@@ -14,7 +14,7 @@ let main_loop;
 const main = async() =>  {
     // initialization
     // TODO: post /init, get the map object, including an id
-    const response = await fetch("http://localhost:8080/init", {
+    const response = await fetch("/init", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -43,7 +43,7 @@ const main = async() =>  {
 main().then(main_loop = loop(SPEED));
 
 const move = async(dir) =>  {
-    const response = await fetch("http://localhost:8080/" + ID + "/move/" + dir, {
+    const response = await fetch("/" + ID + "/move/" + dir, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

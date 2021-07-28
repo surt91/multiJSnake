@@ -31,12 +31,3 @@ public class RestfulSnakeController {
         return snake;
     }
 }
-
-@Configuration
-@EnableWebMvc
-class WebConfig extends WebMvcConfigurerAdapter {
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**");
-    }
-}
