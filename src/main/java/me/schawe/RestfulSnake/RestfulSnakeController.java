@@ -1,16 +1,42 @@
 package me.schawe.RestfulSnake;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import java.util.HashMap;
 
 @RestController
 public class RestfulSnakeController {
-    Map map = new Map();
+    HashMap<String, Snake> map = new HashMap<>();
 
-    @PostMapping("/move/{direction}")
-    Map move_step(@PathVariable Move move) throws InvalidMoveException {
-        map.update(move);
+    @PostMapping("/init")
+    Snake init() {
+        Snake snake = new Snake();
+        map.put(snake.id, snake);
 
-        return map;
+        return snake;
+    }
+
+    @PostMapping("/{id}/move/{move}")
+    Snake move_step(@PathVariable String id, @PathVariable Move move) {
+        if(!map.containsKey(id)) {
+            throw new InvalidMapException(id);
+        }
+        Snake snake = map.get(id);
+        snake.update(move);
+
+        return snake;
+    }
+}
+
+@Configuration
+@EnableWebMvc
+class WebConfig extends WebMvcConfigurerAdapter {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**");
     }
 }
