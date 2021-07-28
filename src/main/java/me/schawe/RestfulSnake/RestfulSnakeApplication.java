@@ -1,13 +1,13 @@
-package me.schawe.RESTfulSnake;
+package me.schawe.RestfulSnake;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ResTfulSnakeApplication {
+public class RestfulSnakeApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ResTfulSnakeApplication.class, args);
+		SpringApplication.run(RestfulSnakeApplication.class, args);
 	}
 
 }

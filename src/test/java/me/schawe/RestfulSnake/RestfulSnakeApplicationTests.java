@@ -1,10 +1,10 @@
-package me.schawe.RESTfulSnake;
+package me.schawe.RestfulSnake;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ResTfulSnakeApplicationTests {
+class RestfulSnakeApplicationTests {
 
 	@Test
 	void contextLoads() {
