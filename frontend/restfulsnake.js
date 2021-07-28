@@ -156,8 +156,28 @@ function draw(state) {
 
     ctx.fillStyle = FOOD;
     let x = state.food.x;
-    let y = state.food.x;
+    let y = state.food.y;
     ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE);
+
+    ctx.fillStyle = COLOR;
+    x = state.head.x;
+    y = state.head.y;
+    if(state.head_direction == "right") {
+        ctx.fillRect(x*SCALE, y*SCALE, SCALE/2, SCALE);
+        ctx.fillRect(x*SCALE+SCALE/2., y*SCALE+SCALE/4, SCALE/2., SCALE/2);
+    }
+    if(state.head_direction == "left") {
+        ctx.fillRect(x*SCALE+SCALE/2., y*SCALE, SCALE/2, SCALE);
+        ctx.fillRect(x*SCALE, y*SCALE+SCALE/4, SCALE/2., SCALE/2);
+    }
+    if(state.head_direction == "down") {
+        ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE/2);
+        ctx.fillRect(x*SCALE+SCALE/4., y*SCALE+SCALE/2, SCALE/2., SCALE/2);
+    }
+    if(state.head_direction == "up") {
+        ctx.fillRect(x*SCALE, y*SCALE+SCALE/2, SCALE, SCALE/2);
+        ctx.fillRect(x*SCALE+SCALE/4., y*SCALE, SCALE/2., SCALE/2);
+    }
 
     ctx.fillStyle = COLOR;
     for(let seg of state.tail) {
