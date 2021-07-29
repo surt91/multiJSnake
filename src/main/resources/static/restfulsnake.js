@@ -11,6 +11,7 @@ let W;
 let H;
 let ID;
 let main_loop;
+let next_move = "up";
 
 const main = async() =>  {
     // initialization
@@ -40,7 +41,7 @@ const main = async() =>  {
     console.log("Speed up with e and down with q.");
     console.log(initial_state);
 }
-main().then(main_loop = loop(SPEED));
+main();
 
 const move = async(dir) =>  {
     const response = await fetch("/" + ID + "/move/" + dir, {
@@ -52,7 +53,6 @@ const move = async(dir) =>  {
     return await response.json();
 }
 
-let next_move = "up";
 // listen for keypresses
 document.onkeydown = function(e) {
     switch(e.code) {
