@@ -33,7 +33,7 @@ const init = async() =>  {
 
     pause();
 
-    console.log("Welcome to jsnake!");
+    console.log("Welcome to RestfulSnake!");
     console.log("Steer with WSAD and have some fun!");
     console.log("Speed up with e and down with q.");
     console.log("Pause with p.");
