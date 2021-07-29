@@ -88,7 +88,7 @@ public class Snake {
     public void add_food() {
         do {
             food = new Coordinate((int) (Math.random() * width), (int) (Math.random() * height));
-        } while (tail.contains(food) || head.equals(food));
+        } while (tail.stream().anyMatch(c -> c.equals(food)) || head.equals(food));
     }
 
     public void update(Move move) {
