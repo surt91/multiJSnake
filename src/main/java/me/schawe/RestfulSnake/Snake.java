@@ -90,34 +90,10 @@ public class Snake {
             return;
         }
 
-        // TODO: ensure that we can not switch directly to the opposite direction
-        Coordinate offset = new Coordinate(0, 0);
-        switch(move) {
-            case up:
-                if(head_direction != Move.down) {
-                    offset.y = -1;
-                }
-                break;
-            case down:
-                if(head_direction != Move.up) {
-                    offset.y = 1;
-                }
-                break;
-            case left:
-                if(head_direction != Move.right) {
-                    offset.x = -1;
-                }
-                break;
-            case right:
-                if(head_direction != Move.left) {
-                    offset.x = 1;
-                }
-                break;
-            default:
-                throw new InvalidMoveException();
-        }
+        Move next = move.toNext(head_direction);
+        Coordinate offset = next.toCoord();
+        head_direction = next;
 
-        head_direction = move;
         tail.add(head.copy());
 
         if(head.x < 0 || head.x >= width || head.y < 0 || head.y >= height) {
