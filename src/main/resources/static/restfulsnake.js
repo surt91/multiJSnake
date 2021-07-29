@@ -3,6 +3,7 @@ const COLOR = "#669900";
 const FOOD = "#cc6600";
 const BG_COLOR = "#000";
 let SPEED = 200;  // speed: 200 -> 5 steps per second
+let paused = true;
 
 let c = document.getElementById("restfulsnake");
 let ctx = c.getContext("2d");
@@ -88,6 +89,9 @@ document.onkeydown = function(e) {
             SPEED *= 1/0.8;
             main_loop = loop(SPEED);
             break;
+        case "KeyP":
+            toggle_pause();
+            break;
     }
 }
 
@@ -147,6 +151,24 @@ document.ontouchmove = function (evt) {
     yDown = null;
 };
 
+function unpause() {
+    paused = false;
+    main_loop = loop(SPEED);
+}
+
+function pause() {
+    window.clearInterval(main_loop);
+    paused = true;
+}
+
+function toggle_pause() {
+    if(paused) {
+        unpause();
+    } else {
+        pause();
+    }
+}
+
 function loop(speed) {
     return window.setInterval(function () {
         move(next_move).then(state => {
@@ -196,5 +218,12 @@ function draw(state) {
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
         ctx.fillText("Game Over!", W*SCALE/2, H*SCALE/2);
+    }
+
+    if(paused) {
+        ctx.fillStyle = "#aa0000";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Paused", W*SCALE/2, H*SCALE/2);
     }
 }
