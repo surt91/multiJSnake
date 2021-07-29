@@ -55,29 +55,35 @@ const move = async(dir) =>  {
 let next_move = "up";
 // listen for keypresses
 document.onkeydown = function(e) {
-    switch(e.keyCode) {
-        case 38:
-        case 87:
+    switch(e.code) {
+        case "ArrowUp":
+        case "KeyW":
             next_move = "up";
+            unpause();
             break;
-        case 40:
-        case 83:
+        case "ArrowDown":
+        case "KeyS":
             next_move = "down";
+            unpause();
             break;
-        case 37:
-        case 65:
+        case "ArrowLeft":
+        case "KeyA":
             next_move = "left";
+            unpause();
             break;
-        case 39:
-        case 68:
+        case "ArrowRight":
+        case "KeyD":
             next_move = "right";
+            unpause();
             break;
-        case 69:
+        case "KeyE":
+            unpause();
             window.clearInterval(main_loop);
             SPEED *= 0.8;
             main_loop = loop(SPEED);
             break;
-        case 81:
+        case "KeyQ":
+            unpause();
             window.clearInterval(main_loop);
             SPEED *= 1/0.8;
             main_loop = loop(SPEED);
