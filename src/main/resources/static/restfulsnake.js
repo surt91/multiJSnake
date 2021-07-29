@@ -36,7 +36,6 @@ const init = async() =>  {
 
     console.log("Welcome to jsnake!");
     console.log("Steer with WSAD and have some fun!");
-    console.log("Enjoy its weird world with helical boudaries!");
     console.log("Speed up with e and down with q.");
     console.log("Pause with p.");
     console.log("Start new with r.");
