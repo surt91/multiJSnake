@@ -14,7 +14,6 @@ let main_loop;
 
 const main = async() =>  {
     // initialization
-    // TODO: post /init, get the map object, including an id
     const response = await fetch("/init", {
         method: "POST",
         headers: {
