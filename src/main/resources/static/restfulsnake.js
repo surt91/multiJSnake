@@ -13,7 +13,7 @@ let ID;
 let main_loop;
 let next_move = "up";
 
-const main = async() =>  {
+const init = async() =>  {
     // initialization
     const response = await fetch("/init", {
         method: "POST",
@@ -39,9 +39,10 @@ const main = async() =>  {
     console.log("Steer with WSAD and have some fun!");
     console.log("Enjoy its weird world with helical boudaries!");
     console.log("Speed up with e and down with q.");
-    console.log(initial_state);
+
+    return initial_state;
 }
-main();
+init().then(state => draw(state));
 
 const move = async(dir) =>  {
     const response = await fetch("/" + ID + "/move/" + dir, {
@@ -151,13 +152,22 @@ document.ontouchmove = function (evt) {
 };
 
 function unpause() {
-    paused = false;
-    main_loop = loop(SPEED);
+    if(paused) {
+        paused = false;
+        main_loop = loop(SPEED);
+    }
 }
 
 function pause() {
-    window.clearInterval(main_loop);
-    paused = true;
+    if(!paused) {
+        window.clearInterval(main_loop);
+        paused = true;
+
+        ctx.fillStyle = "#aa0000";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Paused", W*SCALE/2, H*SCALE/2);
+    }
 }
 
 function toggle_pause() {
@@ -171,7 +181,6 @@ function toggle_pause() {
 function loop(speed) {
     return window.setInterval(function () {
         move(next_move).then(state => {
-            console.log(state);
             draw(state);
         });
     }, speed);
@@ -217,12 +226,5 @@ function draw(state) {
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
         ctx.fillText("Game Over!", W*SCALE/2, H*SCALE/2);
-    }
-
-    if(paused) {
-        ctx.fillStyle = "#aa0000";
-        ctx.font = "30px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("Paused", W*SCALE/2, H*SCALE/2);
     }
 }
