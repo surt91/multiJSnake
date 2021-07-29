@@ -18,8 +18,7 @@ const init = async() =>  {
     const response = await fetch("/init", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
+            "Content-Type": "application/json"
         }
     });
     const initial_state = await response.json();
