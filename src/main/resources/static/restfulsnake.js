@@ -1,6 +1,6 @@
 const SCALE = 20;
 const COLOR = "#669900";
-const FOOD = "#cc6600";
+const FOOD = "#cc2200";
 const BG_COLOR = "#000";
 let SPEED = 200;  // speed: 200 -> 5 steps per second
 let paused = true;
