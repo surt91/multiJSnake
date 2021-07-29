@@ -14,6 +14,7 @@ public class Snake {
     int length;
     Coordinate food;
     boolean dead;
+    int score;
 
     Snake() {
         id = gen_id();
@@ -25,6 +26,7 @@ public class Snake {
         tail.add(new Coordinate(4, 6));
         tail.add(new Coordinate(4, 5));
         length = 2;
+        score = 0;
         dead = false;
         add_food();
     }
@@ -59,6 +61,10 @@ public class Snake {
 
     public int getLength() {
         return length;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public Queue<Coordinate> getTail() {
@@ -102,6 +108,7 @@ public class Snake {
 
         if(head.equals(food)) {
             length += 1;
+            score += 1;
             add_food();
         }
 

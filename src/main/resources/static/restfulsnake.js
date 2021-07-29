@@ -229,4 +229,6 @@ function draw(state) {
         ctx.textAlign = "center";
         ctx.fillText("Game Over!", W*SCALE/2, H*SCALE/2);
     }
+
+    document.getElementById("score").innerHTML = `Score: ${state.score}`;
 }
