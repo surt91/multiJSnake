@@ -11,10 +11,6 @@ You need Java 11 and Maven, then the server can be build and started on `http://
 ./mvnw spring-boot:run
 ```
 
-## TODO:
-
-* points should be counted
-
 ## Ideas:
 
 * It should be easy to make a 2-Player snake by just sharing the id.
