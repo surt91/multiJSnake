@@ -119,13 +119,6 @@ public class Snake {
 
         head_direction = move;
         tail.add(head.copy());
-        head.add(offset);
-
-        for(Coordinate i : tail) {
-            if (i.equals(head)) {
-                dead = true;
-            }
-        }
 
         if(head.x < 0 || head.x >= width || head.y < 0 || head.y >= height) {
             dead = true;
@@ -138,6 +131,14 @@ public class Snake {
 
         while(tail.size() >= length + 1) {
             tail.remove();
+        }
+
+        head.add(offset);
+
+        for(Coordinate i : tail) {
+            if (i.equals(head)) {
+                dead = true;
+            }
         }
     }
 }
