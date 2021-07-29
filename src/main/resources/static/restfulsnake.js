@@ -149,6 +149,8 @@ document.ontouchmove = function (evt) {
         }
     }
 
+    unpause();
+
     xDown = null;
     yDown = null;
 };
