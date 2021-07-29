@@ -22,9 +22,9 @@ public class Snake {
         head_direction = Move.up;
         head = new Coordinate(4, 4);
         tail = new ArrayDeque<>();
-        tail.add(new Coordinate(4, 5));
         tail.add(new Coordinate(4, 6));
-        length = 3;
+        tail.add(new Coordinate(4, 5));
+        length = 2;
         dead = false;
         add_food();
     }
