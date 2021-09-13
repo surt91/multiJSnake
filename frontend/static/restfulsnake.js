@@ -15,7 +15,7 @@ let next_move = "up";
 
 const init = async() =>  {
     // initialization
-    const response = await fetch("/init", {
+    const response = await fetch("/api/init", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -44,7 +44,7 @@ const init = async() =>  {
 init().then(state => draw(state));
 
 const move = async(dir) =>  {
-    const response = await fetch("/" + ID + "/move/" + dir, {
+    const response = await fetch("/api/" + ID + "/move/" + dir, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

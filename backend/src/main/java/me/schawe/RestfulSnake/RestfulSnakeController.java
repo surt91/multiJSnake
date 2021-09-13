@@ -8,7 +8,7 @@ import java.util.HashMap;
 public class RestfulSnakeController {
     HashMap<String, Snake> map = new HashMap<>();
 
-    @PostMapping("/init")
+    @PostMapping("/api/init")
     Snake init() {
         Snake snake = new Snake();
         map.put(snake.id, snake);
@@ -16,7 +16,7 @@ public class RestfulSnakeController {
         return snake;
     }
 
-    @PostMapping("/{id}/move/{move}")
+    @PostMapping("/api/{id}/move/{move}")
     Snake move_step(@PathVariable String id, @PathVariable Move move) {
         if(!map.containsKey(id)) {
             throw new InvalidMapException(id);
