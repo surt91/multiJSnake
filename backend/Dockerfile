@@ -1,14 +1,16 @@
-# See also https://spring.io/guides/gs/spring-boot-docker/
+# https://stackoverflow.com/a/27768965
 
-# ensure that the `jar` file is up-to-date: `./mvnw package`
-# maybe test with `java -jar target/RESTfulSnake-0.0.1-SNAPSHOT.jar`
-# ensure that docker is running `sudo systemctl start docker`
-# then build with `docker build -t surt91/restfulsnake .`
-# then run the image with `docker run -p 8080:8080 surt91/restfulsnake`
+# just build with `docker-compose build` in the parent directory
 
+# Build stage
+FROM maven:3.8.2-openjdk-11 AS build
+COPY ./src build/src
+COPY ./pom.xml build/
+RUN mvn -f build/pom.xml package
+
+# Package stage
 FROM openjdk:11
 RUN addgroup spring && adduser spring --ingroup spring --gecos "" --disabled-password
 USER spring:spring
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
+COPY --from=build ./build/target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
