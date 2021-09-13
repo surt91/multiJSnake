@@ -167,7 +167,7 @@ function pause() {
         window.clearInterval(main_loop);
         paused = true;
 
-        ctx.fillStyle = "#aa0000";
+        ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
         ctx.fillText("Paused", W*SCALE/2, H*SCALE/2);
@@ -200,33 +200,33 @@ function draw(state) {
     ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE);
 
     ctx.fillStyle = COLOR;
-    x = state.head.x;
-    y = state.head.y;
-    if(state.head_direction == "right") {
+    x = state.snake.head.x;
+    y = state.snake.head.y;
+    if(state.snake.head_direction === "right") {
         ctx.fillRect(x*SCALE, y*SCALE, SCALE/2, SCALE);
         ctx.fillRect(x*SCALE+SCALE/2., y*SCALE+SCALE/4, SCALE/2., SCALE/2);
     }
-    if(state.head_direction == "left") {
+    if(state.snake.head_direction === "left") {
         ctx.fillRect(x*SCALE+SCALE/2., y*SCALE, SCALE/2, SCALE);
         ctx.fillRect(x*SCALE, y*SCALE+SCALE/4, SCALE/2., SCALE/2);
     }
-    if(state.head_direction == "down") {
+    if(state.snake.head_direction === "down") {
         ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE/2);
         ctx.fillRect(x*SCALE+SCALE/4., y*SCALE+SCALE/2, SCALE/2., SCALE/2);
     }
-    if(state.head_direction == "up") {
+    if(state.snake.head_direction === "up") {
         ctx.fillRect(x*SCALE, y*SCALE+SCALE/2, SCALE, SCALE/2);
         ctx.fillRect(x*SCALE+SCALE/4., y*SCALE, SCALE/2., SCALE/2);
     }
 
     ctx.fillStyle = COLOR;
-    for(let seg of state.tail) {
+    for(let seg of state.snake.tail) {
         ctx.fillRect(seg.x*SCALE, seg.y*SCALE, SCALE, SCALE);
     }
 
-    if(state.dead) {
+    if(state.snake.dead) {
         window.clearInterval(main_loop);
-        ctx.fillStyle = "#aa0000";
+        ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
         ctx.fillText("Game Over!", W*SCALE/2, H*SCALE/2);
