@@ -10,7 +10,6 @@ let ctx = c.getContext("2d");
 let W;
 let H;
 let ID;
-let main_loop;
 let next_move = "up";
 
 var stompClient = require('./websocket-listener')
@@ -35,11 +34,13 @@ const init = () =>  {
         c.style.cssText = "touch-action: none;";
 
         draw(initial_state);
+
+        stompClient.register([
+            {route: '/topic/update' + ID, callback: drawWebSocket},
+        ]);
     });
 
-    stompClient.register([
-        {route: '/topic/update', callback: draw},
-    ]);
+
 
     pause();
 
@@ -83,18 +84,6 @@ document.onkeydown = function(e) {
         case "KeyD":
             next_move = "right";
             unpause();
-            break;
-        case "KeyE":
-            unpause();
-            window.clearInterval(main_loop);
-            SPEED *= 0.8;
-            main_loop = loop(SPEED);
-            break;
-        case "KeyQ":
-            unpause();
-            window.clearInterval(main_loop);
-            SPEED *= 1/0.8;
-            main_loop = loop(SPEED);
             break;
         case "KeyP":
             toggle_pause();
@@ -166,13 +155,23 @@ document.ontouchmove = function (evt) {
 function unpause() {
     if(paused) {
         paused = false;
-        main_loop = loop(SPEED);
+        fetch("/api/unpause", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
     }
 }
 
 function pause() {
     if(!paused) {
-        window.clearInterval(main_loop);
+        fetch("/api/pause", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
         paused = true;
 
         ctx.fillStyle = "#aaaaaa";
@@ -190,12 +189,8 @@ function toggle_pause() {
     }
 }
 
-function loop(speed) {
-    return window.setInterval(function () {
-        move(next_move).then(state => {
-            draw(state);
-        });
-    }, speed);
+function drawWebSocket(message) {
+    draw(JSON.parse(message.body))
 }
 
 function draw(state) {
@@ -235,7 +230,6 @@ function draw(state) {
     }
 
     if(state.snake.dead) {
-        window.clearInterval(main_loop);
         ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";

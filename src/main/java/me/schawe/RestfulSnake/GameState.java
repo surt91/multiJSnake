@@ -74,14 +74,17 @@ public class GameState {
         food = randomSite();
     }
 
-    public void update(Move move) {
+    public void turn(Move move) {
+        Move next = move.toNext(snake.head_direction);
+        snake.head_direction = next;
+    }
+
+    public void update() {
         if(snake.dead) {
             return;
         }
 
-        Move next = move.toNext(snake.head_direction);
-        Coordinate offset = next.toCoord();
-        snake.head_direction = next;
+        Coordinate offset = snake.head_direction.toCoord();
 
         snake.tail.add(snake.head.copy());
 

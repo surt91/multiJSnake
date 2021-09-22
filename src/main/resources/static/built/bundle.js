@@ -7697,7 +7697,6 @@ var ctx = c.getContext("2d");
 var W;
 var H;
 var ID;
-var main_loop;
 var next_move = "up";
 
 var stompClient = __webpack_require__(/*! ./websocket-listener */ "./src/main/js/websocket-listener.js");
@@ -7721,11 +7720,11 @@ var init = function init() {
 
     c.style.cssText = "touch-action: none;";
     draw(initial_state);
+    stompClient.register([{
+      route: '/topic/update' + ID,
+      callback: drawWebSocket
+    }]);
   });
-  stompClient.register([{
-    route: '/topic/update',
-    callback: draw
-  }]);
   pause();
   console.log("Welcome to RestfulSnake!");
   console.log("Steer with WSAD and have some fun!");
@@ -7774,28 +7773,12 @@ document.onkeydown = function (e) {
       unpause();
       break;
 
-    case "KeyE":
-      unpause();
-      window.clearInterval(main_loop);
-      SPEED *= 0.8;
-      main_loop = loop(SPEED);
-      break;
-
-    case "KeyQ":
-      unpause();
-      window.clearInterval(main_loop);
-      SPEED *= 1 / 0.8;
-      main_loop = loop(SPEED);
-      break;
-
     case "KeyP":
       toggle_pause();
       break;
 
     case "KeyR":
-      init().then(function (state) {
-        return draw(state);
-      });
+      init();
       break;
   }
 }; // steering using touch gestures
@@ -7850,13 +7833,23 @@ document.ontouchmove = function (evt) {
 function unpause() {
   if (paused) {
     paused = false;
-    main_loop = loop(SPEED);
+    fetch("/api/unpause", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
   }
 }
 
 function pause() {
   if (!paused) {
-    window.clearInterval(main_loop);
+    fetch("/api/pause", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
     paused = true;
     ctx.fillStyle = "#aaaaaa";
     ctx.font = "30px Arial";
@@ -7873,12 +7866,8 @@ function toggle_pause() {
   }
 }
 
-function loop(speed) {
-  return window.setInterval(function () {
-    move(next_move).then(function (state) {
-      draw(state);
-    });
-  }, speed);
+function drawWebSocket(message) {
+  draw(JSON.parse(message.body));
 }
 
 function draw(state) {
@@ -7930,7 +7919,6 @@ function draw(state) {
   }
 
   if (state.snake.dead) {
-    window.clearInterval(main_loop);
     ctx.fillStyle = "#aaaaaa";
     ctx.font = "30px Arial";
     ctx.textAlign = "center";
