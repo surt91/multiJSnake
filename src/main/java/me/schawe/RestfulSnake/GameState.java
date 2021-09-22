@@ -1,13 +1,8 @@
 package me.schawe.RestfulSnake;
 
-import org.springframework.data.redis.core.RedisHash;
-
-import java.io.Serializable;
 import java.util.Random;
 
-@RedisHash("Snake")
-public class GameState
-        implements Serializable {
+public class GameState {
     String id;
     int width;
     int height;

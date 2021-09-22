@@ -6,12 +6,12 @@ import java.util.HashMap;
 
 @RestController
 public class RestfulSnakeController {
-    HashMap<String, Snake> map = new HashMap<>();
+    HashMap<String, GameState> map = new HashMap<>();
 
     @PostMapping("/init")
     GameState init() {
         GameState gameState = new GameState();
-        map.put(snake.id, gameState);
+        map.put(gameState.id, gameState);
 
         return gameState;
     }
@@ -21,7 +21,7 @@ public class RestfulSnakeController {
         if(!map.containsKey(id)) {
             throw new InvalidMapException(id);
         }
-        Snake snake = map.get(id);
+        GameState gameState = map.get(id);
         gameState.update(move);
 
         return gameState;
