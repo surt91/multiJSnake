@@ -13,23 +13,33 @@ let ID;
 let main_loop;
 let next_move = "up";
 
-const init = async() =>  {
+var stompClient = require('./websocket-listener')
+
+const init = () =>  {
     // initialization
-    const response = await fetch("/api/init", {
+    fetch("/api/init", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         }
-    });
-    const initial_state = await response.json();
-    W = initial_state.width;
-    H = initial_state.height;
-    ID = initial_state.id;
+    }).then(response => response.json()
+    ).then(initial_state => {
+        console.log(initial_state);
+        W = initial_state.width;
+        H = initial_state.height;
+        ID = initial_state.id;
 
-    c.width = (W * SCALE);
-    c.height = (H * SCALE);
-    // prevent scrolling so that we can use touch events of navigation
-    c.style.cssText = "touch-action: none;";
+        c.width = (W * SCALE);
+        c.height = (H * SCALE);
+        // prevent scrolling so that we can use touch events of navigation
+        c.style.cssText = "touch-action: none;";
+
+        draw(initial_state);
+    });
+
+    stompClient.register([
+        {route: '/topic/update', callback: draw},
+    ]);
 
     pause();
 
@@ -38,19 +48,17 @@ const init = async() =>  {
     console.log("Speed up with e and down with q.");
     console.log("Pause with p.");
     console.log("Start new with r.");
-
-    return initial_state;
 }
-init().then(state => draw(state));
 
-const move = async(dir) =>  {
-    const response = await fetch("/api/" + ID + "/move/" + dir, {
+init();
+
+const move = (dir) =>  {
+    return fetch("/api/" + ID + "/move/" + dir, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         }
-    });
-    return await response.json();
+    }).then(response => response.json());
 }
 
 // listen for keypresses
@@ -92,7 +100,7 @@ document.onkeydown = function(e) {
             toggle_pause();
             break;
         case "KeyR":
-            init().then(state => draw(state));
+            init();
             break;
     }
 }
@@ -117,14 +125,14 @@ document.ontouchmove = function (evt) {
     // only handle the event, if the swipe started or ended in the canvas
     let r = c.getBoundingClientRect();
     if(
-               xUp - r.left > 0
-            && yUp - r.top > 0
-            && xUp - r.right < 0
-            && yUp - r.bottom < 0
+        xUp - r.left > 0
+        && yUp - r.top > 0
+        && xUp - r.right < 0
+        && yUp - r.bottom < 0
         ||     xDown - r.left > 0
-            && yDown - r.top > 0
-            && xDown - r.right < 0
-            && yDown - r.bottom < 0) {
+        && yDown - r.top > 0
+        && xDown - r.right < 0
+        && yDown - r.bottom < 0) {
         // we are inside, just pass
     } else {
         // do not steer if the event was outside
@@ -191,6 +199,8 @@ function loop(speed) {
 }
 
 function draw(state) {
+    console.log("draw!", state);
+
     ctx.fillStyle = BG_COLOR;
     ctx.fillRect(0, 0, W*SCALE, H*SCALE);
 
