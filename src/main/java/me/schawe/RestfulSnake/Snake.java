@@ -39,13 +39,12 @@ public class Snake {
         return tail;
     }
 
-    Snake(int idx){
-        lastHeadDirection = Move.up;
-        headDirection = Move.up;
-        head = new Coordinate(4, 4);
+    Snake(int idx, Coordinate start){
+        Move dir = Move.random();
+        lastHeadDirection = dir;
+        headDirection = dir;
+        head = start;
         tail = new ArrayDeque<>();
-        tail.add(new Coordinate(4, 6));
-        tail.add(new Coordinate(4, 5));
         length = 2;
         this.idx = idx;
         dead = false;

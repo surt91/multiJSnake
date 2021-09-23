@@ -45,4 +45,19 @@ public enum Move {
         }
         return offset;
     }
+
+    public static Move random() {
+        double r = 4. * Math.random();
+        if(r < 1) {
+            return Move.up;
+        } else if (r < 2) {
+            return  Move.down;
+        } else if (r < 3) {
+            return  Move.left;
+        } else if (r < 4) {
+            return  Move.right;
+        }
+        // this will not happen
+        return Move.up;
+    }
 }

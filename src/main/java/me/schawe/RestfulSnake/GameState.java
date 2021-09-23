@@ -20,7 +20,7 @@ public class GameState {
         height = 10;
         score = 0;
         snakes = new ArrayList<>();
-        snakes.add(new Snake(0));
+        snakes.add(new Snake(0, randomSite()));
         add_food();
         paused = true;
         gameOver = false;
@@ -70,7 +70,7 @@ public class GameState {
 
     public int addSnake() {
         int idx = snakes.size();
-        snakes.add(new Snake(idx));
+        snakes.add(new Snake(idx, randomSite()));
         return idx;
     }
 
