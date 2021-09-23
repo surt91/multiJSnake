@@ -9,19 +9,10 @@ public enum Move {
     down;
 
     public boolean isOpposite(Move other) {
-        if(this==left && other == right) {
-            return true;
-        }
-        if(this==right && other == left) {
-            return true;
-        }
-        if(this==up && other == down) {
-            return true;
-        }
-        if(this==down && other == up) {
-            return true;
-        }
-        return false;
+        return this == left && other == right
+                || this == right && other == left
+                || this == up && other == down
+                || this == down && other == up;
     }
 
     public Optional<Move> toNext(Move previous) {
