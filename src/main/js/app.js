@@ -1,19 +1,19 @@
+let stompClient = require('./websocket-listener');
+import {random_color} from "./color.js";
+
+// global variables for some state.
+// FIXME: maybe I should put this in a class or something
 const SCALE = 20;
 const FOOD = "#cc2200";
 const BG_COLOR = "#000";
-// let SPEED = 200;  // speed: 200 -> 5 steps per second
 let paused = true;
 
-let c = document.getElementById("restfulsnake");
+const c = document.getElementById("restfulsnake");
 let ctx = c.getContext("2d");
 let W;
 let H;
 let ID;
 let SNAKE_ID;
-// let next_move = "up";
-
-var stompClient = require('./websocket-listener');
-import {random_color} from "./color.js";
 
 function init() {
     // check if we are joining an existing game, or starting a new one
@@ -41,36 +41,35 @@ function init() {
 
     // initialization
     promise
-    .then(response => response.json())
-    .then((json) => {
-        console.log(json);
-        // FIXME: if the id does not exist, we need to show an error
-        let {snakeId, state} = json;
-        console.log(state);
-        W = state.width;
-        H = state.height;
-        ID = state.id;
-        SNAKE_ID = snakeId;
+        .then(response => response.json())
+        .then((json) => {
+            console.log(json);
+            // FIXME: if the id does not exist, we need to show an error
+            let {snakeId, state} = json;
+            console.log(state);
+            W = state.width;
+            H = state.height;
+            ID = state.id;
+            SNAKE_ID = snakeId;
 
-        let url = window.location.origin + `?id=${ID}`;
-        document.getElementById("share").innerHTML = `Share this link for others to join: ${url}`;
+            let url = window.location.origin + `?id=${ID}`;
+            document.getElementById("share").innerHTML = `Share this link for others to join: ${url}`;
 
-        c.width = (W * SCALE);
-        c.height = (H * SCALE);
-        // prevent scrolling so that we can use touch events of navigation
-        c.style.cssText = "touch-action: none;";
+            c.width = (W * SCALE);
+            c.height = (H * SCALE);
+            // prevent scrolling so that we can use touch events of navigation
+            c.style.cssText = "touch-action: none;";
 
-        pause();
-        draw(state);
+            pause();
+            draw(state);
 
-        stompClient.register([
-            {route: '/topic/update/' + ID, callback: drawWebSocket},
-        ]);
-    });
+            stompClient.register([
+                {route: '/topic/update/' + ID, callback: drawWebSocket},
+            ]);
+        });
 
     console.log("Welcome to RestfulSnake!");
     console.log("Steer with WSAD and have some fun!");
-    console.log("Speed up with e and down with q.");
     console.log("Pause with p.");
     console.log("Start new with r.");
 }
