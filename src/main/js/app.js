@@ -156,7 +156,7 @@ document.onkeydown = function(e) {
             toggle_pause();
             break;
         case "KeyR":
-            init();
+            reset();
             break;
     }
 }
@@ -219,33 +219,32 @@ document.ontouchmove = function (evt) {
     yDown = null;
 };
 
+function reset() {
+    fetch("/api/" + ID + "/reset", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    }).then(response => response.json())
+    .then(state => draw(state));
+}
+
 function unpause() {
-    if(paused) {
-        paused = false;
-        fetch("/api/" + ID + "/unpause", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-    }
+    fetch("/api/" + ID + "/unpause", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
 }
 
 function pause() {
-    if(!paused) {
-        fetch("/api/" + ID + "/pause", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-        paused = true;
-
-        ctx.fillStyle = "#aaaaaa";
-        ctx.font = "30px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("Paused", W*SCALE/2, H*SCALE/2);
-    }
+    fetch("/api/" + ID + "/pause", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
 }
 
 function toggle_pause() {
@@ -298,6 +297,16 @@ function draw(state) {
     ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE);
 
     state.snakes.forEach(snake => drawSnake(snake, random_color(snake.idx)));
+
+    if(state.paused) {
+        paused = true;
+        ctx.fillStyle = "#aaaaaa";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Paused", W*SCALE/2, H*SCALE/2);
+    } else {
+        paused = false;
+    }
 
     if(state.gameOver) {
         ctx.fillStyle = "#aaaaaa";

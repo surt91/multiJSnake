@@ -49,4 +49,14 @@ public class Snake {
         this.idx = idx;
         dead = false;
     }
+
+    public void reset(Coordinate start) {
+        Move dir = Move.random();
+        lastHeadDirection = dir;
+        headDirection = dir;
+        head = start;
+        tail = new ArrayDeque<>();
+        length = 2;
+        dead = false;
+    }
 }

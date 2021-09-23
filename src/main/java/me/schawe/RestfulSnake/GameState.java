@@ -96,6 +96,16 @@ public class GameState {
         snakes.get(idx).headDirection = move.toNext(snakes.get(idx).lastHeadDirection).orElse(snakes.get(idx).headDirection);
     }
 
+    public void reset() {
+        for(Snake snake : snakes) {
+            snake.reset(randomSite());
+        }
+        score = 0;
+        add_food();
+        paused = true;
+        gameOver = false;
+    }
+
     public void update() {
         if(snakes.stream().allMatch(snake -> snake.dead)) {
             gameOver = true;
