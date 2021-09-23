@@ -271,5 +271,12 @@ function draw(state) {
         ctx.fillText("Game Over!", W*SCALE/2, H*SCALE/2);
     }
 
-    document.getElementById("score").innerHTML = `Score: ${state.score}`;
+    document.getElementById("score").replaceChildren();
+    state.snakes.forEach(snake => {
+        let li = document.createElement("LI");
+        let textnode = document.createTextNode(`Player ${snake.idx}: Length: ${snake.length}`);
+        li.appendChild(textnode);
+        li.style = "background-color: " + random_color(snake.idx);
+        document.getElementById("score").appendChild(li);
+    })
 }
