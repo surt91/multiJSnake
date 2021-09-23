@@ -205,19 +205,19 @@ function draw(state) {
     ctx.fillStyle = COLOR;
     x = state.snake.head.x;
     y = state.snake.head.y;
-    if(state.snake.head_direction === "right") {
+    if(state.snake.headDirection === "right") {
         ctx.fillRect(x*SCALE, y*SCALE, SCALE/2, SCALE);
         ctx.fillRect(x*SCALE+SCALE/2., y*SCALE+SCALE/4, SCALE/2., SCALE/2);
     }
-    if(state.snake.head_direction === "left") {
+    if(state.snake.headDirection === "left") {
         ctx.fillRect(x*SCALE+SCALE/2., y*SCALE, SCALE/2, SCALE);
         ctx.fillRect(x*SCALE, y*SCALE+SCALE/4, SCALE/2., SCALE/2);
     }
-    if(state.snake.head_direction === "down") {
+    if(state.snake.headDirection === "down") {
         ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE/2);
         ctx.fillRect(x*SCALE+SCALE/4., y*SCALE+SCALE/2, SCALE/2., SCALE/2);
     }
-    if(state.snake.head_direction === "up") {
+    if(state.snake.headDirection === "up") {
         ctx.fillRect(x*SCALE, y*SCALE+SCALE/2, SCALE, SCALE/2);
         ctx.fillRect(x*SCALE+SCALE/4., y*SCALE, SCALE/2., SCALE/2);
     }

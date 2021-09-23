@@ -1,5 +1,8 @@
 package me.schawe.RestfulSnake;
 
+import java.lang.annotation.Retention;
+import java.util.Optional;
+
 public enum Move {
     left,
     right,
@@ -22,14 +25,14 @@ public enum Move {
         return false;
     }
 
-    public Move toNext(Move previous) {
-        // do not turn by 180 degree, instead continue previous move
+    public Optional<Move> toNext(Move previous) {
+        // do not turn by 180 degree
         Move next = this;
         if(isOpposite(previous)) {
-            next = previous;
+            return Optional.empty();
         }
 
-        return next;
+        return Optional.of(next);
     }
 
     public Coordinate toCoord() {

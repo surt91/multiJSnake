@@ -4,7 +4,8 @@ import java.util.ArrayDeque;
 
 public class Snake {
     Coordinate head;
-    Move head_direction;
+    Move headDirection;
+    Move lastHeadDirection;
     ArrayDeque<Coordinate> tail;
     int length;
     boolean dead;
@@ -13,8 +14,12 @@ public class Snake {
         return head;
     }
 
-    public Move getHead_direction() {
-        return head_direction;
+    public Move getHeadDirection() {
+        return headDirection;
+    }
+
+    public Move getLastHeadDirection() {
+        return lastHeadDirection;
     }
 
     public boolean isDead() {
@@ -30,7 +35,8 @@ public class Snake {
     }
 
     Snake(){
-        head_direction = Move.up;
+        lastHeadDirection = Move.up;
+        headDirection = Move.up;
         head = new Coordinate(4, 4);
         tail = new ArrayDeque<>();
         tail.add(new Coordinate(4, 6));

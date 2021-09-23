@@ -81,9 +81,7 @@ public class GameState {
     }
 
     public void turn(Move move) {
-        // FIXME: new field: last_head_direction, to avoid 180 degree turns
-        System.out.println(move);
-        snake.head_direction = move.toNext(snake.head_direction);
+        snake.headDirection = move.toNext(snake.lastHeadDirection).orElse(snake.headDirection);
     }
 
     public void update() {
@@ -91,7 +89,8 @@ public class GameState {
             return;
         }
 
-        Coordinate offset = snake.head_direction.toCoord();
+        Coordinate offset = snake.headDirection.toCoord();
+        snake.lastHeadDirection = snake.headDirection;
 
         snake.tail.add(snake.head.copy());
 
