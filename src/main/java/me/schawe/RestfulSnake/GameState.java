@@ -105,6 +105,10 @@ public class GameState {
         }
 
         for(Snake snake : snakes) {
+            if(snake.dead) {
+                continue;
+            }
+
             Coordinate offset = snake.headDirection.toCoord();
             snake.lastHeadDirection = snake.headDirection;
 
@@ -124,13 +128,11 @@ public class GameState {
                 snake.tail.remove();
             }
 
-            snake.head.add(offset);
-
-            for (Coordinate i : snake.tail) {
-                if (i.equals(snake.head)) {
-                    snake.dead = true;
-                }
+            if(occupied(snake.head.add(offset))) {
+                snake.dead = true;
             }
+
+            snake.head.addAssign(offset);
         }
     }
 }
