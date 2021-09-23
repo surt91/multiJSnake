@@ -9,6 +9,7 @@ public class GameState {
     Coordinate food;
     Snake snake;
     int score;
+    boolean paused;
 
     GameState() {
         id = gen_id();
@@ -17,6 +18,7 @@ public class GameState {
         score = 0;
         snake = new Snake();
         add_food();
+        paused = true;
     }
 
     public String getId() {
@@ -41,6 +43,10 @@ public class GameState {
 
     public Snake getSnake() {
         return snake;
+    }
+
+    public void setPause(boolean paused) {
+        this.paused = paused;
     }
 
 
@@ -75,12 +81,13 @@ public class GameState {
     }
 
     public void turn(Move move) {
-        Move next = move.toNext(snake.head_direction);
-        snake.head_direction = next;
+        // FIXME: new field: last_head_direction, to avoid 180 degree turns
+        System.out.println(move);
+        snake.head_direction = move.toNext(snake.head_direction);
     }
 
     public void update() {
-        if(snake.dead) {
+        if(snake.dead || paused) {
             return;
         }
 

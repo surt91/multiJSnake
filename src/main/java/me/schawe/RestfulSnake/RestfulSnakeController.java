@@ -2,11 +2,9 @@ package me.schawe.RestfulSnake;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-
 @RestController
 public class RestfulSnakeController {
-    private GameStateMap map;
+    private final GameStateMap map;
 
     RestfulSnakeController(GameStateMap map) {
         this.map = map;
@@ -20,31 +18,22 @@ public class RestfulSnakeController {
         return gameState;
     }
 
-    @PostMapping("/api/pause")
-    void pause() {
-        // TODO
-        //GameState gameState = new GameState();
-        //map.put(gameState.id, gameState);
-
-        //return gameState;
+    @PostMapping("/api/{id}/pause")
+    void pause(@PathVariable String id) {
+        GameState gameState = map.get(id);
+        gameState.setPause(true);
     }
 
-    @PostMapping("/api/unpause")
-    void unpause() {
-        // TODO
-        //GameState gameState = new GameState();
-        //map.put(gameState.id, gameState);
-
-        //return gameState;
+    @PostMapping("/api/{id}/unpause")
+    void unpause(@PathVariable String id) {
+        GameState gameState = map.get(id);
+        gameState.setPause(false);
     }
 
     @PostMapping("/api/{id}/move/{move}")
     GameState move_step(@PathVariable String id, @PathVariable Move move) {
-        if(!map.containsKey(id)) {
-            throw new InvalidMapException(id);
-        }
         GameState gameState = map.get(id);
-        // gameState.update(move);
+        gameState.turn(move);
 
         return gameState;
     }

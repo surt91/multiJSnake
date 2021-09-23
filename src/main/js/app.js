@@ -36,11 +36,9 @@ const init = () =>  {
         draw(initial_state);
 
         stompClient.register([
-            {route: '/topic/update' + ID, callback: drawWebSocket},
+            {route: '/topic/update/' + ID, callback: drawWebSocket},
         ]);
     });
-
-
 
     pause();
 
@@ -67,22 +65,22 @@ document.onkeydown = function(e) {
     switch(e.code) {
         case "ArrowUp":
         case "KeyW":
-            next_move = "up";
+            move("up");
             unpause();
             break;
         case "ArrowDown":
         case "KeyS":
-            next_move = "down";
+            move("down");
             unpause();
             break;
         case "ArrowLeft":
         case "KeyA":
-            next_move = "left";
+            move("left");
             unpause();
             break;
         case "ArrowRight":
         case "KeyD":
-            next_move = "right";
+            move("right");
             unpause();
             break;
         case "KeyP":
@@ -155,7 +153,7 @@ document.ontouchmove = function (evt) {
 function unpause() {
     if(paused) {
         paused = false;
-        fetch("/api/unpause", {
+        fetch("/api/" + ID + "/unpause", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -166,7 +164,7 @@ function unpause() {
 
 function pause() {
     if(!paused) {
-        fetch("/api/pause", {
+        fetch("/api/" + ID + "/pause", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

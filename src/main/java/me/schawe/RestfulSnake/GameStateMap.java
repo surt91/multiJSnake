@@ -11,15 +11,15 @@ public class GameStateMap {
     private final HashMap<String, GameState> map = new HashMap<>();
 
     GameState get(String id) {
+        if(!map.containsKey(id)) {
+            throw new InvalidMapException(id);
+        }
+
         return map.get(id);
     }
 
     void put(String id, GameState state) {
         map.put(id, state);
-    }
-
-    boolean containsKey(String id) {
-        return map.containsKey(id);
     }
 
     public Set<String> allIds() {
