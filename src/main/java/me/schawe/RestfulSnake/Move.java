@@ -1,6 +1,5 @@
 package me.schawe.RestfulSnake;
 
-import java.lang.annotation.Retention;
 import java.util.Optional;
 
 public enum Move {
