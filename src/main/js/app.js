@@ -12,50 +12,8 @@ let ID;
 let SNAKE_ID;
 // let next_move = "up";
 
-var stompClient = require('./websocket-listener')
-
-// https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
-function hsv_to_rgb(h, s, v) {
-    const h_i = Math.floor(h*6);
-    const f = h*6 - h_i;
-    const p = v * (1 - s);
-    const q = v * (1 - f*s);
-    const t = v * (1 - (1 - f) * s);
-    let r, g, b;
-    if(h_i===0) {
-        [r, g, b] = [v, t, p];
-    } else if(h_i===1) {
-        [r, g, b] = [q, v, p];
-    } else if(h_i===2) {
-        [r, g, b] = [p, v, t];
-    } else if(h_i===3) {
-        [r, g, b] = [p, q, v];
-    } else if(h_i===4) {
-        [r, g, b] = [t, p, v];
-    } else if(h_i===5) {
-        [r, g, b] = [v, p, q];
-    }
-
-    function componentToHex(c) {
-        var hex = c.toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-    }
-
-    function rgbToHex(r, g, b) {
-        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-    }
-
-    return rgbToHex(Math.floor(r*256), Math.floor(g*256), Math.floor(b*256));
-}
-
-function random_color(n) {
-    const GOLDEN_RATIO_CONJUGATE = 0.618033988749895
-    const HUE = 0.3;
-
-    let h = HUE + GOLDEN_RATIO_CONJUGATE * n;
-    h -= Math.floor(h);
-    return hsv_to_rgb(h, 0.5, 0.95)
-}
+var stompClient = require('./websocket-listener');
+import {random_color} from "./color.js";
 
 function init() {
     // check if we are joining an existing game, or starting a new one
@@ -102,14 +60,13 @@ function init() {
         // prevent scrolling so that we can use touch events of navigation
         c.style.cssText = "touch-action: none;";
 
+        pause();
         draw(state);
 
         stompClient.register([
             {route: '/topic/update/' + ID, callback: drawWebSocket},
         ]);
     });
-
-    pause();
 
     console.log("Welcome to RestfulSnake!");
     console.log("Steer with WSAD and have some fun!");
@@ -120,13 +77,13 @@ function init() {
 
 init();
 
-const move = (dir) =>  {
-    return fetch("/api/" + ID + "/" + SNAKE_ID + "/move/" + dir, {
+function move(dir) {
+    fetch("/api/" + ID + "/" + SNAKE_ID + "/move/" + dir, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         }
-    }).then(response => response.json());
+    });
 }
 
 // listen for keypresses
@@ -201,15 +158,15 @@ document.ontouchmove = function (evt) {
     // which component is longer
     if(Math.abs(xDiff) > Math.abs(yDiff)) {
         if ( xDiff > 0 ) {
-            next_move = "left";
+            move("left");
         } else {
-            next_move = "right";
+            move("right");
         }
     } else {
         if(yDiff > 0) {
-            next_move = "up";
+            move("up");
         } else {
-            next_move = "down";
+            move("down");
         }
     }
 
@@ -261,8 +218,8 @@ function drawWebSocket(message) {
 
 function drawSnake(snake, color) {
     ctx.fillStyle = color;
-    x = snake.head.x;
-    y = snake.head.y;
+    let x = snake.head.x;
+    let y = snake.head.y;
     if(snake.headDirection === "right") {
         ctx.fillRect(x*SCALE, y*SCALE, SCALE/2, SCALE);
         ctx.fillRect(x*SCALE+SCALE/2., y*SCALE+SCALE/4, SCALE/2., SCALE/2);
