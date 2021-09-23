@@ -20,7 +20,7 @@ public class GameState {
         height = 10;
         score = 0;
         snakes = new ArrayList<>();
-        snakes.add(new Snake());
+        snakes.add(new Snake(0));
         add_food();
         paused = true;
         gameOver = false;
@@ -69,8 +69,9 @@ public class GameState {
     }
 
     public int addSnake() {
-        snakes.add(new Snake());
-        return snakes.size() - 1;
+        int idx = snakes.size();
+        snakes.add(new Snake(idx));
+        return idx;
     }
 
     private boolean occupied(Coordinate site) {

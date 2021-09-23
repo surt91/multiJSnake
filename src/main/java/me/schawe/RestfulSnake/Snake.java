@@ -8,6 +8,7 @@ public class Snake {
     Move lastHeadDirection;
     ArrayDeque<Coordinate> tail;
     int length;
+    int idx;
     boolean dead;
 
     public Coordinate getHead() {
@@ -30,11 +31,15 @@ public class Snake {
         return length;
     }
 
+    public int getIdx() {
+        return idx;
+    }
+
     public ArrayDeque<Coordinate> getTail() {
         return tail;
     }
 
-    Snake(){
+    Snake(int idx){
         lastHeadDirection = Move.up;
         headDirection = Move.up;
         head = new Coordinate(4, 4);
@@ -42,6 +47,7 @@ public class Snake {
         tail.add(new Coordinate(4, 6));
         tail.add(new Coordinate(4, 5));
         length = 2;
+        this.idx = idx;
         dead = false;
     }
 }
