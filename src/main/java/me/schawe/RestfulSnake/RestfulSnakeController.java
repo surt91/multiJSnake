@@ -2,6 +2,8 @@ package me.schawe.RestfulSnake;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+
 @RestController
 public class RestfulSnakeController {
     private final GameStateMap map;
@@ -11,11 +13,19 @@ public class RestfulSnakeController {
     }
 
     @PostMapping("/api/init")
-    GameState init() {
+    WrapIdAndState init() {
         GameState gameState = new GameState();
         map.put(gameState.id, gameState);
 
-        return gameState;
+        return new WrapIdAndState(0, gameState);
+    }
+
+    @PostMapping("/api/{id}/join")
+    WrapIdAndState join(@PathVariable String id) {
+        GameState gameState = map.get(id);
+        int idx = gameState.addSnake();
+
+        return new WrapIdAndState(idx, gameState);
     }
 
     @PostMapping("/api/{id}/pause")

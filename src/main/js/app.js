@@ -10,30 +10,57 @@ let ctx = c.getContext("2d");
 let W;
 let H;
 let ID;
+let SNAKE_ID;
 let next_move = "up";
 
 var stompClient = require('./websocket-listener')
 
-const init = () =>  {
+function init() {
+    // check if we are joining an existing game, or starting a new one
+    // https://stackoverflow.com/a/901144
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
+
+    const id = params["id"];
+    let promise;
+    if(id === undefined) {
+        promise = fetch("/api/init", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+    } else {
+        promise = fetch("/api/" + id + "/join", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+    }
+
     // initialization
-    fetch("/api/init", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    }).then(response => response.json()
-    ).then(initial_state => {
-        console.log(initial_state);
-        W = initial_state.width;
-        H = initial_state.height;
-        ID = initial_state.id;
+    promise
+    .then(response => response.json())
+    .then((json) => {
+        console.log(json);
+        // TODO: if the id does not exist, we need to show an error
+        let {snakeId, state} = json;
+        console.log(state);
+        W = state.width;
+        H = state.height;
+        ID = state.id;
+        SNAKE_ID = snakeId;
+
+        let url = window.location.origin + `?id=${ID}`;
+        document.getElementById("share").innerHTML = `Share this link for others to join: ${url}`;
 
         c.width = (W * SCALE);
         c.height = (H * SCALE);
         // prevent scrolling so that we can use touch events of navigation
         c.style.cssText = "touch-action: none;";
 
-        draw(initial_state);
+        draw(state);
 
         stompClient.register([
             {route: '/topic/update/' + ID, callback: drawWebSocket},
@@ -52,7 +79,7 @@ const init = () =>  {
 init();
 
 const move = (dir) =>  {
-    return fetch("/api/" + ID + "/" + "0" + "/move/" + dir, {
+    return fetch("/api/" + ID + "/" + SNAKE_ID + "/move/" + dir, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
