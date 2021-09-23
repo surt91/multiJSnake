@@ -52,7 +52,7 @@ const init = () =>  {
 init();
 
 const move = (dir) =>  {
-    return fetch("/api/" + ID + "/move/" + dir, {
+    return fetch("/api/" + ID + "/" + "0" + "/move/" + dir, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -191,6 +191,32 @@ function drawWebSocket(message) {
     draw(JSON.parse(message.body))
 }
 
+function drawSnake(snake, color) {
+    ctx.fillStyle = color;
+    x = snake.head.x;
+    y = snake.head.y;
+    if(snake.headDirection === "right") {
+        ctx.fillRect(x*SCALE, y*SCALE, SCALE/2, SCALE);
+        ctx.fillRect(x*SCALE+SCALE/2., y*SCALE+SCALE/4, SCALE/2., SCALE/2);
+    }
+    if(snake.headDirection === "left") {
+        ctx.fillRect(x*SCALE+SCALE/2., y*SCALE, SCALE/2, SCALE);
+        ctx.fillRect(x*SCALE, y*SCALE+SCALE/4, SCALE/2., SCALE/2);
+    }
+    if(snake.headDirection === "down") {
+        ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE/2);
+        ctx.fillRect(x*SCALE+SCALE/4., y*SCALE+SCALE/2, SCALE/2., SCALE/2);
+    }
+    if(snake.headDirection === "up") {
+        ctx.fillRect(x*SCALE, y*SCALE+SCALE/2, SCALE, SCALE/2);
+        ctx.fillRect(x*SCALE+SCALE/4., y*SCALE, SCALE/2., SCALE/2);
+    }
+
+    for(let seg of snake.tail) {
+        ctx.fillRect(seg.x*SCALE, seg.y*SCALE, SCALE, SCALE);
+    }
+}
+
 function draw(state) {
     console.log("draw!", state);
 
@@ -202,30 +228,7 @@ function draw(state) {
     let y = state.food.y;
     ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE);
 
-    ctx.fillStyle = COLOR;
-    x = state.snake.head.x;
-    y = state.snake.head.y;
-    if(state.snake.headDirection === "right") {
-        ctx.fillRect(x*SCALE, y*SCALE, SCALE/2, SCALE);
-        ctx.fillRect(x*SCALE+SCALE/2., y*SCALE+SCALE/4, SCALE/2., SCALE/2);
-    }
-    if(state.snake.headDirection === "left") {
-        ctx.fillRect(x*SCALE+SCALE/2., y*SCALE, SCALE/2, SCALE);
-        ctx.fillRect(x*SCALE, y*SCALE+SCALE/4, SCALE/2., SCALE/2);
-    }
-    if(state.snake.headDirection === "down") {
-        ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE/2);
-        ctx.fillRect(x*SCALE+SCALE/4., y*SCALE+SCALE/2, SCALE/2., SCALE/2);
-    }
-    if(state.snake.headDirection === "up") {
-        ctx.fillRect(x*SCALE, y*SCALE+SCALE/2, SCALE, SCALE/2);
-        ctx.fillRect(x*SCALE+SCALE/4., y*SCALE, SCALE/2., SCALE/2);
-    }
-
-    ctx.fillStyle = COLOR;
-    for(let seg of state.snake.tail) {
-        ctx.fillRect(seg.x*SCALE, seg.y*SCALE, SCALE, SCALE);
-    }
+    state.snakes.forEach(snake => drawSnake(snake, COLOR));
 
     if(state.gameOver) {
         ctx.fillStyle = "#aaaaaa";

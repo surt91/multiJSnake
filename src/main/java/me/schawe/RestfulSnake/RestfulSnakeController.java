@@ -30,10 +30,11 @@ public class RestfulSnakeController {
         gameState.setPause(false);
     }
 
-    @PostMapping("/api/{id}/move/{move}")
-    GameState move_step(@PathVariable String id, @PathVariable Move move) {
+    // We use just an index to identify the snake. This makes it very easy to cheat.
+    @PostMapping("/api/{id}/{idx}/move/{move}")
+    GameState move_step(@PathVariable String id, @PathVariable int idx, @PathVariable Move move) {
         GameState gameState = map.get(id);
-        gameState.turn(move);
+        gameState.turn(idx, move);
 
         return gameState;
     }

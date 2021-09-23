@@ -1,5 +1,7 @@
 package me.schawe.RestfulSnake;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class GameState {
@@ -7,7 +9,7 @@ public class GameState {
     int width;
     int height;
     Coordinate food;
-    Snake snake;
+    List<Snake> snakes;
     int score;
     boolean paused;
     boolean gameOver;
@@ -17,7 +19,8 @@ public class GameState {
         width = 10;
         height = 10;
         score = 0;
-        snake = new Snake();
+        snakes = new ArrayList<>();
+        snakes.add(new Snake());
         add_food();
         paused = true;
         gameOver = false;
@@ -43,14 +46,13 @@ public class GameState {
         return score;
     }
 
-    public Snake getSnake() {
-        return snake;
+    public List<Snake> getSnakes() {
+        return snakes;
     }
 
     public void setPause(boolean paused) {
         this.paused = paused;
     }
-
 
     public static String gen_id() {
         // https://www.baeldung.com/java-random-string
@@ -66,8 +68,15 @@ public class GameState {
                 .toString();
     }
 
+    public int addSnake() {
+        snakes.add(new Snake());
+        return snakes.size() - 1;
+    }
+
     private boolean occupied(Coordinate site) {
-        return snake.tail.stream().anyMatch(c -> c.equals(site)) || snake.head.equals(site);
+        return snakes.stream().anyMatch(snake ->
+            snake.tail.stream().anyMatch(c -> c.equals(site)) || snake.head.equals(site)
+        );
     }
 
     private Coordinate randomSite() {
@@ -82,12 +91,12 @@ public class GameState {
         food = randomSite();
     }
 
-    public void turn(Move move) {
-        snake.headDirection = move.toNext(snake.lastHeadDirection).orElse(snake.headDirection);
+    public void turn(int idx, Move move) {
+        snakes.get(idx).headDirection = move.toNext(snakes.get(idx).lastHeadDirection).orElse(snakes.get(idx).headDirection);
     }
 
     public void update() {
-        if(snake.dead) {
+        if(snakes.stream().allMatch(snake -> snake.dead)) {
             gameOver = true;
         }
 
@@ -95,30 +104,32 @@ public class GameState {
             return;
         }
 
-        Coordinate offset = snake.headDirection.toCoord();
-        snake.lastHeadDirection = snake.headDirection;
+        for(Snake snake : snakes) {
+            Coordinate offset = snake.headDirection.toCoord();
+            snake.lastHeadDirection = snake.headDirection;
 
-        snake.tail.add(snake.head.copy());
+            snake.tail.add(snake.head.copy());
 
-        if(snake.head.x < 0 || snake.head.x >= width || snake.head.y < 0 || snake.head.y >= height) {
-            snake.dead = true;
-        }
-
-        if(snake.head.equals(food)) {
-            snake.length += 1;
-            score += 1;
-            add_food();
-        }
-
-        while(snake.tail.size() >= snake.length + 1) {
-            snake.tail.remove();
-        }
-
-        snake.head.add(offset);
-
-        for(Coordinate i : snake.tail) {
-            if (i.equals(snake.head)) {
+            if (snake.head.x < 0 || snake.head.x >= width || snake.head.y < 0 || snake.head.y >= height) {
                 snake.dead = true;
+            }
+
+            if (snake.head.equals(food)) {
+                snake.length += 1;
+                score += 1;
+                add_food();
+            }
+
+            while (snake.tail.size() >= snake.length + 1) {
+                snake.tail.remove();
+            }
+
+            snake.head.add(offset);
+
+            for (Coordinate i : snake.tail) {
+                if (i.equals(snake.head)) {
+                    snake.dead = true;
+                }
             }
         }
     }
