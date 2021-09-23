@@ -227,7 +227,7 @@ function draw(state) {
         ctx.fillRect(seg.x*SCALE, seg.y*SCALE, SCALE, SCALE);
     }
 
-    if(state.snake.dead) {
+    if(state.gameOver) {
         ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";

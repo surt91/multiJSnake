@@ -10,6 +10,7 @@ public class GameState {
     Snake snake;
     int score;
     boolean paused;
+    boolean gameOver;
 
     GameState() {
         id = gen_id();
@@ -19,6 +20,7 @@ public class GameState {
         snake = new Snake();
         add_food();
         paused = true;
+        gameOver = false;
     }
 
     public String getId() {
@@ -85,7 +87,11 @@ public class GameState {
     }
 
     public void update() {
-        if(snake.dead || paused) {
+        if(snake.dead) {
+            gameOver = true;
+        }
+
+        if(gameOver || paused) {
             return;
         }
 

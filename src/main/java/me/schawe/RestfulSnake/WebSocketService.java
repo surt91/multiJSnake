@@ -27,8 +27,10 @@ public class WebSocketService {
         for (String id : ids) {
             GameState gameState = map.get(id);
             gameState.update();
-            this.websocket.convertAndSend(
-                    MESSAGE_PREFIX + "/update/" + id, gameState);
+            if(!gameState.gameOver && !gameState.paused) {
+                this.websocket.convertAndSend(
+                        MESSAGE_PREFIX + "/update/" + id, gameState);
+            }
         }
     }
 }
