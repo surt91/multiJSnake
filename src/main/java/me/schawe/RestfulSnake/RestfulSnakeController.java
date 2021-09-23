@@ -1,5 +1,6 @@
 package me.schawe.RestfulSnake;
 
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -48,10 +49,9 @@ public class RestfulSnakeController {
         return gameState;
     }
 
-    // We use just an index to identify the snake. This makes it very easy to cheat.
-    @PostMapping("/api/{id}/{idx}/move/{move}")
-    void move_step(@PathVariable String id, @PathVariable int idx, @PathVariable Move move) {
-        GameState gameState = map.get(id);
-        gameState.turn(idx, move);
+    @MessageMapping("/move")
+    public void send(WrapMove move) throws Exception {
+        GameState gameState = map.get(move.getId());
+        gameState.turn(move.getIdx(), move.getMove());
     }
 }

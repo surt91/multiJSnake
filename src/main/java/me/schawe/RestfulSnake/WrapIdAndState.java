@@ -1,8 +1,8 @@
 package me.schawe.RestfulSnake;
 
 public class WrapIdAndState {
-    private int snakeId;
-    private GameState state;
+    private final int snakeId;
+    private final GameState state;
 
     public WrapIdAndState(int snakeId, GameState state) {
         this.snakeId = snakeId;

@@ -1,5 +1,7 @@
-let stompClient = require('./websocket-listener');
+const SockJS = require('sockjs-client');
+require('stompjs');
 import {random_color} from "./color.js";
+
 
 // global variables for some state.
 // FIXME: maybe I should put this in a class or something
@@ -8,12 +10,23 @@ const FOOD = "#cc2200";
 const BG_COLOR = "#000";
 let paused = true;
 
+let stompClient;
 const c = document.getElementById("restfulsnake");
 let ctx = c.getContext("2d");
 let W;
 let H;
 let ID;
 let SNAKE_ID;
+
+export function registerStomp(registrations) {
+    const socket = SockJS('/dynamic');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function(frame) {
+        registrations.forEach(function (registration) {
+            stompClient.subscribe(registration.route, registration.callback);
+        });
+    });
+}
 
 function init() {
     // check if we are joining an existing game, or starting a new one
@@ -63,7 +76,7 @@ function init() {
             pause();
             draw(state);
 
-            stompClient.register([
+            registerStomp([
                 {route: '/topic/update/' + ID, callback: drawWebSocket},
             ]);
         });
@@ -77,12 +90,7 @@ function init() {
 init();
 
 function move(dir) {
-    fetch("/api/" + ID + "/" + SNAKE_ID + "/move/" + dir, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    });
+    stompClient.send("/app/move", {}, JSON.stringify({id: ID, idx: SNAKE_ID, move: dir}));
 }
 
 // listen for keypresses
