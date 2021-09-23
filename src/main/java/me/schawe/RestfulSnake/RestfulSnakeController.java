@@ -29,20 +29,20 @@ public class RestfulSnakeController {
         return new WrapIdAndState(idx, gameState);
     }
 
-    @PostMapping("/api/{id}/pause")
-    void pause(@PathVariable String id) {
+    @MessageMapping("/pause")
+    void pause(String id) {
         GameState gameState = map.get(id);
         gameState.setPause(true);
     }
 
-    @PostMapping("/api/{id}/unpause")
-    void unpause(@PathVariable String id) {
+    @MessageMapping("/unpause")
+    void unpause(String id) {
         GameState gameState = map.get(id);
         gameState.setPause(false);
     }
 
-    @PostMapping("/api/{id}/reset")
-    GameState reset(@PathVariable String id) {
+    @MessageMapping("/reset")
+    GameState reset(String id) {
         GameState gameState = map.get(id);
         gameState.reset();
 

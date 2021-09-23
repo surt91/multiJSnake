@@ -73,7 +73,7 @@ function init() {
             // prevent scrolling so that we can use touch events of navigation
             c.style.cssText = "touch-action: none;";
 
-            pause();
+            paused = true;
             draw(state);
 
             registerStomp([
@@ -184,31 +184,15 @@ document.ontouchmove = function (evt) {
 };
 
 function reset() {
-    fetch("/api/" + ID + "/reset", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    }).then(response => response.json())
-    .then(state => draw(state));
+    stompClient.send("/app/reset", {}, ID);
 }
 
 function unpause() {
-    fetch("/api/" + ID + "/unpause", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    });
+    stompClient.send("/app/unpause", {}, ID);
 }
 
 function pause() {
-    fetch("/api/" + ID + "/pause", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    });
+    stompClient.send("/app/pause", {}, ID);
 }
 
 function toggle_pause() {
