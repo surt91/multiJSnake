@@ -50,6 +50,14 @@ public class GameState {
         return snakes;
     }
 
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
     public void setPause(boolean paused) {
         this.paused = paused;
     }

@@ -22,15 +22,12 @@ public class WebSocketService {
 
     @Scheduled(fixedRate = 300)
     void distributeState() {
-        System.out.println("event!");
         Set<String> ids = map.allIds();
         for (String id : ids) {
             GameState gameState = map.get(id);
             gameState.update();
-            if(!gameState.gameOver && !gameState.paused) {
-                this.websocket.convertAndSend(
-                        MESSAGE_PREFIX + "/update/" + id, gameState);
-            }
+            this.websocket.convertAndSend(
+                    MESSAGE_PREFIX + "/update/" + id, gameState);
         }
     }
 }
