@@ -103,6 +103,10 @@ public class GameState {
         snakes.get(idx).headDirection = move.toNext(snakes.get(idx).lastHeadDirection).orElse(snakes.get(idx).headDirection);
     }
 
+    public void kill(int idx) {
+        snakes.get(idx).dead = true;
+    }
+
     public void reset() {
         for(Snake snake : snakes) {
             snake.reset(randomSite());
