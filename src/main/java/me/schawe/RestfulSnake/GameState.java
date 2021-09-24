@@ -20,7 +20,6 @@ public class GameState {
         this.height = height;
         score = 0;
         snakes = new ArrayList<>();
-        snakes.add(new Snake(0, randomSite()));
         add_food();
         paused = true;
         gameOver = false;

@@ -1,4 +1,4 @@
-import {registerStomp} from "./websocket-listener.js";
+import {registerStompPromise} from "./websocket-listener.js";
 import {idx2color, desaturized_idx2color} from "./color.js";
 
 // global variables for some state.
@@ -9,13 +9,14 @@ const BG_COLOR = "#000";
 
 let W = 10;
 let H = 10;
-let ID;
-let SNAKE_ID;
 let paused = true;
 
-let stompClient;
+let stompClientPromise;
 const c = document.getElementById("restfulsnake");
 let ctx = c.getContext("2d");
+
+// prevent scrolling so that we can use touch events of navigation
+c.style.cssText = "touch-action: none;";
 
 function init() {
     // check if we are joining an existing game, or starting a new one
@@ -24,67 +25,39 @@ function init() {
     const params = Object.fromEntries(urlSearchParams.entries());
 
     const id = params["id"];
-    let promise;
+
     if(id === undefined) {
-        promise = fetch("/api/init", {
+        fetch("/api/init", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             }
-        })
-    } else {
-        promise = fetch("/api/" + id + "/join", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-    }
-
-    // initialization
-    promise
-        .then(response => {
-            if(!response.ok) {
-                throw response;
-            } else {
-                return response.json();
-            }
-        })
-        .then((json) => {
-            let {snakeId, state} = json;
-            W = state.width;
-            H = state.height;
-            ID = state.id;
-            SNAKE_ID = snakeId;
-
-            let url = window.location.origin + `?id=${ID}`;
-            document.getElementById("share").innerHTML = `Share this link for others to join: ${url}`;
-
-            c.width = (W * SCALE);
-            c.height = (H * SCALE);
-            // prevent scrolling so that we can use touch events of navigation
-            c.style.cssText = "touch-action: none;";
-
-            paused = true;
-            draw(state);
-
-            stompClient = registerStomp([
-                {route: '/topic/update/' + ID, callback: drawWebSocket},
-            ]);
-        })
-        .catch((error) => {
-            error.json()
-                .then(x => {
-                    drawError(x.error);
-                    console.log("found error:", x.error);
-                });
+        }).then(response => response.json())
+        .then((state) => {
+            join(state.id);
         });
+    } else {
+        join(id);
+    }
 }
 
 init();
 
+function join(id) {
+    let url = window.location.origin + `?id=${id}`;
+    document.getElementById("share").innerHTML = `Share this link for others to join: ${url}`;
+
+    stompClientPromise = registerStompPromise([
+        {route: '/topic/update/' + id, callback: drawWebSocket},
+    ]).then(x => {
+        x.send("/app/join", {}, id);
+        console.log("stomp", x);
+        return x;
+    });
+}
+
 function move(dir) {
-    stompClient.send("/app/move", {}, JSON.stringify({id: ID, idx: SNAKE_ID, move: dir}));
+    stompClientPromise.then(x => x.send("/app/move", {}, JSON.stringify(dir)));
 }
 
 // listen for keypresses
@@ -178,18 +151,18 @@ document.ontouchmove = function (evt) {
 };
 
 function reset() {
-    stompClient.send("/app/reset", {}, ID);
+    stompClientPromise.then(x => x.send("/app/reset", {}, ""));
 }
 
 function unpause() {
     if(paused) {
-        stompClient.send("/app/unpause", {}, ID);
+        stompClientPromise.then(x => x.send("/app/unpause", {}, ""));
     }
 }
 
 function pause() {
     if(!paused) {
-        stompClient.send("/app/pause", {}, ID);
+        stompClientPromise.then(x => x.send("/app/pause", {}, ""));
     }
 }
 
@@ -240,6 +213,10 @@ function drawSnake(snake) {
 
 function draw(state) {
     console.log("draw!", state);
+    W = state.width;
+    H = state.height;
+    c.width = (W * SCALE);
+    c.height = (H * SCALE);
 
     ctx.fillStyle = BG_COLOR;
     ctx.fillRect(0, 0, W*SCALE, H*SCALE);

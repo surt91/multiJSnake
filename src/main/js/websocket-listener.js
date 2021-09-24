@@ -3,13 +3,15 @@
 const SockJS = require('sockjs-client');
 require('stompjs');
 
-export function registerStomp(registrations) {
-    const socket = SockJS('/dynamic');
-    let stompClient = Stomp.over(socket);
-    stompClient.connect({}, function(frame) {
-        registrations.forEach(function (registration) {
-            stompClient.subscribe(registration.route, registration.callback);
+export const registerStompPromise = (registrations) => {
+    return new Promise((resolve, _reject) => {
+        const socket = SockJS('/dynamic');
+        let stompClient = Stomp.over(socket);
+        stompClient.connect({}, (_frame) => {
+            registrations.forEach((registration) => {
+                stompClient.subscribe(registration.route, registration.callback);
+            });
+            resolve(stompClient);
         });
-    });
-    return stompClient;
+    })
 }

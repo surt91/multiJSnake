@@ -1,7 +1,10 @@
 package me.schawe.RestfulSnake;
 
+import org.springframework.context.event.EventListener;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.HashMap;
 
@@ -16,52 +19,56 @@ public class RestfulSnakeController {
     }
 
     @PostMapping("/api/init/{w}/{h}")
-    WrapIdAndState init(@PathVariable int w, @PathVariable int h) {
+    GameState init(@PathVariable int w, @PathVariable int h) {
         GameState gameState = new GameState(w, h);
         map.put(gameState.id, gameState);
-
-        return new WrapIdAndState(0, gameState);
-    }
-
-    @PostMapping("/api/init")
-    WrapIdAndState init() {
-        return init(10, 10);
-    }
-
-    @PostMapping("/api/{id}/join")
-    WrapIdAndState join(@PathVariable String id) {
-        GameState gameState = map.get(id);
-        int idx = gameState.addSnake();
-
-        return new WrapIdAndState(idx, gameState);
-    }
-
-    @MessageMapping("/pause")
-    void pause(String id) {
-        GameState gameState = map.get(id);
-        gameState.setPause(true);
-        webSocketService.manualUpdate(id);
-    }
-
-    @MessageMapping("/unpause")
-    void unpause(String id) {
-        GameState gameState = map.get(id);
-        gameState.setPause(false);
-        webSocketService.manualUpdate(id);
-    }
-
-    @MessageMapping("/reset")
-    GameState reset(String id) {
-        GameState gameState = map.get(id);
-        gameState.reset();
-        webSocketService.manualUpdate(id);
 
         return gameState;
     }
 
+    @PostMapping("/api/init")
+    GameState init() {
+        return init(10, 10);
+    }
+
+    @MessageMapping("/pause")
+    void pause(@Header("simpSessionId") String sessionId) {
+        SnakeId snakeId = map.session2id(sessionId);
+        GameState gameState = map.get((snakeId.id));
+        gameState.setPause(true);
+        webSocketService.manualUpdate((snakeId.id));
+    }
+
+    @MessageMapping("/unpause")
+    void unpause(@Header("simpSessionId") String sessionId) {
+        SnakeId snakeId = map.session2id(sessionId);
+        GameState gameState = map.get((snakeId.id));
+        gameState.setPause(false);
+        webSocketService.manualUpdate((snakeId.id));
+    }
+
+    @MessageMapping("/reset")
+    void reset(@Header("simpSessionId") String sessionId) {
+        SnakeId snakeId = map.session2id(sessionId);
+        GameState gameState = map.get((snakeId.id));
+        gameState.reset();
+        webSocketService.manualUpdate((snakeId.id));
+    }
+
+    @MessageMapping("/join")
+    void join(@Header("simpSessionId") String sessionId, String id) {
+        GameState gameState = map.get(id);
+        int idx = gameState.addSnake();
+
+        map.putSession(sessionId, new SnakeId(id, idx));
+
+        webSocketService.manualUpdate(id);
+    }
+
     @MessageMapping("/move")
-    public void send(WrapMove move) {
-        GameState gameState = map.get(move.getId());
-        gameState.turn(move.getIdx(), move.getMove());
+    void send(@Header("simpSessionId") String sessionId, Move move) {
+        SnakeId snakeId = map.session2id(sessionId);
+        GameState gameState = map.get(snakeId.id);
+        gameState.turn(snakeId.idx, move);
     }
 }
