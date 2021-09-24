@@ -51,9 +51,6 @@ function init() {
             }
         })
         .then((json) => {
-            console.log("initialize!");
-            console.log(json);
-            // FIXME: if the id does not exist, we need to show an error
             let {snakeId, state} = json;
             W = state.width;
             H = state.height;
@@ -185,11 +182,15 @@ function reset() {
 }
 
 function unpause() {
-    stompClient.send("/app/unpause", {}, ID);
+    if(paused) {
+        stompClient.send("/app/unpause", {}, ID);
+    }
 }
 
 function pause() {
-    stompClient.send("/app/pause", {}, ID);
+    if(!paused) {
+        stompClient.send("/app/pause", {}, ID);
+    }
 }
 
 function toggle_pause() {

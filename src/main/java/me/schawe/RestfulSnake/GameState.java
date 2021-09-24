@@ -14,10 +14,10 @@ public class GameState {
     boolean paused;
     boolean gameOver;
 
-    GameState() {
+    GameState(int width, int height) {
         id = gen_id();
-        width = 10;
-        height = 10;
+        this.width = width;
+        this.height = height;
         score = 0;
         snakes = new ArrayList<>();
         snakes.add(new Snake(0, randomSite()));
