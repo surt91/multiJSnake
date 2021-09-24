@@ -133,10 +133,6 @@ public class GameState {
 
             snake.tail.add(snake.head.copy());
 
-            if (snake.head.x < 0 || snake.head.x >= width || snake.head.y < 0 || snake.head.y >= height) {
-                snake.dead = true;
-            }
-
             if (snake.head.equals(food)) {
                 snake.length += 1;
                 score += 1;
@@ -152,6 +148,10 @@ public class GameState {
             }
 
             snake.head.addAssign(offset);
+
+            if (snake.head.x < 0 || snake.head.x >= width || snake.head.y < 0 || snake.head.y >= height) {
+                snake.dead = true;
+            }
         }
     }
 }
