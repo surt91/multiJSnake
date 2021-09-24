@@ -1,5 +1,5 @@
 import {registerStomp} from "./websocket-listener.js";
-import {random_color} from "./color.js";
+import {idx2color, desaturized_idx2color} from "./color.js";
 
 // global variables for some state.
 // FIXME: maybe I should put this in a class or something
@@ -205,7 +205,14 @@ function drawWebSocket(message) {
     draw(JSON.parse(message.body))
 }
 
-function drawSnake(snake, color) {
+function drawSnake(snake) {
+    let color;
+    if(snake.dead) {
+        color = desaturized_idx2color(snake.idx);
+    } else {
+        color = idx2color(snake.idx)
+    }
+
     ctx.fillStyle = color;
     let x = snake.head.x;
     let y = snake.head.y;
@@ -242,7 +249,7 @@ function draw(state) {
     let y = state.food.y;
     ctx.fillRect(x*SCALE, y*SCALE, SCALE, SCALE);
 
-    state.snakes.forEach(snake => drawSnake(snake, random_color(snake.idx)));
+    state.snakes.forEach(snake => drawSnake(snake));
 
     if(state.paused) {
         paused = true;
@@ -267,7 +274,7 @@ function draw(state) {
         let li = document.createElement("LI");
         let textnode = document.createTextNode(`Player ${snake.idx}: Length: ${snake.length}`);
         li.appendChild(textnode);
-        li.style = "background-color: " + random_color(snake.idx);
+        li.style = "background-color: " + idx2color(snake.idx);
         document.getElementById("score").appendChild(li);
     })
 }

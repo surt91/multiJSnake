@@ -33,11 +33,22 @@ function hsv_to_rgb(h, s, v) {
     return rgbToHex(Math.floor(r*256), Math.floor(g*256), Math.floor(b*256));
 }
 
-export function random_color(n) {
+function hue_from_idx(n) {
     const GOLDEN_RATIO_CONJUGATE = 0.618033988749895
     const HUE = 0.3;
 
     let h = HUE + GOLDEN_RATIO_CONJUGATE * n;
     h -= Math.floor(h);
-    return hsv_to_rgb(h, 0.5, 0.95)
+
+    return h;
+}
+
+export function idx2color(n) {
+    const h = hue_from_idx(n);
+    return hsv_to_rgb(h, 0.5, 0.95);
+}
+
+export function desaturized_idx2color(n) {
+    const h = hue_from_idx(n);
+    return hsv_to_rgb(h, 0.25, 0.75);
 }
