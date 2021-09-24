@@ -1,6 +1,7 @@
 package me.schawe.RestfulSnake;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -9,17 +10,19 @@ public class GameState {
     int width;
     int height;
     Coordinate food;
-    List<Snake> snakes;
+    HashMap<Integer, Snake> snakes;
     int score;
     boolean paused;
     boolean gameOver;
+    List<Integer> toBeRemoved;
 
     GameState(int width, int height) {
         id = gen_id();
         this.width = width;
         this.height = height;
         score = 0;
-        snakes = new ArrayList<>();
+        snakes = new HashMap<>();
+        toBeRemoved = new ArrayList<>();
         add_food();
         paused = true;
         gameOver = false;
@@ -46,7 +49,7 @@ public class GameState {
     }
 
     public List<Snake> getSnakes() {
-        return snakes;
+        return new ArrayList<>(snakes.values());
     }
 
     public boolean isPaused() {
@@ -77,12 +80,12 @@ public class GameState {
 
     public int addSnake() {
         int idx = snakes.size();
-        snakes.add(new Snake(idx, randomSite()));
+        snakes.put(idx, new Snake(idx, randomSite()));
         return idx;
     }
 
     private boolean occupied(Coordinate site) {
-        return snakes.stream().anyMatch(snake ->
+        return snakes.values().stream().anyMatch(snake ->
             snake.tail.stream().anyMatch(c -> c.equals(site)) || snake.head.equals(site)
         );
     }
@@ -107,8 +110,17 @@ public class GameState {
         snakes.get(idx).dead = true;
     }
 
+    public void markForRemoval(int idx) {
+        toBeRemoved.add(idx);
+    }
+
     public void reset() {
-        for(Snake snake : snakes) {
+        for(int key : toBeRemoved) {
+            snakes.remove(key);
+        }
+        toBeRemoved.clear();
+
+        for(Snake snake : snakes.values()) {
             snake.reset(randomSite());
         }
         score = 0;
@@ -118,7 +130,7 @@ public class GameState {
     }
 
     public void update() {
-        if(snakes.stream().allMatch(snake -> snake.dead)) {
+        if(snakes.values().stream().allMatch(snake -> snake.dead)) {
             gameOver = true;
         }
 
@@ -126,7 +138,7 @@ public class GameState {
             return;
         }
 
-        for(Snake snake : snakes) {
+        for(Snake snake : snakes.values()) {
             if(snake.dead) {
                 continue;
             }
