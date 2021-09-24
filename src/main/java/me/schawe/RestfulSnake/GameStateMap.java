@@ -2,12 +2,12 @@ package me.schawe.RestfulSnake;
 
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class GameStateMap {
-    private final HashMap<String, GameState> map = new HashMap<>();
+    private final ConcurrentHashMap<String, GameState> map = new ConcurrentHashMap<>();
 
     GameState get(String id) {
         if(!map.containsKey(id)) {
