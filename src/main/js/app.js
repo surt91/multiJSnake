@@ -7,8 +7,8 @@ const SCALE = 20;
 const FOOD = "#cc2200";
 const BG_COLOR = "#000";
 
-let W;
-let H;
+let W = 10;
+let H = 10;
 let ID;
 let SNAKE_ID;
 let paused = true;
@@ -43,12 +43,18 @@ function init() {
 
     // initialization
     promise
-        .then(response => response.json())
+        .then(response => {
+            if(!response.ok) {
+                throw response;
+            } else {
+                return response.json();
+            }
+        })
         .then((json) => {
+            console.log("initialize!");
             console.log(json);
             // FIXME: if the id does not exist, we need to show an error
             let {snakeId, state} = json;
-            console.log(state);
             W = state.width;
             H = state.height;
             ID = state.id;
@@ -68,12 +74,14 @@ function init() {
             stompClient = registerStomp([
                 {route: '/topic/update/' + ID, callback: drawWebSocket},
             ]);
+        })
+        .catch((error) => {
+            error.json()
+                .then(x => {
+                    drawError(x.error);
+                    console.log("found error:", x.error);
+                });
         });
-
-    console.log("Welcome to RestfulSnake!");
-    console.log("Steer with WSAD and have some fun!");
-    console.log("Pause with p.");
-    console.log("Start new with r.");
 }
 
 init();
@@ -261,4 +269,20 @@ function draw(state) {
         li.style = "background-color: " + random_color(snake.idx);
         document.getElementById("score").appendChild(li);
     })
+}
+
+function drawError(text) {
+    console.log("draw error!", text);
+    console.log(W, H);
+
+    ctx.fillStyle = BG_COLOR;
+    ctx.fillRect(0, 0, W*SCALE, H*SCALE);
+
+    ctx.fillStyle = "#aaaaaa";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(text, W*SCALE/2, H*SCALE/2);
+
+    let textnode = document.createTextNode(`Error: ${text}`);
+    document.getElementById("score").appendChild(textnode);
 }

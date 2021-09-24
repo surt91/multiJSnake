@@ -7,12 +7,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
-public class InvalidMapAdvice {
-
+public class ExceptionAdvice {
     @ResponseBody
     @ExceptionHandler(InvalidMoveException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    String invalidMapHandler(InvalidMoveException ex) {
-        return ex.getMessage();
+    ExceptionJson invalidMoveHandler(InvalidMoveException ex) {
+        return new ExceptionJson(ex.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(InvalidMapException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ExceptionJson invalidMapHandler(InvalidMapException ex) {
+        return new ExceptionJson(ex.getMessage());
     }
 }
