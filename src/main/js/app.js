@@ -1,32 +1,21 @@
-const SockJS = require('sockjs-client');
-require('stompjs');
+import {registerStomp} from "./websocket-listener.js";
 import {random_color} from "./color.js";
-
 
 // global variables for some state.
 // FIXME: maybe I should put this in a class or something
 const SCALE = 20;
 const FOOD = "#cc2200";
 const BG_COLOR = "#000";
+
+let W;
+let H;
+let ID;
+let SNAKE_ID;
 let paused = true;
 
 let stompClient;
 const c = document.getElementById("restfulsnake");
 let ctx = c.getContext("2d");
-let W;
-let H;
-let ID;
-let SNAKE_ID;
-
-export function registerStomp(registrations) {
-    const socket = SockJS('/dynamic');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function(frame) {
-        registrations.forEach(function (registration) {
-            stompClient.subscribe(registration.route, registration.callback);
-        });
-    });
-}
 
 function init() {
     // check if we are joining an existing game, or starting a new one
@@ -76,7 +65,7 @@ function init() {
             paused = true;
             draw(state);
 
-            registerStomp([
+            stompClient = registerStomp([
                 {route: '/topic/update/' + ID, callback: drawWebSocket},
             ]);
         });
@@ -263,6 +252,7 @@ function draw(state) {
         ctx.fillText("Game Over!", W*SCALE/2, H*SCALE/2);
     }
 
+    // show scores
     document.getElementById("score").replaceChildren();
     state.snakes.forEach(snake => {
         let li = document.createElement("LI");
