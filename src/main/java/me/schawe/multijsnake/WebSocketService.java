@@ -1,14 +1,13 @@
-package me.schawe.RestfulSnake;
+package me.schawe.multijsnake;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-import static me.schawe.RestfulSnake.WebSocketConfiguration.MESSAGE_PREFIX;
+import static me.schawe.multijsnake.WebSocketConfiguration.MESSAGE_PREFIX;
 
 @Component
 public class WebSocketService {

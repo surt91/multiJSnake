@@ -1,4 +1,4 @@
-package me.schawe.RestfulSnake;
+package me.schawe.multijsnake;
 
 import java.util.Optional;
 

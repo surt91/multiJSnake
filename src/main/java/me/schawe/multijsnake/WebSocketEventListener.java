@@ -1,4 +1,4 @@
-package me.schawe.RestfulSnake;
+package me.schawe.multijsnake;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package me.schawe.RestfulSnake;
+package me.schawe.multijsnake;
 
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.stereotype.Component;
