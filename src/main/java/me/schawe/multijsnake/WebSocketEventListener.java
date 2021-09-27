@@ -20,6 +20,6 @@ public class WebSocketEventListener {
         GameState gameState = gameStateMap.get(snakeId.id);
         gameState.kill(snakeId.idx);
         gameState.markForRemoval(snakeId.idx);
-        webSocketService.manualUpdate((snakeId.id));
+        webSocketService.manualUpdate(snakeId.id);
     }
 }
