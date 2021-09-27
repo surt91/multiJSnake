@@ -84,6 +84,7 @@ public class GameState {
         return idx;
     }
 
+    // TODO: replace by a cheaper method (hashmap of occupied sites?) But probably does not matter for performance
     private boolean occupied(Coordinate site) {
         return snakes.values().stream().anyMatch(snake ->
             snake.tail.stream().anyMatch(c -> c.equals(site)) || snake.head.equals(site)
@@ -103,7 +104,11 @@ public class GameState {
     }
 
     public void turn(int idx, Move move) {
-        snakes.get(idx).headDirection = move.toNext(snakes.get(idx).lastHeadDirection).orElse(snakes.get(idx).headDirection);
+        Snake snake = snakes.get(idx);
+        if(!snake.dead) {
+            snake.headDirection = move.toNext(snake.lastHeadDirection)
+                    .orElse(snake.headDirection);
+        }
     }
 
     public void kill(int idx) {

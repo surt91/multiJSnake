@@ -1,12 +1,8 @@
 package me.schawe.RestfulSnake;
 
-import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
-import java.util.HashMap;
 
 @RestController
 public class RestfulSnakeController {
