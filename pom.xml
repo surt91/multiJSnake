@@ -32,6 +32,34 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
+
+		<!-- https://stackoverflow.com/a/49978310 -->
+		<!-- We use an h2 database for testing and replace it in production with postgres via env -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!-- In-Memory database used for local development & testing -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+		</dependency>
+
+		<!-- Switch back from Spring Boot 2.x standard HikariCP to Tomcat JDBC,
+        configured later in Heroku (see https://stackoverflow.com/a/49970142/4964553) -->
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jdbc</artifactId>
+		</dependency>
+
+		<!-- PostgreSQL used in Staging and Production environment, e.g. on Heroku -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
