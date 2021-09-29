@@ -12,7 +12,7 @@ let H = 10;
 let paused = true;
 
 let stompClientPromise;
-const c = document.getElementById("restfulsnake");
+const c = document.getElementById("multijsnake");
 let ctx = c.getContext("2d");
 
 // prevent scrolling so that we can use touch events of navigation
@@ -273,6 +273,16 @@ function drawError(text) {
     document.getElementById("score").appendChild(textnode);
 }
 
-function updateHighscore(json) {
-    console.log(json)
+function updateHighscore(message) {
+    if(typeof message === "undefined") {
+        return;
+    }
+
+    const highscores = JSON.parse(message.body);
+    highscores.forEach(score => {
+        let li = document.createElement("LI");
+        let textnode = document.createTextNode(`${score.name}: Length: ${score.score}`);
+        li.appendChild(textnode);
+        document.getElementById("highscore").appendChild(li);
+    })
 }

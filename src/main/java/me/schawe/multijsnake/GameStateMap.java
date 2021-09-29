@@ -43,7 +43,7 @@ public class GameStateMap {
         Highscore highscore = new Highscore(snake.getLength(), snake.name, date);
         System.out.println(highscore);
         highscoreRepository.save(highscore);
-        webSocketService.newHighscore();
+        webSocketService.updateHighscore();
     }
 
     GameState get(String id) {
@@ -102,6 +102,7 @@ public class GameStateMap {
         GameState state = gameStateMap.get(id);
 
         webSocketService.update(state);
+        webSocketService.updateHighscore();
     }
 
     public void move(String sessionId, Move move) {

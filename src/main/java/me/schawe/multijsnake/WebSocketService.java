@@ -22,7 +22,7 @@ public class WebSocketService {
                 MESSAGE_PREFIX + "/update/" + gameState.id, gameState);
     }
 
-    public void newHighscore() {
+    public void updateHighscore() {
         this.websocket.convertAndSend(
                 MESSAGE_PREFIX + "/newHighscore", repo.findTop10ByOrderByScoreDesc());
     }
