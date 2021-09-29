@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>me.schawe</groupId>
-	<artifactId>RESTfulSnake</artifactId>
+	<artifactId>multijsnake</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>RESTfulSnake</name>
 	<description>A restful snake</description>
