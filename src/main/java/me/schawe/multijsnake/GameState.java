@@ -1,9 +1,12 @@
 package me.schawe.multijsnake;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class GameState {
     String id;
@@ -15,8 +18,9 @@ public class GameState {
     boolean paused;
     boolean gameOver;
     List<Integer> toBeRemoved;
+    Consumer<Snake> snakeDiesCallback;
 
-    GameState(int width, int height) {
+    GameState(Consumer<Snake> snakeDiesCallback, int width, int height) {
         id = gen_id();
         this.width = width;
         this.height = height;
@@ -26,6 +30,7 @@ public class GameState {
         add_food();
         paused = true;
         gameOver = false;
+        this.snakeDiesCallback = snakeDiesCallback;
     }
 
     public String getId() {
@@ -62,6 +67,10 @@ public class GameState {
 
     public void setPause(boolean paused) {
         this.paused = paused;
+    }
+
+    public void changeName(int idx, String name) {
+        snakes.get(idx).setName(name);
     }
 
     public static String gen_id() {
@@ -105,14 +114,17 @@ public class GameState {
 
     public void turn(int idx, Move move) {
         Snake snake = snakes.get(idx);
-        if(!snake.dead) {
+        if(!snake.isDead()) {
             snake.headDirection = move.toNext(snake.lastHeadDirection)
                     .orElse(snake.headDirection);
         }
     }
 
     public void kill(int idx) {
-        snakes.get(idx).dead = true;
+        Snake snake = snakes.get(idx);
+        snake.kill();
+        System.out.println("killed Snake");
+        snakeDiesCallback.accept(snake);
     }
 
     public void markForRemoval(int idx) {
@@ -135,7 +147,7 @@ public class GameState {
     }
 
     public void update() {
-        if(snakes.values().stream().allMatch(snake -> snake.dead)) {
+        if(snakes.values().stream().allMatch(Snake::isDead)) {
             gameOver = true;
         }
 
@@ -144,7 +156,7 @@ public class GameState {
         }
 
         for(Snake snake : snakes.values()) {
-            if(snake.dead) {
+            if(snake.isDead()) {
                 continue;
             }
 
@@ -164,13 +176,13 @@ public class GameState {
             }
 
             if(occupied(snake.head.add(offset))) {
-                snake.dead = true;
+                kill(snake.idx);
             }
 
             snake.head.addAssign(offset);
 
             if (snake.head.x < 0 || snake.head.x >= width || snake.head.y < 0 || snake.head.y >= height) {
-                snake.dead = true;
+                kill(snake.idx);
             }
         }
     }

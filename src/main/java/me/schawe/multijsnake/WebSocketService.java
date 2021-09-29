@@ -2,40 +2,28 @@ package me.schawe.multijsnake;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 import static me.schawe.multijsnake.WebSocketConfiguration.MESSAGE_PREFIX;
 
 @Component
 public class WebSocketService {
     private final SimpMessagingTemplate websocket;
-    private final GameStateMap map;
+    private final HighscoreRepository repo;
 
     @Autowired
-    public WebSocketService(SimpMessagingTemplate websocket, GameStateMap map) {
+    public WebSocketService(SimpMessagingTemplate websocket, HighscoreRepository repo) {
         this.websocket = websocket;
-        this.map = map;
+        this.repo = repo;
     }
 
-    @Scheduled(fixedRate = 300)
-    void periodicUpdate() {
-        Set<String> ids = map.allIds();
-        for (String id : ids) {
-            GameState gameState = map.get(id);
-            if(!gameState.paused && !gameState.gameOver) {
-                gameState.update();
-                this.websocket.convertAndSend(
-                        MESSAGE_PREFIX + "/update/" + id, gameState);
-            }
-        }
-    }
-
-    void manualUpdate(String id) {
-        GameState gameState = map.get(id);
+    void update(GameState gameState) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/update/" + id, gameState);
+                MESSAGE_PREFIX + "/update/" + gameState.id, gameState);
+    }
+
+    public void newHighscore() {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/newHighscore", repo.findTop10ByOrderByScoreDesc());
     }
 }

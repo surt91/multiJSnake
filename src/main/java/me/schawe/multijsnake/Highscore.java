@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Date;
 
-@EntityListeners(HighscoreEventHandler.class)
 @Entity
 public class Highscore {
     private @Id @GeneratedValue Long id;
@@ -33,5 +32,15 @@ public class Highscore {
 
     public Date getDate() {
         return date;
+    }
+
+    @Override
+    public String toString() {
+        return "Highscore{" +
+                "id=" + id +
+                ", score=" + score +
+                ", playerName='" + playerName + '\'' +
+                ", date=" + date +
+                '}';
     }
 }

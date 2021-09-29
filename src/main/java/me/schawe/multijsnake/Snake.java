@@ -9,7 +9,8 @@ public class Snake {
     ArrayDeque<Coordinate> tail;
     int length;
     int idx;
-    boolean dead;
+    private boolean dead;
+    String name;
 
     public Coordinate getHead() {
         return head;
@@ -35,6 +36,14 @@ public class Snake {
         return idx;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public ArrayDeque<Coordinate> getTail() {
         return tail;
     }
@@ -48,6 +57,7 @@ public class Snake {
         length = 2;
         this.idx = idx;
         dead = false;
+        name = "Anon " + (idx + 1);
     }
 
     public void reset(Coordinate start) {
@@ -58,5 +68,10 @@ public class Snake {
         tail = new ArrayDeque<>();
         length = 2;
         dead = false;
+    }
+
+    public void kill() {
+        System.out.println("dead");
+        dead = true;
     }
 }

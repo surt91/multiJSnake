@@ -16,10 +16,7 @@ public class RestfulSnakeController {
 
     @PostMapping("/api/init/{w}/{h}")
     GameState init(@PathVariable int w, @PathVariable int h) {
-        GameState gameState = new GameState(w, h);
-        map.put(gameState.id, gameState);
-
-        return gameState;
+        return map.newGameState(w, h);
     }
 
     @PostMapping("/api/init")
@@ -29,42 +26,31 @@ public class RestfulSnakeController {
 
     @MessageMapping("/pause")
     void pause(@Header("simpSessionId") String sessionId) {
-        SnakeId snakeId = map.session2id(sessionId);
-        GameState gameState = map.get((snakeId.id));
-        gameState.setPause(true);
-        webSocketService.manualUpdate((snakeId.id));
+        map.pause(sessionId);
     }
 
     @MessageMapping("/unpause")
     void unpause(@Header("simpSessionId") String sessionId) {
-        SnakeId snakeId = map.session2id(sessionId);
-        GameState gameState = map.get((snakeId.id));
-        gameState.setPause(false);
-        webSocketService.manualUpdate((snakeId.id));
+        map.unpause(sessionId);
     }
 
     @MessageMapping("/reset")
     void reset(@Header("simpSessionId") String sessionId) {
-        SnakeId snakeId = map.session2id(sessionId);
-        GameState gameState = map.get((snakeId.id));
-        gameState.reset();
-        webSocketService.manualUpdate((snakeId.id));
+        map.reset(sessionId);
     }
 
     @MessageMapping("/join")
     void join(@Header("simpSessionId") String sessionId, String id) {
-        GameState gameState = map.get(id);
-        int idx = gameState.addSnake();
-
-        map.putSession(sessionId, new SnakeId(id, idx));
-
-        webSocketService.manualUpdate(id);
+        map.join(sessionId, id);
     }
 
     @MessageMapping("/move")
-    void send(@Header("simpSessionId") String sessionId, Move move) {
-        SnakeId snakeId = map.session2id(sessionId);
-        GameState gameState = map.get(snakeId.id);
-        gameState.turn(snakeId.idx, move);
+    void move(@Header("simpSessionId") String sessionId, Move move) {
+        map.move(sessionId, move);
+    }
+
+    @MessageMapping("/setName")
+    void setName(@Header("simpSessionId") String sessionId, String name) {
+        map.setName(sessionId, name);
     }
 }

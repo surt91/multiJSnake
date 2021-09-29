@@ -4,6 +4,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import javax.persistence.PostPersist;
+
 @Component
 public class WebSocketEventListener {
     GameStateMap gameStateMap;
@@ -20,6 +22,6 @@ public class WebSocketEventListener {
         GameState gameState = gameStateMap.get(snakeId.id);
         gameState.kill(snakeId.idx);
         gameState.markForRemoval(snakeId.idx);
-        webSocketService.manualUpdate(snakeId.id);
+        webSocketService.update(gameState);
     }
 }

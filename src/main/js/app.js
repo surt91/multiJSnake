@@ -49,9 +49,10 @@ function join(id) {
 
     stompClientPromise = registerStompPromise([
         {route: '/topic/update/' + id, callback: drawWebSocket},
+        {route: '/topic/newHighscore', callback: updateHighscore},
     ]).then(x => {
         x.send("/app/join", {}, id);
-        console.log("stomp", x);
+        //console.log("stomp", x);
         return x;
     });
 }
@@ -212,7 +213,7 @@ function drawSnake(snake) {
 }
 
 function draw(state) {
-    console.log("draw!", state);
+    //console.log("draw!", state);
     W = state.width;
     H = state.height;
     c.width = (W * SCALE);
@@ -249,7 +250,7 @@ function draw(state) {
     document.getElementById("score").replaceChildren();
     state.snakes.forEach(snake => {
         let li = document.createElement("LI");
-        let textnode = document.createTextNode(`Player ${snake.idx}: Length: ${snake.length}`);
+        let textnode = document.createTextNode(`${snake.name}: Length: ${snake.length}`);
         li.appendChild(textnode);
         li.style = "background-color: " + idx2color(snake.idx);
         document.getElementById("score").appendChild(li);
@@ -257,8 +258,8 @@ function draw(state) {
 }
 
 function drawError(text) {
-    console.log("draw error!", text);
-    console.log(W, H);
+    //console.log("draw error!", text);
+    //console.log(W, H);
 
     ctx.fillStyle = BG_COLOR;
     ctx.fillRect(0, 0, W*SCALE, H*SCALE);
@@ -270,4 +271,8 @@ function drawError(text) {
 
     let textnode = document.createTextNode(`Error: ${text}`);
     document.getElementById("score").appendChild(textnode);
+}
+
+function updateHighscore(json) {
+    console.log(json)
 }
