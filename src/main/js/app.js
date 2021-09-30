@@ -13,7 +13,9 @@ import {
     TableBody,
     TableCell,
     Paper,
-    IconButton, Button
+    IconButton,
+    Button,
+    Tooltip
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
@@ -41,7 +43,8 @@ class App extends React.Component {
             highscores: [],
             globalHighscores: [],
             idx: -1,
-            playerName: ""
+            playerName: "",
+            shareUrl: ""
         };
 
         this.updateGameState = this.updateGameState.bind(this);
@@ -217,8 +220,6 @@ class App extends React.Component {
         this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
     }
 
-    //<!-- TODO share link -->
-
     render() {
         const options = {
             scale: this.state.scale,
@@ -244,41 +245,51 @@ class App extends React.Component {
                             height={this.state.game.height * this.state.scale}
                         />
                     </Grid>
-                    <Grid item xs={4} lg={3}>
-                        <h2>Settings</h2>
-                        {this.state.idx >= 0 ?
-                            <PlayerName
-                                name={this.state.playerName}
-                                color={idx2color(this.state.idx)}
-                                onCommit={this.handleNameCommit}
-                                onChange={this.handleNameChange}
-                                switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
-                            /> : <></>}
-                        <FieldSizeSelector
-                            onCommit={(w, h) => this.init(w, h)}
-                            gameWidth={this.state.game.width}
-                            gameHeight={this.state.game.height}
-                        />
-                        <AddAutopilot
-                            onCommit={type => this.addAutopilot(type)}
-                        />
-                    </Grid>
-                    <Grid item xs={4} lg={3}>
-                        <Scores
-                            key="Scores"
-                            title="Scores"
-                            scores={scores}
-                        />
-                        <Scores
-                            key="highscoresSize"
-                            title={`Highscores for ${this.state.game.width} x ${this.state.game.width}`}
-                            scores={this.state.highscores}
-                        />
-                        <Scores
-                            key="Highscores"
-                            title="Highscores"
-                            scores={this.state.globalHighscores}
-                        />
+                    <Grid item xs={12} lg={6} spacing={2}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} spacing={2}>
+                                <ShareLink
+                                    link={this.state.shareUrl}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} lg={6} spacing={2}>
+                                <h2>Settings</h2>
+                                {this.state.idx >= 0 ?
+                                    <PlayerName
+                                        name={this.state.playerName}
+                                        color={idx2color(this.state.idx)}
+                                        onCommit={this.handleNameCommit}
+                                        onChange={this.handleNameChange}
+                                        switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
+                                    /> : <></>}
+                                <FieldSizeSelector
+                                    onCommit={(w, h) => this.init(w, h)}
+                                    gameWidth={this.state.game.width}
+                                    gameHeight={this.state.game.height}
+                                />
+                                <AddAutopilot
+                                    onCommit={type => this.addAutopilot(type)}
+                                />
+                            </Grid>
+                            <Grid item xs={12} lg={6} spacing={2}>
+                                <Scores
+                                    key="Scores"
+                                    title="Scores"
+                                    scores={scores}
+                                />
+                                <Scores
+                                    key="highscoresSize"
+                                    title={`Highscores for ${this.state.game.width} x ${this.state.game.width}`}
+                                    scores={this.state.highscores}
+                                />
+                                <Scores
+                                    key="Highscores"
+                                    title="Highscores"
+                                    scores={this.state.globalHighscores}
+                                />
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Container>
@@ -512,6 +523,41 @@ class AddAutopilot extends React.Component {
     }
 }
 
+class ShareLink extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            tooltip: "Click to copy"
+        }
+    }
+
+    render() {
+        return (
+            <Grid container component={Paper}>
+                <Grid item xs={12} lg={12}>
+                    <Box spacing={2} m={2}>
+                        Share this for others to join
+                        <Tooltip title={this.state.tooltip}>
+                            <Button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(this.props.link);
+                                    this.setState({tooltip: "Copied!"})
+                                }}
+                                onMouseLeave={() => this.setState({
+                                    tooltip: "Click to copy"
+                                })}
+                                variant="outlined"
+                            >
+                                {this.props.link}
+                            </Button>
+                        </Tooltip>
+                    </Box>
+                </Grid>
+            </Grid>
+        );
+    }
+}
 
 ReactDOM.render(
     <App />,
