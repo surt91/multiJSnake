@@ -119,4 +119,10 @@ public class GameStateMap {
 
         webSocketService.update(state);
     }
+
+    public void addAI(String sessionId, String type) {
+        SnakeId snakeId = session2id(sessionId);
+        GameState state = get(snakeId.id);
+        // TODO
+    }
 }

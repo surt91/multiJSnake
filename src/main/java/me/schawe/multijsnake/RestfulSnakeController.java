@@ -51,4 +51,9 @@ public class RestfulSnakeController {
     void setName(@Header("simpSessionId") String sessionId, String name) {
         map.setName(sessionId, name);
     }
+
+    @MessageMapping("/addAI")
+    void addAI(@Header("simpSessionId") String sessionId, String type) {
+        map.addAI(sessionId, type);
+    }
 }

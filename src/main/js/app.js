@@ -18,6 +18,7 @@ import {
 import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
 import RevertIcon from "@material-ui/icons/NotInterestedOutlined";
+import AddIcon from '@material-ui/icons/Add';
 import {registerStompPromise} from "./websocket-listener";
 import {registerKeyPresses, registerTouch} from "./registerEvents";
 import Canvas from "./canvas";
@@ -212,6 +213,10 @@ class App extends React.Component {
         });
     }
 
+    addAutopilot(type) {
+        this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
+    }
+
     //<!-- TODO share link -->
 
     render() {
@@ -253,6 +258,9 @@ class App extends React.Component {
                             onCommit={(w, h) => this.init(w, h)}
                             gameWidth={this.state.game.width}
                             gameHeight={this.state.game.height}
+                        />
+                        <AddAutopilot
+                            onCommit={type => this.addAutopilot(type)}
                         />
                     </Grid>
                     <Grid item xs={4} lg={3}>
@@ -478,6 +486,32 @@ class FieldSizeSelector extends React.Component {
         );
     }
 }
+
+class AddAutopilot extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <Grid container component={Paper}>
+                <Grid item xs={12} lg={12}>
+                    <Box spacing={2} m={2}>
+                        <Button
+                            aria-label="done"
+                            onClick={_ => this.props.onCommit("SKSAW")}
+                            variant="outlined"
+                        >
+                            Add AI
+                            <AddIcon />
+                        </Button>
+                    </Box>
+                </Grid>
+            </Grid>
+        );
+    }
+}
+
 
 ReactDOM.render(
     <App />,
