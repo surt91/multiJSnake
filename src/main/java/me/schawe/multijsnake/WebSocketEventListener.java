@@ -4,8 +4,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import javax.persistence.PostPersist;
-
 @Component
 public class WebSocketEventListener {
     GameStateMap gameStateMap;

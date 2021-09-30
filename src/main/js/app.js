@@ -2,7 +2,14 @@ import {idx2color} from "./color";
 
 const React = require('react');
 const ReactDOM = require('react-dom');
-import {Container, TextField, Grid, ListItemText, List, ListSubheader, Box} from '@material-ui/core';
+import {
+    Container,
+    TextField,
+    Grid,
+    Box,
+    TableContainer,
+    Table, TableHead, TableRow, TableBody, TableCell, Paper
+} from '@material-ui/core';
 import {registerStompPromise} from "./websocket-listener";
 import {registerKeyPresses, registerTouch} from "./registerEvents";
 import Canvas from "./canvas";
@@ -23,11 +30,13 @@ class App extends React.Component {
                 food: {x: -1, y: -1},
                 snakes: [],
             },
-            highscores: []
+            highscores: [],
+            idx: -1
         };
 
         this.updateGameState = this.updateGameState.bind(this);
         this.updateHighscore = this.updateHighscore.bind(this);
+        this.updateIdentity = this.updateIdentity.bind(this);
         this.handleKeydown = this.handleKeydown.bind(this);
     }
 
@@ -71,6 +80,7 @@ class App extends React.Component {
         this.stompClientPromise = registerStompPromise([
             {route: '/topic/update/' + id, callback: this.updateGameState},
             {route: '/topic/newHighscore', callback: this.updateHighscore},
+            {route: '/user/queue/getIdx', callback: this.updateIdentity},
         ]).then(x => {
             x.send("/app/join", {}, id);
             return x;
@@ -121,6 +131,12 @@ class App extends React.Component {
         this.setState({highscores: highscores});
     }
 
+    updateIdentity(message) {
+        console.log("my identity:", message.body);
+        const ownIdx = message.body;
+        this.setState({idx: ownIdx});
+    }
+
     handleKeydown(e) {
         switch (e.code) {
             case "ArrowUp":
@@ -152,6 +168,10 @@ class App extends React.Component {
         }
     }
 
+    handleNameChange(newName) {
+        console.log("new name", newName);
+    }
+
     //<!-- TODO share link -->
 
     render() {
@@ -162,6 +182,7 @@ class App extends React.Component {
         }
         const scores = this.state.game.snakes.map(snake => {
             return {
+                idx: snake.idx,
                 playerName: snake.name,
                 score: snake.length,
                 color: idx2color(snake.idx)
@@ -179,14 +200,38 @@ class App extends React.Component {
                         />
                     </Grid>
                     <Grid item xs={4}>
-                        <Scores title="Scores" scores={scores}/>
-                        <Scores title="Highscores" scores={this.state.highscores}/>
+                        <Scores
+                            key="Scores"
+                            title="Scores"
+                            scores={scores}
+                            editableIdx={this.state.idx}
+                            onChange={this.handleNameChange}
+                        />
+                        <Scores
+                            key="Highscores"
+                            title="Highscores"
+                            scores={this.state.highscores}
+                        />
                     </Grid>
                 </Grid>
 
 
             </Container>
         )
+    }
+}
+
+class PlayerName extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            editMode: false
+        }
+    }
+
+    render() {
+
     }
 }
 
@@ -197,23 +242,35 @@ class Scores extends React.Component {
 
     render() {
         console.log(this.props)
-        const fields = this.props.scores.map(score =>
-            <Box key={score.name} spacing={5} alignItems="center" sx={{display: 'flex'}}>
-                <Box sx={{
-                    width: 20,
-                    height: 20,
-                    bgcolor: score.color
-                }}/>
-                <ListItemText primary={`${score.playerName}: ${score.score}`} />
-            </Box>
+        const fields = this.props.scores.map((score, index) =>
+            <TableRow key={score.name + index}>
+                <TableCell>
+                    <Box sx={{
+                        width: 20,
+                        height: 20,
+                        bgcolor: score.color
+                    }}/>
+                </TableCell>
+                <TableCell>
+                    {score.playerName}
+                </TableCell>
+                <TableCell>
+                    {score.score}
+                </TableCell>
+            </TableRow>
         );
+
         return (
-            <List>
-                <ListSubheader component="div" id="nested-list-subheader">
-                    {this.props.title}
-                </ListSubheader>
-                {fields}
-            </List>
+            <>
+            <h2>{this.props.title}</h2>
+            <TableContainer component={Paper}>
+                <Table aria-label={this.props.title}>
+                    <TableBody>
+                        {fields}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            </>
         )
     }
 }

@@ -103,6 +103,7 @@ public class GameStateMap {
 
         webSocketService.update(state);
         webSocketService.updateHighscore();
+        webSocketService.publishIdx(sessionId, idx);
     }
 
     public void move(String sessionId, Move move) {

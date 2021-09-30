@@ -7,11 +7,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class RestfulSnakeController {
     private final GameStateMap map;
-    private final WebSocketService webSocketService;
 
     RestfulSnakeController(GameStateMap map, WebSocketService webSocketService) {
         this.map = map;
-        this.webSocketService = webSocketService;
     }
 
     @PostMapping("/api/init/{w}/{h}")
