@@ -13,7 +13,7 @@ import {
     TableBody,
     TableCell,
     Paper,
-    IconButton
+    IconButton, Button
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
@@ -53,12 +53,12 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.init();
+        this.init(this.state.game.width, this.state.game.height);
         registerKeyPresses(true, this.handleKeydown);
         // registerTouch();
     }
 
-    init() {
+    init(w, h) {
         // check if we are joining an existing game, or starting a new one
         // https://stackoverflow.com/a/901144
         const urlSearchParams = new URLSearchParams(window.location.search);
@@ -67,7 +67,7 @@ class App extends React.Component {
         const id = params["id"];
 
         if(id === undefined) {
-            fetch(`/api/init/${this.state.game.width}/${this.state.game.height}`, {
+            fetch(`/api/init/${w}/${h}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -249,7 +249,11 @@ class App extends React.Component {
                                 onChange={this.handleNameChange}
                                 switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
                             /> : <></>}
-                        {/* set size of field */}
+                        <FieldSizeSelector
+                            onCommit={(w, h) => this.init(w, h)}
+                            gameWidth={this.state.game.width}
+                            gameHeight={this.state.game.height}
+                        />
                     </Grid>
                     <Grid item xs={4} lg={3}>
                         <Scores
@@ -409,6 +413,68 @@ class ColorViewer extends React.Component {
                 height: 20,
                 bgcolor: this.props.color
             }}/>
+        );
+    }
+}
+
+class FieldSizeSelector extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            width: this.props.gameWidth,
+            height: this.props.gameHeight
+        }
+
+        this.onChange = this.onChange.bind(this);
+    }
+
+    onChange(e) {
+        const name = e.target.name;
+        const value = e.target.value;
+        this.setState({
+            [name]: value
+        });
+    }
+
+    render() {
+        return (
+            <Grid container component={Paper}>
+                <Grid item xs={12} lg={6}>
+                    <Box spacing={2} m={2}>
+                        <TextField
+                            type="number"
+                            label="width"
+                            name="width"
+                            value={this.state.width}
+                            onChange={this.onChange}
+                        />
+                    </Box>
+                </Grid>
+                <Grid item xs={12} lg={6}>
+                    <Box spacing={2} m={2}>
+                        <TextField
+                            type="number"
+                            label="height"
+                            name="height"
+                            value={this.state.height}
+                            onChange={this.onChange}
+                        />
+                    </Box>
+                </Grid>
+                <Grid item xs={12} lg={12}>
+                    <Box spacing={2} m={2}>
+                        <Button
+                            aria-label="done"
+                            onClick={_ => this.props.onCommit(this.state.width, this.state.height)}
+                            variant="outlined"
+                        >
+                            new game
+                            <DoneIcon />
+                        </Button>
+                    </Box>
+                </Grid>
+            </Grid>
         );
     }
 }
