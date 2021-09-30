@@ -8,8 +8,11 @@ import {
     Grid,
     Box,
     TableContainer,
-    Table, TableHead, TableRow, TableBody, TableCell, Paper
+    Table, TableHead, TableRow, TableBody, TableCell, Paper, IconButton
 } from '@material-ui/core';
+import EditIcon from '@material-ui/icons/Edit';
+import DoneIcon from '@material-ui/icons/Done';
+import RevertIcon from "@material-ui/icons/NotInterestedOutlined";
 import {registerStompPromise} from "./websocket-listener";
 import {registerKeyPresses, registerTouch} from "./registerEvents";
 import Canvas from "./canvas";
@@ -38,6 +41,7 @@ class App extends React.Component {
         this.updateHighscore = this.updateHighscore.bind(this);
         this.updateIdentity = this.updateIdentity.bind(this);
         this.handleKeydown = this.handleKeydown.bind(this);
+        this.handleNameChange = this.handleNameChange.bind(this);
     }
 
     componentDidMount() {
@@ -169,7 +173,7 @@ class App extends React.Component {
     }
 
     handleNameChange(newName) {
-        console.log("new name", newName);
+        this.stompClientPromise.then(x => x.send("/app/setName", {}, newName));
     }
 
     //<!-- TODO share link -->
@@ -192,20 +196,28 @@ class App extends React.Component {
         return (
             <Container maxWidth="lg">
                 <Grid container spacing={2}>
-                    <Grid item xs={8}>
+                    <Grid item xs={12} lg={6}>
                         <Canvas
                             draw={ctx => draw(ctx, this.state.game, options)}
                             width={this.state.game.width * this.state.scale}
                             height={this.state.game.height * this.state.scale}
                         />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={4} lg={3}>
+                        <h2>Settings</h2>
+                        {this.state.idx >= 0 ?
+                            <PlayerName
+                                name={this.state.game.snakes[this.state.idx].name}
+                                color={this.state.game.snakes[this.state.idx].color}
+                                onCommit={this.handleNameChange}
+                            /> : <></>}
+                        {/* set size of field */}
+                    </Grid>
+                    <Grid item xs={4} lg={3}>
                         <Scores
                             key="Scores"
                             title="Scores"
                             scores={scores}
-                            editableIdx={this.state.idx}
-                            onChange={this.handleNameChange}
                         />
                         <Scores
                             key="Highscores"
@@ -226,12 +238,91 @@ class PlayerName extends React.Component {
         super(props);
 
         this.state = {
-            editMode: false
+            editMode: false,
+            name: this.props.name,
+            previous: this.props.name
         }
+
+        this.onToggleEditMode = this.onToggleEditMode.bind(this);
+        this.onChange = this.onChange.bind(this);
+        this.onRevert = this.onRevert.bind(this);
+        this.onAccept = this.onAccept.bind(this);
     }
 
-    render() {
+    onToggleEditMode() {
+        this.setState((state, _props) => ({editMode: !state.editMode}));
+    };
 
+    onChange(e) {
+        const value = e.target.value;
+        this.setState({name: value});
+    };
+
+    onRevert() {
+        this.setState((state, _props) => ({name: state.previous}));
+        this.onToggleEditMode();
+    };
+
+    onAccept() {
+        this.setState({previous: this.state.name});
+        this.onToggleEditMode();
+        this.props.onCommit(this.state.name);
+    };
+
+    render() {
+        console.log(this.props)
+        return(
+            <>
+            <TableContainer component={Paper}>
+                <Table aria-label={this.props.title}>
+                    <TableBody>
+                        <TableRow key="playername">
+                            <TableCell>
+                                <ColorViewer color={this.props.color}/>
+                            </TableCell>
+                            <TableCell>
+                                {this.state.editMode ? (
+                                    <TextField
+                                        value={this.state.name}
+                                        name="name"
+                                        label="Player Name"
+                                        onChange={e => this.onChange(e)}
+                                    />
+                                ) : (
+                                    this.state.name
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                {this.state.editMode ? (
+                                    <>
+                                        <IconButton
+                                            aria-label="done"
+                                            onClick={this.onAccept}
+                                        >
+                                            <DoneIcon />
+                                        </IconButton>
+                                        <IconButton
+                                            aria-label="revert"
+                                            onClick={this.onRevert}
+                                        >
+                                            <RevertIcon />
+                                        </IconButton>
+                                    </>
+                                ) : (
+                                    <IconButton
+                                        aria-label="edit"
+                                        onClick={this.onToggleEditMode}
+                                    >
+                                        <EditIcon />
+                                    </IconButton>
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            </>
+        );
     }
 }
 
@@ -243,13 +334,9 @@ class Scores extends React.Component {
     render() {
         console.log(this.props)
         const fields = this.props.scores.map((score, index) =>
-            <TableRow key={score.name + index}>
+            <TableRow key={score.name + index.toString()}>
                 <TableCell>
-                    <Box sx={{
-                        width: 20,
-                        height: 20,
-                        bgcolor: score.color
-                    }}/>
+                    <ColorViewer color={score.color}/>
                 </TableCell>
                 <TableCell>
                     {score.playerName}
@@ -272,6 +359,22 @@ class Scores extends React.Component {
             </TableContainer>
             </>
         )
+    }
+}
+
+class ColorViewer extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <Box sx={{
+                width: 20,
+                height: 20,
+                bgcolor: this.props.color
+            }}/>
+        );
     }
 }
 

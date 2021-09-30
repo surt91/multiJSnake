@@ -99,7 +99,7 @@ public class GameStateMap {
         int idx = get(id).addSnake();
 
         putSession(sessionId, new SnakeId(id, idx));
-        GameState state = gameStateMap.get(id);
+        GameState state = get(id);
 
         webSocketService.update(state);
         webSocketService.updateHighscore();
@@ -113,6 +113,9 @@ public class GameStateMap {
 
     public void setName(String sessionId, String name) {
         SnakeId snakeId = session2id(sessionId);
-        get(snakeId.id).changeName(snakeId.idx, name);
+        GameState state = get(snakeId.id);
+        state.changeName(snakeId.idx, name);
+
+        webSocketService.update(state);
     }
 }
