@@ -151,7 +151,9 @@ class App extends React.Component {
         if (playerName !== undefined ) {
             this.handleNameCommit(playerName)
         } else {
-            this.state.playerName = this.state.game.snakes[this.state.idx].name;
+            this.setState({
+                playerName: this.state.game.snakes[this.state.idx].name
+            });
         }
     }
 
@@ -187,12 +189,15 @@ class App extends React.Component {
     }
 
     handleNameChange(newName) {
-        this.setState(state => ({playerName: newName}))
+        this.setState({playerName: newName});
     }
 
     handleNameCommit(newName) {
         this.stompClientPromise.then(x => x.send("/app/setName", {}, newName));
         localStorage.setItem('playerName', newName);
+        this.setState({
+            playerName: newName
+        });
     }
 
     //<!-- TODO share link -->
@@ -246,8 +251,6 @@ class App extends React.Component {
                         />
                     </Grid>
                 </Grid>
-
-
             </Container>
         )
     }
@@ -270,7 +273,7 @@ class PlayerName extends React.Component {
     onToggleEditMode() {
         this.setState((state, props) => ({
             editMode: !state.editMode,
-            previous: this.props.name
+            previous: props.name
         }));
     };
 
