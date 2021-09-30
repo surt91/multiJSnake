@@ -1,10 +1,11 @@
+import {idx2color} from "./color";
+
 const React = require('react');
 const ReactDOM = require('react-dom');
-import Container from '@material-ui/core/Container';
-import TextField from '@material-ui/core/TextField';
-import Canvas from "./canvas";
+import {Container, TextField, Grid, ListItemText, List, ListSubheader, Box} from '@material-ui/core';
 import {registerStompPromise} from "./websocket-listener";
 import {registerKeyPresses, registerTouch} from "./registerEvents";
+import Canvas from "./canvas";
 import {draw} from "./canvasDraw";
 
 
@@ -13,12 +14,16 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            height: 20,
-            width: 20,
             scale: 20,
-            paused: true,
             foodColor: "#cc2200",
-            bgColor: "#000"
+            bgColor: "#000",
+            game: {
+                width: 20,
+                height: 20,
+                food: {x: -1, y: -1},
+                snakes: [],
+            },
+            highscores: []
         };
 
         this.updateGameState = this.updateGameState.bind(this);
@@ -41,7 +46,7 @@ class App extends React.Component {
         const id = params["id"];
 
         if(id === undefined) {
-            fetch(`/api/init/${this.state.width}/${this.state.height}`, {
+            fetch(`/api/init/${this.state.game.width}/${this.state.game.height}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -81,19 +86,19 @@ class App extends React.Component {
     }
 
     unpause() {
-        if(this.state.paused) {
+        if(this.state.game.paused) {
             this.stompClientPromise.then(x => x.send("/app/unpause", {}, ""));
         }
     }
 
     pause() {
-        if(!this.state.paused) {
+        if(!this.state.game.paused) {
             this.stompClientPromise.then(x => x.send("/app/pause", {}, ""));
         }
     }
 
     toggle_pause() {
-        if(this.state.paused) {
+        if(this.state.game.paused) {
             this.unpause();
         } else {
             this.pause();
@@ -103,13 +108,12 @@ class App extends React.Component {
     updateGameState(message) {
         const gameState = JSON.parse(message.body);
         this.setState({
-            gameState: gameState,
-            paused: gameState.paused
+            game: gameState
         });
     }
 
     updateHighscore(message) {
-        if(typeof message === "undefined") {
+        if(message === undefined) {
             return;
         }
 
@@ -143,13 +147,12 @@ class App extends React.Component {
                 this.toggle_pause();
                 break;
             case "KeyR":
-                reset();
+                this.reset();
                 break;
         }
     }
 
     //<!-- TODO share link -->
-    //<!-- TODO current player scores -->
 
     render() {
         const options = {
@@ -157,29 +160,60 @@ class App extends React.Component {
             bgColor: this.state.bgColor,
             foodColor: this.state.foodColor
         }
+        const scores = this.state.game.snakes.map(snake => {
+            return {
+                playerName: snake.name,
+                score: snake.length,
+                color: idx2color(snake.idx)
+            }
+        })
+
         return (
             <Container maxWidth="lg">
-                <Canvas
-                    draw={ctx => draw(ctx, this.state.gameState, options)}
-                    width={this.state.width * this.state.scale}
-                    height={this.state.height * this.state.scale}
-                />
-                <Highscores highscores={this.state.highscores}/>
+                <Grid container spacing={2}>
+                    <Grid item xs={8}>
+                        <Canvas
+                            draw={ctx => draw(ctx, this.state.game, options)}
+                            width={this.state.game.width * this.state.scale}
+                            height={this.state.game.height * this.state.scale}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Scores title="Scores" scores={scores}/>
+                        <Scores title="Highscores" scores={this.state.highscores}/>
+                    </Grid>
+                </Grid>
+
+
             </Container>
         )
     }
 }
 
-class Highscores extends React.Component {
-    //highscores.forEach(score => {
-    //let li = document.createElement("LI");
-    //let textnode = document.createTextNode(`${score.playerName}: Length: ${score.score}`);
-    //li.appendChild(textnode);
-    //document.getElementById("highscore").appendChild(li);
-    //})
+class Scores extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
     render() {
+        console.log(this.props)
+        const fields = this.props.scores.map(score =>
+            <Box key={score.name} spacing={5} alignItems="center" sx={{display: 'flex'}}>
+                <Box sx={{
+                    width: 20,
+                    height: 20,
+                    bgcolor: score.color
+                }}/>
+                <ListItemText primary={`${score.playerName}: ${score.score}`} />
+            </Box>
+        );
         return (
-            <p>Highscores</p>
+            <List>
+                <ListSubheader component="div" id="nested-list-subheader">
+                    {this.props.title}
+                </ListSubheader>
+                {fields}
+            </List>
         )
     }
 }

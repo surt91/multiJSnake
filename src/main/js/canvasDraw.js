@@ -35,7 +35,7 @@ function drawSnake(ctx, snake, options) {
 }
 
 export function draw(ctx, state, options) {
-    if(typeof state === "undefined") {
+    if(state === undefined) {
         return;
     }
 
@@ -69,16 +69,6 @@ export function draw(ctx, state, options) {
         ctx.textAlign = "center";
         ctx.fillText("Game Over!", width*scale/2, height*scale/2);
     }
-
-    // show scores
-    // document.getElementById("score").replaceChildren();
-    // state.snakes.forEach(snake => {
-    //     let li = document.createElement("LI");
-    //     let textnode = document.createTextNode(`${snake.name}: Length: ${snake.length}`);
-    //     li.appendChild(textnode);
-    //     li.style = "background-color: " + idx2color(snake.idx);
-    //     document.getElementById("score").appendChild(li);
-    // })
 }
 
 function drawError(text) {
