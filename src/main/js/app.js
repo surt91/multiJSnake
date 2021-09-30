@@ -245,15 +245,15 @@ class App extends React.Component {
                             height={this.state.game.height * this.state.scale}
                         />
                     </Grid>
-                    <Grid item xs={12} lg={6} spacing={2}>
+                    <Grid item xs={12} lg={6}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} spacing={2}>
+                            <Grid item xs={12}>
                                 <ShareLink
                                     link={this.state.shareUrl}
                                 />
                             </Grid>
 
-                            <Grid item xs={12} lg={6} spacing={2}>
+                            <Grid item xs={12} lg={6}>
                                 <h2>Settings</h2>
                                 {this.state.idx >= 0 ?
                                     <PlayerName
@@ -272,7 +272,7 @@ class App extends React.Component {
                                     onCommit={type => this.addAutopilot(type)}
                                 />
                             </Grid>
-                            <Grid item xs={12} lg={6} spacing={2}>
+                            <Grid item xs={12} lg={6}>
                                 <Scores
                                     key="Scores"
                                     title="Scores"
