@@ -23,7 +23,6 @@ import {registerKeyPresses, registerTouch} from "./registerEvents";
 import Canvas from "./canvas";
 import {draw} from "./canvasDraw";
 
-
 class App extends React.Component {
 
     constructor(props) {
@@ -39,7 +38,8 @@ class App extends React.Component {
                 snakes: [],
             },
             highscores: [],
-            idx: -1
+            idx: -1,
+            playerName: ""
         };
 
         this.updateGameState = this.updateGameState.bind(this);
@@ -47,6 +47,7 @@ class App extends React.Component {
         this.updateIdentity = this.updateIdentity.bind(this);
         this.handleKeydown = this.handleKeydown.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
+        this.handleNameCommit = this.handleNameCommit.bind(this);
     }
 
     componentDidMount() {
@@ -92,14 +93,6 @@ class App extends React.Component {
             {route: '/user/queue/getIdx', callback: this.updateIdentity},
         ]).then(x => {
             x.send("/app/join", {}, id);
-
-            // as soon as the connection is established, look if we have
-            // a saved name and notify the server in that case
-            let playerName = localStorage.getItem('playerName');
-            if (playerName !== undefined) {
-                this.handleNameChange(playerName)
-            }
-
             return x;
         });
     }
@@ -151,6 +144,15 @@ class App extends React.Component {
     updateIdentity(message) {
         const ownIdx = message.body;
         this.setState({idx: ownIdx});
+
+        // as soon as we know hwo we are, look if we have
+        // a saved name and notify the server in that case
+        let playerName = localStorage.getItem('playerName');
+        if (playerName !== undefined ) {
+            this.handleNameCommit(playerName)
+        } else {
+            this.state.playerName = this.state.game.snakes[this.state.idx].name;
+        }
     }
 
     handleKeydown(e) {
@@ -185,6 +187,10 @@ class App extends React.Component {
     }
 
     handleNameChange(newName) {
+        this.setState(state => ({playerName: newName}))
+    }
+
+    handleNameCommit(newName) {
         this.stompClientPromise.then(x => x.send("/app/setName", {}, newName));
         localStorage.setItem('playerName', newName);
     }
@@ -220,9 +226,10 @@ class App extends React.Component {
                         <h2>Settings</h2>
                         {this.state.idx >= 0 ?
                             <PlayerName
-                                name={this.state.game.snakes[this.state.idx].name}
+                                name={this.state.playerName}
                                 color={idx2color(this.state.idx)}
-                                onCommit={this.handleNameChange}
+                                onCommit={this.handleNameCommit}
+                                onChange={this.handleNameChange}
                             /> : <></>}
                         {/* set size of field */}
                     </Grid>
@@ -252,34 +259,29 @@ class PlayerName extends React.Component {
 
         this.state = {
             editMode: false,
-            name: this.props.name,
             previous: this.props.name
         }
 
         this.onToggleEditMode = this.onToggleEditMode.bind(this);
-        this.onChange = this.onChange.bind(this);
         this.onRevert = this.onRevert.bind(this);
         this.onAccept = this.onAccept.bind(this);
     }
 
     onToggleEditMode() {
-        this.setState((state, _props) => ({editMode: !state.editMode}));
-    };
-
-    onChange(e) {
-        const value = e.target.value;
-        this.setState({name: value});
+        this.setState((state, props) => ({
+            editMode: !state.editMode,
+            previous: this.props.name
+        }));
     };
 
     onRevert() {
-        this.setState((state, _props) => ({name: state.previous}));
+        this.props.onChange(this.state.previous);
         this.onToggleEditMode();
     };
 
     onAccept() {
-        this.setState({previous: this.state.name});
+        this.props.onCommit(this.props.name);
         this.onToggleEditMode();
-        this.props.onCommit(this.state.name);
     };
 
     render() {
@@ -295,13 +297,13 @@ class PlayerName extends React.Component {
                             <TableCell>
                                 {this.state.editMode ? (
                                     <TextField
-                                        value={this.state.name}
+                                        value={this.props.name}
                                         name="name"
                                         label="Player Name"
-                                        onChange={e => this.onChange(e)}
+                                        onChange={e => this.props.onChange(e.target.value)}
                                     />
                                 ) : (
-                                    this.state.name
+                                    this.props.name
                                 )}
                             </TableCell>
                             <TableCell>

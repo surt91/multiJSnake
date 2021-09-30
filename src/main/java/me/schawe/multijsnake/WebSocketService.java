@@ -31,9 +31,6 @@ public class WebSocketService {
     }
 
     public void publishIdx(String sessionId, int idx) {
-        System.out.println("assign identity");
-        System.out.println(sessionId);
-        System.out.println(idx);
         this.websocket.convertAndSendToUser(
                 sessionId,
                 "/queue/getIdx",
