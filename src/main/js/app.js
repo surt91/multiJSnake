@@ -38,12 +38,14 @@ class App extends React.Component {
                 snakes: [],
             },
             highscores: [],
+            globalHighscores: [],
             idx: -1,
             playerName: ""
         };
 
         this.updateGameState = this.updateGameState.bind(this);
         this.updateHighscore = this.updateHighscore.bind(this);
+        this.updateGlobalHighscore = this.updateGlobalHighscore.bind(this);
         this.updateIdentity = this.updateIdentity.bind(this);
         this.handleKeydown = this.handleKeydown.bind(this);
         this.handleNameChange = this.handleNameChange.bind(this);
@@ -90,6 +92,7 @@ class App extends React.Component {
         this.stompClientPromise = registerStompPromise([
             {route: '/topic/update/' + id, callback: this.updateGameState},
             {route: '/topic/newHighscore', callback: this.updateHighscore},
+            {route: '/topic/newGlobalHighscore', callback: this.updateGlobalHighscore},
             {route: '/user/queue/getIdx', callback: this.updateIdentity},
         ]).then(x => {
             x.send("/app/join", {}, id);
@@ -139,6 +142,15 @@ class App extends React.Component {
 
         const highscores = JSON.parse(message.body);
         this.setState({highscores: highscores});
+    }
+
+    updateGlobalHighscore(message) {
+        if(message === undefined) {
+            return;
+        }
+
+        const highscores = JSON.parse(message.body);
+        this.setState({globalHighscores: highscores});
     }
 
     updateIdentity(message) {
@@ -246,9 +258,14 @@ class App extends React.Component {
                             scores={scores}
                         />
                         <Scores
+                            key="highscoresSize"
+                            title={`Highscores for ${this.state.game.width} x ${this.state.game.width}`}
+                            scores={this.state.highscores}
+                        />
+                        <Scores
                             key="Highscores"
                             title="Highscores"
-                            scores={this.state.highscores}
+                            scores={this.state.globalHighscores}
                         />
                     </Grid>
                 </Grid>

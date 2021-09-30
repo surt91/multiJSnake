@@ -20,7 +20,7 @@ public class GameStateMap {
     }
 
     public GameState newGameState(int w, int h) {
-        GameState gameState = new GameState(this::updateHighscore, w, h);
+        GameState gameState = new GameState(x -> updateHighscore(x, w*h), w, h);
         gameStateMap.put(gameState.id, gameState);
         return gameState;
     }
@@ -37,13 +37,14 @@ public class GameStateMap {
         }
     }
 
-    private void updateHighscore(Snake snake) {
+    private void updateHighscore(Snake snake, int size) {
         System.out.println("update Highscore");
         Date date = new Date();
-        Highscore highscore = new Highscore(snake.getLength(), snake.name, date);
+        Highscore highscore = new Highscore(snake.getLength(), snake.name, size, date);
         System.out.println(highscore);
         highscoreRepository.save(highscore);
-        webSocketService.updateHighscore();
+        webSocketService.updateHighscore(size);
+        webSocketService.updateGlobalHighscore();
     }
 
     GameState get(String id) {

@@ -30,6 +30,16 @@ public class WebSocketService {
                 MESSAGE_PREFIX + "/newHighscore", repo.findTop10ByOrderByScoreDesc());
     }
 
+    public void updateHighscore(int size) {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/newHighscore", repo.findTop10ByFieldSizeOrderByScoreDesc(size));
+    }
+
+    public void updateGlobalHighscore() {
+        this.websocket.convertAndSend(
+                MESSAGE_PREFIX + "/newGlobalHighscore", repo.findTop10ByOrderByScoreDesc());
+    }
+
     public void publishIdx(String sessionId, int idx) {
         this.websocket.convertAndSendToUser(
                 sessionId,

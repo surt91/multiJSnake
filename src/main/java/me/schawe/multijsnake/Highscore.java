@@ -1,7 +1,6 @@
 package me.schawe.multijsnake;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Date;
@@ -12,10 +11,12 @@ public class Highscore {
     private int score;
     private String playerName;
     private Date date;
+    private int fieldSize;
 
-    public Highscore(int score, String playerName, Date date) {
+    public Highscore(int score, String playerName, int fieldSize, Date date) {
         this.score = score;
         this.playerName = playerName;
+        this.fieldSize = fieldSize;
         this.date = date;
     }
 
@@ -30,6 +31,10 @@ public class Highscore {
         return playerName;
     }
 
+    public int getFieldSize() {
+        return fieldSize;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -40,6 +45,7 @@ public class Highscore {
                 "id=" + id +
                 ", score=" + score +
                 ", playerName='" + playerName + '\'' +
+                ", fieldSize=" + fieldSize +
                 ", date=" + date +
                 '}';
     }
