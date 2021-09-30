@@ -540,6 +540,7 @@ class ShareLink extends React.Component {
                         Share this for others to join
                         <Tooltip title={this.state.tooltip}>
                             <Button
+                                style={{textTransform: 'none'}}
                                 onClick={() => {
                                     navigator.clipboard.writeText(this.props.link);
                                     this.setState({tooltip: "Copied!"})
