@@ -92,6 +92,14 @@ class App extends React.Component {
             {route: '/user/queue/getIdx', callback: this.updateIdentity},
         ]).then(x => {
             x.send("/app/join", {}, id);
+
+            // as soon as the connection is established, look if we have
+            // a saved name and notify the server in that case
+            let playerName = localStorage.getItem('playerName');
+            if (playerName !== undefined) {
+                this.handleNameChange(playerName)
+            }
+
             return x;
         });
     }
@@ -178,6 +186,7 @@ class App extends React.Component {
 
     handleNameChange(newName) {
         this.stompClientPromise.then(x => x.send("/app/setName", {}, newName));
+        localStorage.setItem('playerName', newName);
     }
 
     //<!-- TODO share link -->
