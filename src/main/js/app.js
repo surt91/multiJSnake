@@ -52,7 +52,7 @@ class App extends React.Component {
 
     componentDidMount() {
         this.init();
-        registerKeyPresses(this.handleKeydown);
+        registerKeyPresses(true, this.handleKeydown);
         // registerTouch();
     }
 
@@ -235,6 +235,7 @@ class App extends React.Component {
                                 color={idx2color(this.state.idx)}
                                 onCommit={this.handleNameCommit}
                                 onChange={this.handleNameChange}
+                                switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
                             /> : <></>}
                         {/* set size of field */}
                     </Grid>
@@ -275,6 +276,7 @@ class PlayerName extends React.Component {
             editMode: !state.editMode,
             previous: props.name
         }));
+        this.props.switchGlobalListener(this.state.editMode);
     };
 
     onRevert() {
