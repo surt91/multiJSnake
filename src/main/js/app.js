@@ -8,7 +8,12 @@ import {
     Grid,
     Box,
     TableContainer,
-    Table, TableHead, TableRow, TableBody, TableCell, Paper, IconButton
+    Table,
+    TableRow,
+    TableBody,
+    TableCell,
+    Paper,
+    IconButton
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
@@ -136,7 +141,6 @@ class App extends React.Component {
     }
 
     updateIdentity(message) {
-        console.log("my identity:", message.body);
         const ownIdx = message.body;
         this.setState({idx: ownIdx});
     }
@@ -208,7 +212,7 @@ class App extends React.Component {
                         {this.state.idx >= 0 ?
                             <PlayerName
                                 name={this.state.game.snakes[this.state.idx].name}
-                                color={this.state.game.snakes[this.state.idx].color}
+                                color={idx2color(this.state.idx)}
                                 onCommit={this.handleNameChange}
                             /> : <></>}
                         {/* set size of field */}
@@ -270,7 +274,6 @@ class PlayerName extends React.Component {
     };
 
     render() {
-        console.log(this.props)
         return(
             <>
             <TableContainer component={Paper}>
@@ -332,7 +335,6 @@ class Scores extends React.Component {
     }
 
     render() {
-        console.log(this.props)
         const fields = this.props.scores.map((score, index) =>
             <TableRow key={score.name + index.toString()}>
                 <TableCell>

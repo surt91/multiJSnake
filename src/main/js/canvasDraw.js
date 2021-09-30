@@ -39,10 +39,7 @@ export function draw(ctx, state, options) {
         return;
     }
 
-    console.log(ctx, state, options);
-
     const {scale, bgColor, foodColor} = options;
-    //console.log("draw!", state);
     let width = state.width;
     let height = state.height;
 

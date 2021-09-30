@@ -22,7 +22,7 @@ function hsv_to_rgb(h, s, v) {
     }
 
     function componentToHex(c) {
-        var hex = c.toString(16);
+        const hex = c.toString(16);
         return hex.length === 1 ? "0" + hex : hex;
     }
 
