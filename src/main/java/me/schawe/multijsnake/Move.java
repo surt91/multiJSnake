@@ -41,7 +41,7 @@ public enum Move {
                 offset = new Coordinate(1, 0);
                 break;
             default:
-                throw new InvalidMoveException();
+                throw new RuntimeException("unreachable!");
         }
         return offset;
     }
@@ -58,6 +58,6 @@ public enum Move {
             return  Move.right;
         }
         // this will not happen
-        return Move.up;
+        throw new RuntimeException("unreachable!");
     }
 }

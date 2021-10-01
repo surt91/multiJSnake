@@ -124,7 +124,7 @@ public class GameStateMap {
         SnakeId snakeId = session2id(sessionId);
         GameState state = get(snakeId.id);
         // TODO: select strategy, for now only random
-        Autopilot autopilot = new RandomAutopilot();
+        Autopilot autopilot = new GreedyAutopilot();
         state.addAISnake(autopilot);
 
         webSocketService.update(state);

@@ -6,17 +6,23 @@ import java.util.stream.Collectors;
 
 // https://github.com/surt91/rsnake
 public interface Autopilot {
+    String generateName();
     Move suggest(GameState gameState, Snake snake);
 
     default List<Move> possibleMoves(GameState gameState, Snake snake) {
         Move[] allMoves = {Move.up, Move.down, Move.left, Move.right};
 
         return Arrays.stream(allMoves)
-                .filter(move -> !move.isOpposite(snake.headDirection))
-                .filter(move -> !gameState.isOccupied(move.toCoord().add(snake.head)))
-                .filter(move -> !gameState.isWall(move.toCoord().add(snake.head)))
+                .filter(move -> isSafeMove(gameState, snake, move))
                 .collect(Collectors.toList());
     }
 
-    String generateName();
+    default boolean isSafeMove(GameState gameState, Snake snake, Move move) {
+        return !(
+                move.isOpposite(snake.headDirection)
+                || gameState.isOccupied(move.toCoord().add(snake.head))
+                || gameState.isWall(move.toCoord().add(snake.head))
+                || move.isOpposite(snake.headDirection)
+        );
+    }
 }
