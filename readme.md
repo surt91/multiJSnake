@@ -1,6 +1,6 @@
 # RestfulSnake
 
-Snake played on a server -- commands are send via POST.
+Snake played on a server -- communication happens mostly via Websockets.
 Play it on [multijsnake.herokuapp.com](https://multijsnake.herokuapp.com/).
 
 ## Setup
