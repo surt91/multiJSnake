@@ -33,6 +33,11 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 		<!-- https://stackoverflow.com/a/49978310 -->
 		<!-- We use an h2 database for testing and replace it in production with postgres via env -->
 		<dependency>
@@ -59,7 +64,6 @@
 			<artifactId>postgresql</artifactId>
 			<version>42.2.2</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>
