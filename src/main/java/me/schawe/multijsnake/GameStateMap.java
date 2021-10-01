@@ -123,6 +123,10 @@ public class GameStateMap {
     public void addAI(String sessionId, String type) {
         SnakeId snakeId = session2id(sessionId);
         GameState state = get(snakeId.id);
-        // TODO
+        // TODO: select strategy, for now only random
+        Autopilot autopilot = new RandomAutopilot();
+        state.addAISnake(autopilot);
+
+        webSocketService.update(state);
     }
 }

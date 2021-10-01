@@ -1,7 +1,5 @@
 package me.schawe.multijsnake;
 
-import org.springframework.context.ApplicationEventPublisher;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,18 +91,29 @@ public class GameState {
         return idx;
     }
 
+    public int addAISnake(Autopilot autopilot) {
+        int idx = snakes.size();
+        snakes.put(idx, new Snake(idx, randomSite()));
+        snakes.get(idx).setAutopilot(autopilot);
+        return idx;
+    }
+
     // TODO: replace by a cheaper method (hashmap of occupied sites?) But probably does not matter for performance
-    private boolean occupied(Coordinate site) {
+    public boolean isOccupied(Coordinate site) {
         return snakes.values().stream().anyMatch(snake ->
             snake.tail.stream().anyMatch(c -> c.equals(site)) || snake.head.equals(site)
         );
+    }
+
+    public boolean isWall(Coordinate coordinate) {
+        return coordinate.x < 0 || coordinate.x >= width || coordinate.y < 0 || coordinate.y >= height;
     }
 
     private Coordinate randomSite() {
         Coordinate site;
         do {
             site = new Coordinate((int) (Math.random() * width), (int) (Math.random() * height));
-        } while (occupied(site));
+        } while (isOccupied(site));
         return site;
     }
 
@@ -160,6 +169,8 @@ public class GameState {
                 continue;
             }
 
+            snake.ai().ifPresent(autopilot -> snake.headDirection = autopilot.suggest(this, snake));
+
             Coordinate offset = snake.headDirection.toCoord();
             snake.lastHeadDirection = snake.headDirection;
 
@@ -175,15 +186,12 @@ public class GameState {
                 snake.tail.remove();
             }
 
-            if(occupied(snake.head.add(offset))) {
+            Coordinate next = snake.head.add(offset);
+            if (isWall(next) || isOccupied(next)) {
                 kill(snake.idx);
             }
 
-            snake.head.addAssign(offset);
-
-            if (snake.head.x < 0 || snake.head.x >= width || snake.head.y < 0 || snake.head.y >= height) {
-                kill(snake.idx);
-            }
+            snake.head = next;
         }
     }
 }

@@ -1,6 +1,7 @@
 package me.schawe.multijsnake;
 
 import java.util.ArrayDeque;
+import java.util.Optional;
 
 public class Snake {
     Coordinate head;
@@ -11,6 +12,7 @@ public class Snake {
     int idx;
     private boolean dead;
     String name;
+    private Optional<Autopilot> autopilotOptional;
 
     public Coordinate getHead() {
         return head;
@@ -58,6 +60,7 @@ public class Snake {
         this.idx = idx;
         dead = false;
         name = "Anon " + (idx + 1);
+        autopilotOptional = Optional.empty();
     }
 
     public void reset(Coordinate start) {
@@ -73,5 +76,14 @@ public class Snake {
     public void kill() {
         System.out.println("dead");
         dead = true;
+    }
+
+    public Optional<Autopilot> ai() {
+        return autopilotOptional;
+    }
+
+    public void setAutopilot(Autopilot autopilot) {
+        this.name = autopilot.generateName();
+        this.autopilotOptional = Optional.of(autopilot);
     }
 }
