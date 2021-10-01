@@ -132,7 +132,6 @@ public class GameState {
     public void kill(int idx) {
         Snake snake = snakes.get(idx);
         snake.kill();
-        System.out.println("killed Snake");
         snakeDiesCallback.accept(snake);
     }
 
