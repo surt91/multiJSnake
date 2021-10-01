@@ -26,6 +26,11 @@ import {registerKeyPresses, registerTouch} from "./registerEvents";
 import Canvas from "./canvas";
 import {draw} from "./canvasDraw";
 
+// make sure to use https, otherwise the copy to clipboard will not work
+if (location.protocol !== 'https:' && location.hostname !== "localhost") {
+    location.replace(`https:${location.href.substring(location.protocol.length)}`);
+}
+
 class App extends React.Component {
 
     constructor(props) {
