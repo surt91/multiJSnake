@@ -35,6 +35,16 @@ class App extends React.Component {
 
     constructor(props) {
         super(props);
+
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        // also remove the query string with the id, withou realoading
+        // https://stackoverflow.com/a/19279428
+        const withoutQuery = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.pushState({path: withoutQuery}, '', withoutQuery);
+
+        this.id = params["id"];
+
         this.state = {
             scale: 20,
             foodColor: "#cc2200",
@@ -67,15 +77,16 @@ class App extends React.Component {
         // registerTouch();
     }
 
+    newGame(w, h) {
+        this.id = undefined;
+        this.init(w, h);
+    }
+
     init(w, h) {
         // check if we are joining an existing game, or starting a new one
         // https://stackoverflow.com/a/901144
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        const params = Object.fromEntries(urlSearchParams.entries());
 
-        const id = params["id"];
-
-        if(id === undefined) {
+        if(this.id === undefined) {
             fetch(`/api/init/${w}/${h}`, {
                 method: "POST",
                 headers: {
@@ -83,10 +94,11 @@ class App extends React.Component {
                 }
             }).then(response => response.json())
                 .then((x) => {
-                    this.join(x.id);
+                    this.id = x.id;
+                    this.join(this.id);
                 });
         } else {
-            this.join(id);
+            this.join(this.id);
         }
     }
 
@@ -280,7 +292,7 @@ class App extends React.Component {
                                         switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
                                     /> : <></>}
                                 <FieldSizeSelector
-                                    onCommit={(w, h) => this.init(w, h)}
+                                    onCommit={(w, h) => this.newGame(w, h)}
                                     gameWidth={this.state.game.width}
                                     gameHeight={this.state.game.height}
                                 />
