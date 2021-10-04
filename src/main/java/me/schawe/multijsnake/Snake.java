@@ -74,7 +74,6 @@ public class Snake {
     }
 
     public void kill() {
-        System.out.println("dead");
         dead = true;
     }
 

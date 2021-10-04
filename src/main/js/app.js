@@ -24,6 +24,7 @@ import AddIcon from '@material-ui/icons/Add';
 import {registerStompPromise} from "./websocket-listener";
 import {registerKeyPresses, registerTouch} from "./registerEvents";
 import Canvas from "./canvas";
+import {SimpleFormDialog} from "./formDialog";
 import {draw} from "./canvasDraw";
 
 // make sure to use https, otherwise the copy to clipboard will not work
@@ -263,6 +264,19 @@ class App extends React.Component {
             }
         })
 
+        const loginFields = <><TextField
+                    key="username"
+                    name="username"
+                    label="Name"
+                />
+                <TextField
+                    key="password"
+                    name="password"
+                    label="Password"
+                    type="password"
+                />
+            </>;
+
         return (
             <Container maxWidth="lg">
                 <Grid container spacing={2}>
@@ -278,6 +292,19 @@ class App extends React.Component {
                             <Grid item xs={12}>
                                 <ShareLink
                                     link={this.state.shareUrl}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                <SimpleFormDialog
+                                    buttonText={"Login"}
+                                    endpoint={"/login"}
+                                    fields={loginFields}
+                                />
+                                <SimpleFormDialog
+                                    buttonText={"Register"}
+                                    endpoint={"/register"}
+                                    fields={loginFields}
                                 />
                             </Grid>
 
