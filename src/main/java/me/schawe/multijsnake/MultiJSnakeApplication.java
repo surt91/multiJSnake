@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class RestfulSnakeApplication {
+public class MultiJSnakeApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RestfulSnakeApplication.class, args);
+		SpringApplication.run(MultiJSnakeApplication.class, args);
 	}
 
 }

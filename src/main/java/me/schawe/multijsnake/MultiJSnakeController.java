@@ -5,10 +5,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class RestfulSnakeController {
+public class MultiJSnakeController {
     private final GameStateMap map;
 
-    RestfulSnakeController(GameStateMap map, WebSocketService webSocketService) {
+    MultiJSnakeController(GameStateMap map, WebSocketService webSocketService) {
         this.map = map;
     }
 
