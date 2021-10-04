@@ -10,10 +10,11 @@ export const registerStompPromise = (registrations) => {
         stompClient.connect({}, (_frame) => {
             // https://stackoverflow.com/a/43430736
             const sessionId = /\/([^\/]+)\/websocket/.exec(socket._transport.url)[1];
-            registrations.forEach((registration) => {
-                stompClient.subscribe(registration.route, registration.callback);
-            });
+            const subscriptions = registrations.map(registration =>
+                stompClient.subscribe(registration.route, registration.callback)
+            );
             stompClient.sessionId = sessionId;
+            stompClient.unsubscribeAll = () => subscriptions.forEach(sub => sub.unsubscribe())
             resolve(stompClient);
         });
     })

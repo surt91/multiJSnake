@@ -22,3 +22,8 @@ You need Java 11 and Maven, then the server can be build and started on `http://
   * unit tests
   * cypress e2e/integration tests
 * polish the UI
+
+### Bugs:
+
+* we do not have to reconnect the whole websocket, it should be enough to unsubscribe
+  from one subscription and resubscribe to the new one

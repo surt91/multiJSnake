@@ -91,12 +91,23 @@ class App extends React.Component {
     }
 
     join(id) {
+        if (id === undefined) {
+            // TODO: raise an error
+            return;
+        }
+
         const url = window.location.origin + `?id=${id}`;
 
         this.setState({
             shareUrl: url,
             id: id
         });
+
+        if(this.stompClientPromise !== undefined) {
+            // if we are already joined to a game, disconnect the existing
+            // client before joining with a new one
+            this.stompClientPromise.then(x => x.unsubscribeAll());
+        }
 
         this.stompClientPromise = registerStompPromise([
             {route: '/topic/update/' + id, callback: this.updateGameState},
