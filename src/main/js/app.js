@@ -24,8 +24,9 @@ import AddIcon from '@material-ui/icons/Add';
 import {registerStompPromise} from "./websocket-listener";
 import {registerKeyPresses, registerTouch} from "./registerEvents";
 import Canvas from "./canvas";
-import {SimpleFormDialog} from "./formDialog";
+import {LoginDialog, RegisterDialog} from "./formDialog";
 import {draw} from "./canvasDraw";
+import * as yup from 'yup';
 
 // make sure to use https, otherwise the copy to clipboard will not work
 if (location.protocol !== 'https:' && location.hostname !== "localhost") {
@@ -39,7 +40,7 @@ class App extends React.Component {
 
         const urlSearchParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlSearchParams.entries());
-        // also remove the query string with the id, withou realoading
+        // also remove the query string with the id, without reloading
         // https://stackoverflow.com/a/19279428
         const withoutQuery = window.location.protocol + "//" + window.location.host + window.location.pathname;
         window.history.pushState({path: withoutQuery}, '', withoutQuery);
@@ -250,6 +251,14 @@ class App extends React.Component {
         this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
     }
 
+    onLogin(values) {
+        console.log(values);
+    }
+
+    onRegistration(values) {
+        console.log(values);
+    }
+
     render() {
         const options = {
             scale: this.state.scale,
@@ -265,18 +274,20 @@ class App extends React.Component {
             }
         })
 
-        const loginFields = <><TextField
-                    key="username"
-                    name="username"
-                    label="Name"
-                />
-                <TextField
-                    key="password"
-                    name="password"
-                    label="Password"
-                    type="password"
-                />
-            </>;
+        const validationSchema = yup.object({
+            email: yup
+                .string('Enter your email')
+                .email('Enter a valid email')
+                .required('Email is required'),
+            username: yup
+                .string('Enter your username')
+                .min(3, 'Username should be of minimum 3 characters length')
+                .required('Email is required'),
+            password: yup
+                .string('Enter your password')
+                .min(8, 'Password should be of minimum 8 characters length')
+                .required('Password is required'),
+        });
 
         return (
             <Container maxWidth="lg">
@@ -297,53 +308,73 @@ class App extends React.Component {
                             </Grid>
 
                             <Grid item xs={12}>
-                                <SimpleFormDialog
+                                <LoginDialog
                                     buttonText={"Login"}
-                                    endpoint={"/login"}
-                                    fields={loginFields}
+                                    validationSchema={validationSchema}
+                                    endpoint={"/api/auth/login"}
+                                    onSuccess={values => this.onLogin(values)}
                                 />
-                                <SimpleFormDialog
+                                <RegisterDialog
                                     buttonText={"Register"}
-                                    endpoint={"/register"}
-                                    fields={loginFields}
+                                    validationSchema={validationSchema}
+                                    endpoint={"/api/auth/register"}
+                                    onSuccess={values => this.onRegistration(values)}
                                 />
                             </Grid>
 
                             <Grid item xs={12} lg={6}>
-                                <h2>Settings</h2>
-                                {this.state.idx >= 0 ?
-                                    <PlayerName
-                                        name={this.state.playerName}
-                                        color={idx2color(this.state.idx)}
-                                        onCommit={this.handleNameCommit}
-                                        onChange={this.handleNameChange}
-                                        switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
-                                    /> : <></>}
-                                <FieldSizeSelector
-                                    onCommit={(w, h) => this.newGame(w, h)}
-                                    gameWidth={this.state.game.width}
-                                    gameHeight={this.state.game.height}
-                                />
-                                <AddAutopilot
-                                    onCommit={type => this.addAutopilot(type)}
-                                />
+                                <Grid container direction={'column'} spacing={2}>
+                                    <Grid item xs={12}>
+                                        <h2>Settings</h2>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        {this.state.idx >= 0 ?
+                                            <PlayerName
+                                                name={this.state.playerName}
+                                                color={idx2color(this.state.idx)}
+                                                onCommit={this.handleNameCommit}
+                                                onChange={this.handleNameChange}
+                                                switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
+                                            /> : <></>}
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <FieldSizeSelector
+                                            onCommit={(w, h) => this.newGame(w, h)}
+                                            gameWidth={this.state.game.width}
+                                            gameHeight={this.state.game.height}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <AddAutopilot
+                                            onCommit={type => this.addAutopilot(type)}
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
                             <Grid item xs={12} lg={6}>
-                                <Scores
-                                    key="Scores"
-                                    title="Scores"
-                                    scores={scores}
-                                />
-                                <Scores
-                                    key="highscoresSize"
-                                    title={`Highscores for ${this.state.game.width} x ${this.state.game.width}`}
-                                    scores={this.state.highscores}
-                                />
-                                <Scores
-                                    key="Highscores"
-                                    title="Highscores"
-                                    scores={this.state.globalHighscores}
-                                />
+                                <Grid container direction={'column'} spacing={2}>
+                                    <Grid item xs={12}>
+                                        <Scores
+                                            key="Scores"
+                                            title="Scores"
+                                            scores={scores}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Scores
+                                            key="highscoresSize"
+                                            title={`Highscores for ${this.state.game.width} x ${this.state.game.width}`}
+                                            scores={this.state.highscores}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Scores
+                                            key="Highscores"
+                                            title="Highscores"
+                                            scores={this.state.globalHighscores}
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Grid>

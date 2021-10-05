@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "me.schawe.jwtSecret",
+      "type": "java.lang.String",
+      "description": "Secret for JSON Web Tokens."
+    },
+    {
+      "name": "me.schawe.jwtDurationMS",
+      "type": "java.lang.Integer",
+      "description": "Time for which JWT are valid."
+    }
+  ] }

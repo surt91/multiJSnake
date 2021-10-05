@@ -1,14 +1,12 @@
 package me.schawe.multijsnake;
 
-import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
+import javax.validation.constraints.NotBlank;
 
-public class UserData implements Serializable {
-
-    @NotEmpty(message = "Username can not be empty")
+public class LoginRequest {
+    @NotBlank
     private String username;
 
-    @NotEmpty(message = "Password can not be empty")
+    @NotBlank
     private String password;
 
     public String getUsername() {

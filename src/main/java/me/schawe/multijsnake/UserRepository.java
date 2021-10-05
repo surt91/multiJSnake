@@ -5,10 +5,13 @@ import org.springframework.data.repository.Repository;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepository extends Repository<UserEntity, Integer> {
-    void save(UserEntity userEntity);
+public interface UserRepository extends Repository<User, Integer> {
+    void save(User user);
 
-    Optional<UserEntity> findOneByUsername(String login);
+    Optional<User> findOneByUsername(String username);
 
-    List<UserEntity> findAll();
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
+
+    List<User> findAll();
 }

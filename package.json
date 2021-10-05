@@ -1,11 +1,14 @@
 {
   "dependencies": {
-    "sockjs-client": "^1.5.2",
-    "stompjs": "^2.3.3",
     "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "^4.11.2",
+    "axios": "^0.22.0",
+    "formik": "^2.2.9",
     "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react-dom": "^17.0.0",
+    "sockjs-client": "^1.5.2",
+    "stompjs": "^2.3.3",
+    "yup": "^0.32.9"
   },
   "scripts": {
     "watch": "webpack --watch -d --output ./target/classes/static/built/bundle.js"
