@@ -49,11 +49,6 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-
 		<!-- https://stackoverflow.com/a/49978310 -->
 		<!-- We use an h2 database for testing and replace it in production with postgres via env -->
 		<dependency>
