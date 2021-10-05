@@ -1,5 +1,7 @@
 package me.schawe.multijsnake;
 
+import me.schawe.multijsnake.snake.GameState;
+import me.schawe.multijsnake.snake.SnakeId;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -17,9 +19,9 @@ public class WebSocketEventListener {
     @EventListener
     public void onDisconnectEvent(SessionDisconnectEvent event) {
         SnakeId snakeId = gameStateMap.session2id(event.getSessionId());
-        GameState gameState = gameStateMap.get(snakeId.id);
-        gameState.kill(snakeId.idx);
-        gameState.markForRemoval(snakeId.idx);
+        GameState gameState = gameStateMap.get(snakeId.getId());
+        gameState.kill(snakeId.getIdx());
+        gameState.markForRemoval(snakeId.getIdx());
         webSocketService.update(gameState);
     }
 }

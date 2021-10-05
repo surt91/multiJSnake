@@ -1,5 +1,10 @@
 package me.schawe.multijsnake;
 
+import me.schawe.multijsnake.highscore.Highscore;
+import me.schawe.multijsnake.highscore.HighscoreRepository;
+import me.schawe.multijsnake.snake.*;
+import me.schawe.multijsnake.snake.ai.Autopilot;
+import me.schawe.multijsnake.snake.ai.GreedyAutopilot;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +26,7 @@ public class GameStateMap {
 
     public GameState newGameState(int w, int h) {
         GameState gameState = new GameState(x -> updateHighscore(x, w*h), w, h);
-        gameStateMap.put(gameState.id, gameState);
+        gameStateMap.put(gameState.getId(), gameState);
         return gameState;
     }
 
@@ -30,7 +35,7 @@ public class GameStateMap {
         Set<String> ids = allIds();
         for (String id : ids) {
             GameState gameState = gameStateMap.get(id);
-            if(!gameState.paused && !gameState.gameOver) {
+            if(!gameState.isPaused() && !gameState.isGameOver()) {
                 gameState.update();
                 webSocketService.update(gameState);
             }
@@ -44,7 +49,7 @@ public class GameStateMap {
         }
 
         Date date = new Date();
-        Highscore highscore = new Highscore(snake.getLength(), snake.name, size, date);
+        Highscore highscore = new Highscore(snake.getLength(), snake.getName(), size, date);
         highscoreRepository.save(highscore);
         webSocketService.updateHighscore(size);
         webSocketService.updateGlobalHighscore();
@@ -80,21 +85,21 @@ public class GameStateMap {
 
     public void pause(String sessionId) {
         SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.id);
+        GameState state = get(snakeId.getId());
         state.setPause(true);
         webSocketService.update(state);
     }
 
     public void unpause(String sessionId) {
         SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.id);
+        GameState state = get(snakeId.getId());
         state.setPause(false);
         webSocketService.update(state);
     }
 
     public void reset(String sessionId) {
         SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.id);
+        GameState state = get(snakeId.getId());
         state.reset();
         webSocketService.update(state);
     }
@@ -112,20 +117,20 @@ public class GameStateMap {
 
     public void move(String sessionId, Move move) {
         SnakeId snakeId = session2id(sessionId);
-        get(snakeId.id).turn(snakeId.idx, move);
+        get(snakeId.getId()).turn(snakeId.getIdx(), move);
     }
 
     public void setName(String sessionId, String name) {
         SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.id);
-        state.changeName(snakeId.idx, name);
+        GameState state = get(snakeId.getId());
+        state.changeName(snakeId.getIdx(), name);
 
         webSocketService.update(state);
     }
 
     public void addAI(String sessionId, String type) {
         SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.id);
+        GameState state = get(snakeId.getId());
         // TODO: select strategy, for now only random
         Autopilot autopilot = new GreedyAutopilot();
         state.addAISnake(autopilot);

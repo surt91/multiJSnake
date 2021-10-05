@@ -1,8 +1,8 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.snake;
 
 public class Coordinate {
-    int x;
-    int y;
+    public int x;
+    public int y;
 
     public int getX() {
         return x;

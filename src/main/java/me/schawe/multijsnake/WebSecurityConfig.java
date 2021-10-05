@@ -1,8 +1,11 @@
 package me.schawe.multijsnake;
 
+import me.schawe.multijsnake.usermanagement.AuthEntryPointJwt;
+import me.schawe.multijsnake.usermanagement.AuthTokenFilter;
+import me.schawe.multijsnake.usermanagement.UserDetailsServiceImpl;
+import me.schawe.multijsnake.usermanagement.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

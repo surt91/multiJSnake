@@ -1,12 +1,14 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.snake;
+
+import me.schawe.multijsnake.snake.ai.Autopilot;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
 
 public class Snake {
-    Coordinate head;
-    Move headDirection;
-    Move lastHeadDirection;
+    public Coordinate head;
+    public Move headDirection;
+    public Move lastHeadDirection;
     ArrayDeque<Coordinate> tail;
     int length;
     int idx;

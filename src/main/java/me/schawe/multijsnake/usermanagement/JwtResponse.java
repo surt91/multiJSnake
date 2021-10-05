@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.usermanagement;
 
 
 import java.util.List;

@@ -1,5 +1,7 @@
 package me.schawe.multijsnake;
 
+import me.schawe.multijsnake.highscore.HighscoreRepository;
+import me.schawe.multijsnake.snake.GameState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -22,7 +24,7 @@ public class WebSocketService {
 
     void update(GameState gameState) {
         this.websocket.convertAndSend(
-                MESSAGE_PREFIX + "/update/" + gameState.id, gameState);
+                MESSAGE_PREFIX + "/update/" + gameState.getId(), gameState);
     }
 
     public void updateHighscore() {

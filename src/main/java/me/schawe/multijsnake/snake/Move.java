@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.snake;
 
 import java.util.Optional;
 

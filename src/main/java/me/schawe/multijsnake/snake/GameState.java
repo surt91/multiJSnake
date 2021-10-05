@@ -1,4 +1,6 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.snake;
+
+import me.schawe.multijsnake.snake.ai.Autopilot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +12,7 @@ public class GameState {
     String id;
     int width;
     int height;
-    Coordinate food;
+    public Coordinate food;
     HashMap<Integer, Snake> snakes;
     int score;
     boolean paused;
@@ -18,7 +20,7 @@ public class GameState {
     List<Integer> toBeRemoved;
     Consumer<Snake> snakeDiesCallback;
 
-    GameState(Consumer<Snake> snakeDiesCallback, int width, int height) {
+    public GameState(Consumer<Snake> snakeDiesCallback, int width, int height) {
         id = gen_id();
         this.width = width;
         this.height = height;

@@ -1,5 +1,7 @@
 package me.schawe.multijsnake;
 
+import me.schawe.multijsnake.snake.GameState;
+import me.schawe.multijsnake.snake.Move;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;

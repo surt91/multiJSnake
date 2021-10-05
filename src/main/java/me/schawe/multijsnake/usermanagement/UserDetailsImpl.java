@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.usermanagement;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;

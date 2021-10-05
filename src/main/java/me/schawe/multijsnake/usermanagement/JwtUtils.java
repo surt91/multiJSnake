@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.usermanagement;
 
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;

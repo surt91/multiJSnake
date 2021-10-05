@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.highscore;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

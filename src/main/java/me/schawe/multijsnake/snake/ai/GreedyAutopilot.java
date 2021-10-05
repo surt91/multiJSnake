@@ -1,4 +1,8 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.snake.ai;
+
+import me.schawe.multijsnake.snake.GameState;
+import me.schawe.multijsnake.snake.Move;
+import me.schawe.multijsnake.snake.Snake;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +31,7 @@ public class GreedyAutopilot implements Autopilot {
     private final Random random;
     private final Strategy strategy;
 
-    GreedyAutopilot() {
+    public GreedyAutopilot() {
         random = new Random();
         strategy = Strategy.random();
     }

@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.usermanagement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

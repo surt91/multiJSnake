@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.usermanagement;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

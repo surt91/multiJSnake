@@ -1,4 +1,8 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.snake.ai;
+
+import me.schawe.multijsnake.snake.GameState;
+import me.schawe.multijsnake.snake.Move;
+import me.schawe.multijsnake.snake.Snake;
 
 import java.util.Arrays;
 import java.util.List;
