@@ -193,7 +193,8 @@ class App extends React.Component {
         // as soon as we know hwo we are, look if we have
         // a saved name and notify the server in that case
         let playerName = localStorage.getItem('playerName');
-        if (playerName !== undefined ) {
+        console.log(playerName);
+        if (playerName !== undefined && playerName !== null) {
             this.handleNameCommit(playerName)
         } else {
             this.setState({
