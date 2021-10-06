@@ -255,6 +255,9 @@ class App extends React.Component {
 
     updateCurrentUser() {
         this.setState({currentUser: AuthService.getCurrentUser()})
+        if(Boolean(this.state.currentUser)) {
+            this.handleNameCommit(this.state.currentUser.username)
+        }
     }
 
     onLogin(_values) {
@@ -365,6 +368,7 @@ class App extends React.Component {
                                                 color={idx2color(this.state.idx)}
                                                 onCommit={this.handleNameCommit}
                                                 onChange={this.handleNameChange}
+                                                loggedIn={Boolean(this.state.currentUser)}
                                                 switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
                                             /> : <></>}
                                     </Grid>
@@ -469,31 +473,33 @@ class PlayerName extends React.Component {
                                     this.props.name
                                 )}
                             </TableCell>
-                            <TableCell>
-                                {this.state.editMode ? (
-                                    <>
+                            {!this.props.loggedIn &&
+                                <TableCell>
+                                    {this.state.editMode ? (
+                                        <>
+                                            <IconButton
+                                                aria-label="done"
+                                                onClick={this.onAccept}
+                                            >
+                                                <DoneIcon/>
+                                            </IconButton>
+                                            <IconButton
+                                                aria-label="revert"
+                                                onClick={this.onRevert}
+                                            >
+                                                <RevertIcon/>
+                                            </IconButton>
+                                        </>
+                                    ) : (
                                         <IconButton
-                                            aria-label="done"
-                                            onClick={this.onAccept}
+                                            aria-label="edit"
+                                            onClick={this.onToggleEditMode}
                                         >
-                                            <DoneIcon />
+                                            <EditIcon/>
                                         </IconButton>
-                                        <IconButton
-                                            aria-label="revert"
-                                            onClick={this.onRevert}
-                                        >
-                                            <RevertIcon />
-                                        </IconButton>
-                                    </>
-                                ) : (
-                                    <IconButton
-                                        aria-label="edit"
-                                        onClick={this.onToggleEditMode}
-                                    >
-                                        <EditIcon />
-                                    </IconButton>
-                                )}
-                            </TableCell>
+                                    )}
+                                </TableCell>
+                            }
                         </TableRow>
                     </TableBody>
                 </Table>
