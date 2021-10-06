@@ -111,7 +111,8 @@ public class GameStateMap {
         GameState state = get(id);
 
         webSocketService.update(state);
-        webSocketService.updateHighscore();
+        webSocketService.updateHighscore(state.getWidth()*state.getHeight());
+        webSocketService.updateGlobalHighscore();
         webSocketService.publishIdx(sessionId, idx);
     }
 
