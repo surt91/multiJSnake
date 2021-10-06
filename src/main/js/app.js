@@ -332,20 +332,24 @@ class App extends React.Component {
                                         {"Logout"}
                                     </Button>
                                     :
-                                    <>
-                                    <LoginDialog
-                                        buttonText={"Login"}
-                                        validationSchema={validationSchemaLogin}
-                                        authService={AuthService}
-                                        onSuccess={values => this.onLogin(values)}
-                                    />
-                                    <RegisterDialog
-                                        buttonText={"Register"}
-                                        validationSchema={validationSchemaRegister}
-                                        authService={AuthService}
-                                        onSuccess={values => this.onRegistration(values)}
-                                    />
-                                    </>
+                                    <Grid container spacing={2}>
+                                        <Grid item>
+                                            <LoginDialog
+                                                buttonText={"Login"}
+                                                validationSchema={validationSchemaLogin}
+                                                authService={AuthService}
+                                                onSuccess={values => this.onLogin(values)}
+                                            />
+                                        </Grid>
+                                        <Grid item>
+                                            <RegisterDialog
+                                                buttonText={"Register"}
+                                                validationSchema={validationSchemaRegister}
+                                                authService={AuthService}
+                                                onSuccess={values => this.onRegistration(values)}
+                                            />
+                                        </Grid>
+                                    </Grid>
                                 }
                             </Grid>
 
