@@ -324,9 +324,18 @@ class App extends React.Component {
                     <Grid item xs={12} lg={6}>
                         <Grid container spacing={2} component={Paper}>
                             <Grid item xs={12} lg={6}>
-                                <ShareLink
-                                    link={this.state.shareUrl}
-                                />
+                                <Grid container spacing={2}>
+                                    <Grid item>
+                                        <Button variant="outlined" onClick={_ => {this.toggle_pause()}}>
+                                            {this.state.game.paused ? "Unpause" : "Pause"}
+                                        </Button>
+                                    </Grid>
+                                    <Grid item>
+                                        <Button variant="outlined" onClick={_ => {this.reset()}}>
+                                            Restart
+                                        </Button>
+                                    </Grid>
+                                </Grid>
                             </Grid>
 
                             <Grid item xs={12} lg={6}>
@@ -356,6 +365,12 @@ class App extends React.Component {
                                         </Grid>
                                     </Grid>
                                 }
+                            </Grid>
+
+                            <Grid item xs={12} lg={6}>
+                                <ShareLink
+                                    link={this.state.shareUrl}
+                                />
                             </Grid>
 
                             <Grid item xs={12} lg={6}>
