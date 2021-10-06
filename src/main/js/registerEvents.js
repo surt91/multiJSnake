@@ -10,7 +10,7 @@ export function registerKeyPresses(bool, callback) {
 let xDown = null;
 let yDown = null;
 
-export function registerTouch() {
+export function registerTouch(move, unpause) {
     document.ontouchstart = function (evt) {
         xDown = evt.touches[0].clientX;
         yDown = evt.touches[0].clientY;
