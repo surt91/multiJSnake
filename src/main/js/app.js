@@ -322,14 +322,14 @@ class App extends React.Component {
                         />
                     </Grid>
                     <Grid item xs={12} lg={6}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                        <Grid container spacing={2} component={Paper}>
+                            <Grid item xs={12} lg={6}>
                                 <ShareLink
                                     link={this.state.shareUrl}
                                 />
                             </Grid>
 
-                            <Grid item xs={12}>
+                            <Grid item xs={12} lg={6}>
                                 {this.state.currentUser ?
                                     <Button variant="outlined" onClick={_ => {AuthService.logout(); this.onLogout()}}>
                                         {"Logout"}
@@ -453,7 +453,6 @@ class PlayerName extends React.Component {
 
     render() {
         return(
-            <>
             <TableContainer component={Paper}>
                 <Table aria-label={this.props.title}>
                     <TableBody>
@@ -504,7 +503,6 @@ class PlayerName extends React.Component {
                     </TableBody>
                 </Table>
             </TableContainer>
-            </>
         );
     }
 }
@@ -658,28 +656,24 @@ class ShareLink extends React.Component {
 
     render() {
         return (
-            <Grid container component={Paper}>
-                <Grid item xs={12} lg={12}>
-                    <Box spacing={2} m={2}>
-                        Share this for others to join
-                        <Tooltip title={this.state.tooltip}>
-                            <Button
-                                style={{textTransform: 'none'}}
-                                onClick={() => {
-                                    navigator.clipboard.writeText(this.props.link);
-                                    this.setState({tooltip: "Copied!"})
-                                }}
-                                onMouseLeave={() => this.setState({
-                                    tooltip: "Click to copy"
-                                })}
-                                variant="outlined"
-                            >
-                                {this.props.link}
-                            </Button>
-                        </Tooltip>
-                    </Box>
-                </Grid>
-            </Grid>
+            <Box>
+                <h4>Share this for others to join</h4>
+                <Tooltip title={this.state.tooltip}>
+                    <TextField
+                        variant="outlined"
+                        label="sharable link"
+                        value={this.props.link}
+                        onClick={() => {
+                                navigator.clipboard.writeText(this.props.link);
+                                this.setState({tooltip: "Copied!"})
+                        }}
+                        onMouseLeave={() => this.setState({
+                            tooltip: "Click to copy"
+                        })}
+                        onChange={e => e.preventDefault()}
+                    />
+                </Tooltip>
+            </Box>
         );
     }
 }
