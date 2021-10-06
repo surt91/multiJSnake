@@ -342,6 +342,7 @@ class App extends React.Component {
                                                 validationSchema={validationSchemaLogin}
                                                 authService={AuthService}
                                                 onSuccess={values => this.onLogin(values)}
+                                                switchOffGlobalListener={bool => registerKeyPresses(!bool, this.handleKeydown)}
                                             />
                                         </Grid>
                                         <Grid item>
@@ -350,6 +351,7 @@ class App extends React.Component {
                                                 validationSchema={validationSchemaRegister}
                                                 authService={AuthService}
                                                 onSuccess={values => this.onRegistration(values)}
+                                                switchOffGlobalListener={bool => registerKeyPresses(!bool, this.handleKeydown)}
                                             />
                                         </Grid>
                                     </Grid>
@@ -369,7 +371,7 @@ class App extends React.Component {
                                                 onCommit={this.handleNameCommit}
                                                 onChange={this.handleNameChange}
                                                 loggedIn={Boolean(this.state.currentUser)}
-                                                switchGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
+                                                switchOnGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
                                             /> : <></>}
                                     </Grid>
                                     <Grid item xs={12}>
@@ -438,7 +440,7 @@ class PlayerName extends React.Component {
             editMode: !state.editMode,
             previous: props.name
         }));
-        this.props.switchGlobalListener(this.state.editMode);
+        this.props.switchOnGlobalListener(this.state.editMode);
     };
 
     onRevert() {

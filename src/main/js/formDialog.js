@@ -17,11 +17,13 @@ export class SimpleFormDialog extends React.Component {
 
     handleClickOpen() {
         this.setState({open: true});
+        this.props.switchOffGlobalListener(true);
     };
 
     handleClose() {
         this.setState({open: false});
-        this.props.formik.resetForm()
+        this.props.formik.resetForm();
+        this.props.switchOffGlobalListener(false);
     };
 
     render() {
@@ -104,6 +106,7 @@ export const LoginDialog = (props) => {
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
+            switchOffGlobalListener={props.switchOffGlobalListener}
         />
     )
 }
@@ -169,6 +172,7 @@ export const RegisterDialog = (props) => {
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
+            switchOffGlobalListener={props.switchOffGlobalListener}
         />
     )
 }
