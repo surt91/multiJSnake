@@ -415,7 +415,7 @@ class App extends React.Component {
                                     <Grid item xs={12}>
                                         <Scores
                                             key="highscoresSize"
-                                            title={`Highscores for ${this.state.game.width} x ${this.state.game.width}`}
+                                            title={`Highscores for ${this.state.game.width} x ${this.state.game.height}`}
                                             scores={this.state.highscores}
                                         />
                                     </Grid>
@@ -470,56 +470,54 @@ class PlayerName extends React.Component {
 
     render() {
         return(
-            <TableContainer component={Paper}>
-                <Table aria-label={this.props.title}>
-                    <TableBody>
-                        <TableRow key="playername">
-                            <TableCell>
-                                <ColorViewer color={this.props.color}/>
-                            </TableCell>
-                            <TableCell>
-                                {this.state.editMode ? (
-                                    <TextField
-                                        value={this.props.name}
-                                        name="name"
-                                        label="Player Name"
-                                        onChange={e => this.props.onChange(e.target.value)}
-                                    />
-                                ) : (
-                                    this.props.name
-                                )}
-                            </TableCell>
-                            {!this.props.loggedIn &&
-                                <TableCell>
-                                    {this.state.editMode ? (
-                                        <>
-                                            <IconButton
-                                                aria-label="done"
-                                                onClick={this.onAccept}
-                                            >
-                                                <DoneIcon/>
-                                            </IconButton>
-                                            <IconButton
-                                                aria-label="revert"
-                                                onClick={this.onRevert}
-                                            >
-                                                <RevertIcon/>
-                                            </IconButton>
-                                        </>
-                                    ) : (
-                                        <IconButton
-                                            aria-label="edit"
-                                            onClick={this.onToggleEditMode}
-                                        >
-                                            <EditIcon/>
-                                        </IconButton>
-                                    )}
-                                </TableCell>
-                            }
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            <Grid container spacing={2}>
+                <Grid item>
+                    <ColorViewer color={this.props.color}/>
+                </Grid>
+                <Grid item id={"playerNameView"} component={"Paper"}>
+                    {this.state.editMode ? (
+                        <TextField
+                            value={this.props.name}
+                            name="name"
+                            label="Player Name"
+                            onChange={e => this.props.onChange(e.target.value)}
+                        />
+                    ) : (
+                        this.props.name
+                    )}
+                </Grid>
+
+                {!this.props.loggedIn && this.state.editMode &&
+                <Grid item>
+                    <IconButton
+                        aria-label="done"
+                        onClick={this.onAccept}
+                    >
+                        <DoneIcon/>
+                    </IconButton>
+                </Grid>
+                }
+                {!this.props.loggedIn && this.state.editMode &&
+                <Grid item>
+                    <IconButton
+                        aria-label="revert"
+                        onClick={this.onRevert}
+                    >
+                        <RevertIcon/>
+                    </IconButton>
+                </Grid>
+                }
+                {!this.props.loggedIn && !this.state.editMode &&
+                <Grid item>
+                    <IconButton
+                        aria-label="edit"
+                        onClick={this.onToggleEditMode}
+                    >
+                        <EditIcon/>
+                    </IconButton>
+                </Grid>
+                }
+            </Grid>
         );
     }
 }
@@ -548,7 +546,7 @@ class Scores extends React.Component {
             <>
             <h2>{this.props.title}</h2>
             <TableContainer component={Paper}>
-                <Table aria-label={this.props.title}>
+                <Table aria-label={this.props.title} id="currentScores">
                     <TableBody>
                         {fields}
                     </TableBody>
