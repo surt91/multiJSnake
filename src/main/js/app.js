@@ -27,6 +27,7 @@ import Canvas from "./canvas";
 import {LoginDialog, RegisterDialog} from "./formDialog";
 import {draw} from "./canvasDraw";
 import * as yup from 'yup';
+import AuthService from "./AuthService";
 
 // make sure to use https, otherwise the copy to clipboard will not work
 if (location.protocol !== 'https:' && location.hostname !== "localhost") {
@@ -77,6 +78,7 @@ class App extends React.Component {
         this.init(this.state.game.width, this.state.game.height);
         registerKeyPresses(true, this.handleKeydown);
         // registerTouch();
+        this.updateCurrentUser();
     }
 
     newGame(w, h) {
@@ -251,12 +253,20 @@ class App extends React.Component {
         this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
     }
 
-    onLogin(values) {
-        console.log(values);
+    updateCurrentUser() {
+        this.setState({currentUser: AuthService.getCurrentUser()})
     }
 
-    onRegistration(values) {
-        console.log(values);
+    onLogin(_values) {
+        this.updateCurrentUser();
+    }
+
+    onRegistration(_values) {
+        this.updateCurrentUser();
+    }
+
+    onLogout(_values) {
+        this.updateCurrentUser();
     }
 
     render() {
@@ -274,7 +284,16 @@ class App extends React.Component {
             }
         })
 
-        const validationSchema = yup.object({
+        const validationSchemaLogin = yup.object({
+            username: yup
+                .string('Enter your username')
+                .required('Email is required'),
+            password: yup
+                .string('Enter your password')
+                .required('Password is required'),
+        });
+
+        const validationSchemaRegister = yup.object({
             email: yup
                 .string('Enter your email')
                 .email('Enter a valid email')
@@ -308,18 +327,26 @@ class App extends React.Component {
                             </Grid>
 
                             <Grid item xs={12}>
-                                <LoginDialog
-                                    buttonText={"Login"}
-                                    validationSchema={validationSchema}
-                                    endpoint={"/api/auth/login"}
-                                    onSuccess={values => this.onLogin(values)}
-                                />
-                                <RegisterDialog
-                                    buttonText={"Register"}
-                                    validationSchema={validationSchema}
-                                    endpoint={"/api/auth/register"}
-                                    onSuccess={values => this.onRegistration(values)}
-                                />
+                                {this.state.currentUser ?
+                                    <Button variant="outlined" onClick={_ => {AuthService.logout(); this.onLogout()}}>
+                                        {"Logout"}
+                                    </Button>
+                                    :
+                                    <>
+                                    <LoginDialog
+                                        buttonText={"Login"}
+                                        validationSchema={validationSchemaLogin}
+                                        authService={AuthService}
+                                        onSuccess={values => this.onLogin(values)}
+                                    />
+                                    <RegisterDialog
+                                        buttonText={"Register"}
+                                        validationSchema={validationSchemaRegister}
+                                        authService={AuthService}
+                                        onSuccess={values => this.onRegistration(values)}
+                                    />
+                                    </>
+                                }
                             </Grid>
 
                             <Grid item xs={12} lg={6}>

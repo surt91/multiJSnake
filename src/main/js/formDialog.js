@@ -7,7 +7,6 @@ import {
     TextField,
 } from "@material-ui/core";
 import React from "react";
-import axios from "axios";
 import { useFormik } from 'formik';
 
 export class SimpleFormDialog extends React.Component {
@@ -52,28 +51,29 @@ export class SimpleFormDialog extends React.Component {
 export const LoginDialog = (props) => {
     const formik = useFormik({
         initialValues: {
-            email: '',
             username: '',
             password: '',
         },
         validationSchema: props.validationSchema,
         onSubmit: (values) => {
-            axios.post(props.endpoint, values)
-                .then(response => {
-                    console.log("yay", response);
+            props.authService.login(values.username, values.password)
+                .then(_response => {
                     props.onSuccess(values);
-                    dialogRef.current.handleClose();
                 })
                 .catch(errors => {
-                    console.log("nay", errors);
                     if(errors.response.status === 400) {
                         formik.setErrors(errors.response.data);
+                    }
+                    // user does not exists, the password is wrong or it is not authorized to login (banned, ...)
+                    if(errors.response.status === 401) {
+                        formik.setErrors({
+                            "username": "The user does not exist ...",
+                            "password": "... or the password is wrong"
+                        });
                     }
                 });
         }
     });
-
-    const dialogRef = React.useRef(null);
 
     const fields = <>
         <TextField
@@ -101,11 +101,9 @@ export const LoginDialog = (props) => {
 
     return(
         <SimpleFormDialog
-            ref={dialogRef}
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
-            endpoint={props.endpoint}
         />
     )
 }
@@ -114,28 +112,23 @@ export const LoginDialog = (props) => {
 export const RegisterDialog = (props) => {
     const formik = useFormik({
         initialValues: {
-            email: '',
             username: '',
+            email: '',
             password: '',
         },
         validationSchema: props.validationSchema,
         onSubmit: (values) => {
-            axios.post(props.endpoint, values)
-                .then(response => {
-                    console.log("yay", response);
+            props.authService.register(values.username, values.email, values.password)
+                .then(_response => {
                     props.onSuccess(values);
-                    dialogRef.current.handleClose();
                 })
                 .catch(errors => {
-                    console.log("nay", errors, values);
                     if(errors.response.status === 400) {
                         formik.setErrors(errors.response.data);
                     }
                 });
         }
     });
-
-    const dialogRef = React.useRef(null);
 
     const fields = <>
         <TextField
@@ -173,11 +166,9 @@ export const RegisterDialog = (props) => {
 
     return(
         <SimpleFormDialog
-            ref={dialogRef}
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
-            endpoint={props.endpoint}
         />
     )
 }
