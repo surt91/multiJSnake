@@ -111,6 +111,7 @@ public class GameState {
         return coordinate.x < 0 || coordinate.x >= width || coordinate.y < 0 || coordinate.y >= height;
     }
 
+    // FIXME: this will become an infinite loop after a perfect game -- or after enough players spawned
     private Coordinate randomSite() {
         Coordinate site;
         do {
