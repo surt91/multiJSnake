@@ -25,6 +25,8 @@ export function registerTouch(move, unpause) {
         let yUp = evt.touches[0].clientY;
 
         // only handle the event, if the swipe started or ended in the canvas
+        // FIXME: this is an ugly hardcoded id
+        let c = document.getElementById("snakeCanvas");
         let r = c.getBoundingClientRect();
         if (
             xUp - r.left > 0

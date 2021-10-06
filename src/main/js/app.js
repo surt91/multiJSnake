@@ -77,7 +77,7 @@ class App extends React.Component {
     componentDidMount() {
         this.init(this.state.game.width, this.state.game.height);
         registerKeyPresses(true, this.handleKeydown);
-        registerTouch(this.move, this.unpause);
+        registerTouch(dir => this.move(dir), _ => this.unpause());
         this.updateCurrentUser();
     }
 
