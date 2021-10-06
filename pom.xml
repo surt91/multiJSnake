@@ -11,8 +11,8 @@
 	<groupId>me.schawe</groupId>
 	<artifactId>multijsnake</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>RESTfulSnake</name>
-	<description>A restful snake</description>
+	<name>MultiJSnake</name>
+	<description>Multiplayer Snake</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>
