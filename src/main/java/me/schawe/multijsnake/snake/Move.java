@@ -1,6 +1,7 @@
 package me.schawe.multijsnake.snake;
 
 import java.util.Optional;
+import java.util.Random;
 
 public enum Move {
     left,
@@ -46,8 +47,8 @@ public enum Move {
         return offset;
     }
 
-    public static Move random() {
-        double r = 4. * Math.random();
+    public static Move random(Random rand) {
+        double r = 4. * rand.nextFloat();
         if(r < 1) {
             return Move.up;
         } else if (r < 2) {
@@ -59,5 +60,9 @@ public enum Move {
         }
         // this will not happen
         throw new RuntimeException("unreachable!");
+    }
+
+    public static Move random() {
+        return random(new Random());
     }
 }

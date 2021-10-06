@@ -19,6 +19,7 @@ public class GameState {
     boolean gameOver;
     List<Integer> toBeRemoved;
     Consumer<Snake> snakeDiesCallback;
+    private Random random = new Random();
 
     public GameState(Consumer<Snake> snakeDiesCallback, int width, int height) {
         id = gen_id();
@@ -73,12 +74,15 @@ public class GameState {
         snakes.get(idx).setName(name);
     }
 
-    public static String gen_id() {
+    public void seed(long seed) {
+        random = new Random(seed);
+    }
+
+    public String gen_id() {
         // https://www.baeldung.com/java-random-string
         int leftLimit = 48; // numeral '0'
         int rightLimit = 122; // letter 'z'
         int targetStringLength = 10;
-        Random random = new Random();
 
         return random.ints(leftLimit, rightLimit + 1)
                 .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
@@ -89,13 +93,13 @@ public class GameState {
 
     public int addSnake() {
         int idx = snakes.size();
-        snakes.put(idx, new Snake(idx, randomSite()));
+        snakes.put(idx, new Snake(idx, randomSite(), random));
         return idx;
     }
 
     public int addAISnake(Autopilot autopilot) {
         int idx = snakes.size();
-        snakes.put(idx, new Snake(idx, randomSite()));
+        snakes.put(idx, new Snake(idx, randomSite(), random));
         snakes.get(idx).setAutopilot(autopilot);
         return idx;
     }
@@ -115,7 +119,7 @@ public class GameState {
     private Coordinate randomSite() {
         Coordinate site;
         do {
-            site = new Coordinate((int) (Math.random() * width), (int) (Math.random() * height));
+            site = new Coordinate((int) (random.nextFloat() * width), (int) (random.nextFloat() * height));
         } while (isOccupied(site));
         return site;
     }
@@ -158,42 +162,44 @@ public class GameState {
     }
 
     public void update() {
-        if(snakes.values().stream().allMatch(Snake::isDead)) {
-            gameOver = true;
-        }
-
-        if(gameOver || paused) {
+        if(gameOver) {
             return;
         }
 
-        for(Snake snake : snakes.values()) {
-            if(snake.isDead()) {
-                continue;
+        if(!paused) {
+            for (Snake snake : snakes.values()) {
+                if (snake.isDead()) {
+                    continue;
+                }
+
+                snake.ai().ifPresent(autopilot -> snake.headDirection = autopilot.suggest(this, snake));
+
+                Coordinate offset = snake.headDirection.toCoord();
+                snake.lastHeadDirection = snake.headDirection;
+
+                snake.tail.add(snake.head.copy());
+
+                if (snake.head.equals(food)) {
+                    snake.length += 1;
+                    score += 1;
+                    add_food();
+                }
+
+                while (snake.tail.size() >= snake.length + 1) {
+                    snake.tail.remove();
+                }
+
+                Coordinate next = snake.head.add(offset);
+                if (isWall(next) || isOccupied(next)) {
+                    kill(snake.idx);
+                }
+
+                snake.head = next;
             }
+        }
 
-            snake.ai().ifPresent(autopilot -> snake.headDirection = autopilot.suggest(this, snake));
-
-            Coordinate offset = snake.headDirection.toCoord();
-            snake.lastHeadDirection = snake.headDirection;
-
-            snake.tail.add(snake.head.copy());
-
-            if (snake.head.equals(food)) {
-                snake.length += 1;
-                score += 1;
-                add_food();
-            }
-
-            while (snake.tail.size() >= snake.length + 1) {
-                snake.tail.remove();
-            }
-
-            Coordinate next = snake.head.add(offset);
-            if (isWall(next) || isOccupied(next)) {
-                kill(snake.idx);
-            }
-
-            snake.head = next;
+        if(snakes.values().stream().allMatch(Snake::isDead)) {
+            gameOver = true;
         }
     }
 }

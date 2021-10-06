@@ -4,6 +4,7 @@ import me.schawe.multijsnake.snake.ai.Autopilot;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
+import java.util.Random;
 
 public class Snake {
     public Coordinate head;
@@ -52,8 +53,8 @@ public class Snake {
         return tail;
     }
 
-    Snake(int idx, Coordinate start){
-        Move dir = Move.random();
+    Snake(int idx, Coordinate start, Random random) {
+        Move dir = Move.random(random);
         lastHeadDirection = dir;
         headDirection = dir;
         head = start;
@@ -63,6 +64,10 @@ public class Snake {
         dead = false;
         name = "Anon " + (idx + 1);
         autopilotOptional = Optional.empty();
+    }
+
+    Snake(int idx, Coordinate start){
+        this(idx, start, new Random());
     }
 
     public void reset(Coordinate start) {
