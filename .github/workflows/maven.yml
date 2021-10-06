@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven and E2E Tests with Cypress
+name: Build, Unit Tests and Cypress E2E Tests
 
 on:
   push:
@@ -25,12 +25,8 @@ jobs:
     - name: Build with Maven
       run: ./mvnw test -B
 
-    - run: ls -la
-
     - name: Cypress run
       uses: cypress-io/github-action@v2
       with:
         start: bash ./mvnw spring-boot:run
         wait-on: http://localhost:8080
-
-    - run: ls -la
