@@ -11,7 +11,8 @@
     "yup": "^0.32.9"
   },
   "scripts": {
-    "watch": "webpack --watch"
+    "watch": "webpack --watch --mode development -d eval-source-map",
+    "build": "webpack --mode production"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
