@@ -1,7 +1,7 @@
 'use strict';
 
-const SockJS = require('sockjs-client');
-require('stompjs');
+import SockJS from "sockjs-client";
+import {Stomp} from "@stomp/stompjs";
 
 export const registerStompPromise = (registrations) => {
     return new Promise((resolve, _reject) => {

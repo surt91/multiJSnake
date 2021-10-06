@@ -1,8 +1,8 @@
-var path = require('path');
+const path = require('path');
 
 module.exports = {
     entry: './src/main/js/app.js',
-    devtool: 'sourcemaps',
+    devtool: 'eval-source-map',
     cache: true,
     mode: 'development',
     output: {
@@ -21,9 +21,6 @@ module.exports = {
                     }
                 }]
             }
-        ]
-    },
-    node: {
-        net: 'empty',
-    },
+        ],
+    }
 };
