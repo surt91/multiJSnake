@@ -1,7 +1,7 @@
 import {idx2color} from "./color";
 
-const React = require('react');
-const ReactDOM = require('react-dom');
+import React from "react";
+import ReactDOM from "react-dom";
 import {
     Container,
     TextField,

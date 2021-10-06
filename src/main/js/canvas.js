@@ -1,4 +1,4 @@
-const React = require('react');
+import React from "react";
 
 // https://medium.com/@pdx.lucasm/canvas-with-react-js-32e133c05258
 class Canvas extends React.Component {
@@ -26,7 +26,7 @@ class Canvas extends React.Component {
     render() {
         let {draw, ...passthrough} = this.props;
         return (
-            <canvas ref={this.canvasRef} {...passthrough} id={"snakeCanvas"}/>
+            <canvas ref={this.canvasRef} {...passthrough} id={"snakeCanvas"} tabIndex={-1}/>
         )
     }
 }
