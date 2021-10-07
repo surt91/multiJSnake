@@ -14,6 +14,11 @@ public class MultiJSnakeController {
         this.map = map;
     }
 
+    @PostMapping("/api/init/{w}/{h}/{seed}")
+    GameState init(@PathVariable int w, @PathVariable int h, @PathVariable long seed) {
+        return map.newSeededGameState(w, h, seed);
+    }
+
     @PostMapping("/api/init/{w}/{h}")
     GameState init(@PathVariable int w, @PathVariable int h) {
         return map.newGameState(w, h);

@@ -24,6 +24,13 @@ public class GameStateMap {
         this.highscoreRepository = highscoreRepository;
     }
 
+    public GameState newSeededGameState(int w, int h, long seed) {
+        GameState gameState = newGameState(w, h);
+        gameState.seed(seed);
+        gameState.reset();
+        return gameState;
+    }
+
     public GameState newGameState(int w, int h) {
         GameState gameState = new GameState(x -> updateHighscore(x, w*h), w, h);
         gameStateMap.put(gameState.getId(), gameState);
