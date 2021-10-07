@@ -50,13 +50,16 @@ public class GameStateMap {
     }
 
     private void updateHighscore(Snake snake, int size) {
+        var score = snake.getLength();
+
         // do not save highscore for AI snakes
-        if (snake.ai().isPresent()) {
+        // also do not save very low scores
+        if (snake.ai().isPresent() || score < 5) {
             return;
         }
 
         Date date = new Date();
-        Highscore highscore = new Highscore(snake.getLength(), snake.getName(), size, date);
+        Highscore highscore = new Highscore(score, snake.getName(), size, date);
         highscoreRepository.save(highscore);
         webSocketService.updateHighscore(size);
         webSocketService.updateGlobalHighscore();
