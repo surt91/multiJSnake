@@ -14,9 +14,7 @@ class GameStateTest {
     @BeforeEach
     void setUp() {
         // ensure a well defined state to test against
-        gameState = new GameState((x) -> {}, 42, 23);
-        gameState.seed(42);
-        gameState.reset();
+        gameState = new GameState(42, 23, 42);
     }
 
     @Test

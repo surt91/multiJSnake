@@ -2,10 +2,7 @@ package me.schawe.multijsnake.snake;
 
 import me.schawe.multijsnake.snake.ai.Autopilot;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class GameState {
@@ -21,7 +18,7 @@ public class GameState {
     Consumer<Snake> snakeDiesCallback;
     private Random random = new Random();
 
-    public GameState(Consumer<Snake> snakeDiesCallback, int width, int height) {
+    public GameState(int width, int height) {
         id = gen_id();
         this.width = width;
         this.height = height;
@@ -31,7 +28,13 @@ public class GameState {
         add_food();
         paused = true;
         gameOver = false;
-        this.snakeDiesCallback = snakeDiesCallback;
+        this.snakeDiesCallback = x -> {};
+    }
+
+    public GameState(int width, int height, long seed) {
+        this(width, height);
+        random = new Random(seed);
+        add_food();
     }
 
     public String getId() {
@@ -70,11 +73,15 @@ public class GameState {
         this.paused = paused;
     }
 
+    public void setSnakeDiesCallback(Consumer<Snake> snakeDiesCallback) {
+        this.snakeDiesCallback = snakeDiesCallback;
+    }
+
     public void changeName(int idx, String name) {
         snakes.get(idx).setName(name);
     }
 
-    public void seed(long seed) {
+    public void reseed(long seed) {
         random = new Random(seed);
     }
 

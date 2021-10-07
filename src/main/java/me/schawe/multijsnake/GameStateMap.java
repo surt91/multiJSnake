@@ -24,15 +24,19 @@ public class GameStateMap {
         this.highscoreRepository = highscoreRepository;
     }
 
-    public GameState newSeededGameState(int w, int h, long seed) {
-        GameState gameState = newGameState(w, h);
-        gameState.seed(seed);
-        gameState.reset();
-        return gameState;
+    public GameState newGameState(int w, int h, long seed) {
+        GameState gameState = new GameState(w, h, seed);
+        return initGamestate(gameState);
     }
 
     public GameState newGameState(int w, int h) {
-        GameState gameState = new GameState(x -> updateHighscore(x, w*h), w, h);
+        GameState gameState = new GameState(w, h);
+        return initGamestate(gameState);
+    }
+
+    private GameState initGamestate(GameState gameState) {
+        int size = gameState.getWidth()*gameState.getHeight();
+        gameState.setSnakeDiesCallback(x -> updateHighscore(x, size));
         gameStateMap.put(gameState.getId(), gameState);
         return gameState;
     }
