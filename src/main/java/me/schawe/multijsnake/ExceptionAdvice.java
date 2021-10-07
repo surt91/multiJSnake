@@ -1,5 +1,6 @@
 package me.schawe.multijsnake;
 
+import me.schawe.multijsnake.snake.InvalidMoveException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
