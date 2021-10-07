@@ -27,7 +27,14 @@ class Canvas extends React.Component {
     render() {
         let {draw, ...passthrough} = this.props;
         return (
-            <canvas ref={this.canvasRef} {...passthrough} id={"snakeCanvas"} tabIndex={-1}/>
+            <canvas
+                ref={this.canvasRef}
+                {...passthrough}
+                id={"snakeCanvas"}
+                tabIndex={-1}
+                onBlur={_ => this.props.focused(false)}
+                onFocus={_ => this.props.focused(true)}
+            />
         )
     }
 }

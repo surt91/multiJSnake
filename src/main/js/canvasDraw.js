@@ -39,7 +39,7 @@ export function draw(ctx, state, options) {
         return;
     }
 
-    const {scale, bgColor, foodColor} = options;
+    const {scale, bgColor, foodColor, blurred} = options;
     let width = state.width;
     let height = state.height;
 
@@ -53,6 +53,13 @@ export function draw(ctx, state, options) {
 
     state.snakes.forEach(snake => drawSnake(ctx, snake, options));
 
+    if(blurred) {
+        ctx.fillStyle = "#aaaa22";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Click here!", width * scale / 2, height * scale / 4);
+    }
+
     if(state.paused) {
         ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
@@ -64,7 +71,7 @@ export function draw(ctx, state, options) {
         ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("Game Over!", width*scale/2, height*scale/2);
+        ctx.fillText("Game Over!", width*scale/2, height*scale/4*3);
     }
 }
 

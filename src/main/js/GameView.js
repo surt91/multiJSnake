@@ -51,6 +51,7 @@ export class GameView extends React.Component {
             highscores: [],
             globalHighscores: [],
             idx: -1,
+            blurred: false,
             playerName: "",
             shareUrl: ""
         };
@@ -253,7 +254,8 @@ export class GameView extends React.Component {
         const options = {
             scale: this.state.scale,
             bgColor: this.state.bgColor,
-            foodColor: this.state.foodColor
+            foodColor: this.state.foodColor,
+            blurred: this.state.blurred
         }
 
         return (
@@ -266,6 +268,7 @@ export class GameView extends React.Component {
                             height={this.state.game.height * this.state.scale}
                             tabIndex={-1}
                             onKeyDown={e => this.handleKeydown(e)}
+                            focused={b => this.setState({blurred: !b})}
                         />
                     </Grid>
                     <Grid item xs={12} lg={3}>
