@@ -12,11 +12,34 @@ import {
 import MenuIcon from "@material-ui/icons/Menu";
 import AuthService from "./AuthService";
 import {LoginDialog, RegisterDialog} from "./formDialog";
+import axios from "axios";
+import authHeader from "./authHeader";
 
 
+// TODO: this navbar also handles logic for expiring logins... that is not very clean
 export class NavBar extends React.Component {
     constructor(props) {
         super(props);
+
+        this.testJwt();
+    }
+
+    // test if we have a token and whether it is still valid
+    // if not we log out
+    testJwt() {
+        if (AuthService.getCurrentUser()) {
+            axios.get('/api/user/profile', { headers: authHeader() })
+                .then(/* token is valid, we do not have to do anything */)
+                .catch(_ => {AuthService.logout(); this.props.onUserChange()});
+        }
+    }
+
+    // also test every hour (the JWT are only good for a limited amount of time
+    componentDidMount() {
+        this.interval = setInterval(() => this.testJwt(), 60*60*1000);
+    }
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     render() {

@@ -33,7 +33,6 @@ public class User {
     }
 
     public String getUsername() {
-        // here we could add logic for banning users
         return username;
     }
 
