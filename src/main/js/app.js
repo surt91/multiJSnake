@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 
 import {GameView} from "./GameView";
 import Profile from "./Profile";
@@ -20,9 +20,6 @@ class App extends React.Component {
 
     updateCurrentUser() {
         this.setState({currentUser: AuthService.getCurrentUser()})
-        if(Boolean(this.state.currentUser)) {
-            this.handleNameCommit(this.state.currentUser.username)
-        }
     }
 
     componentDidMount() {

@@ -1,5 +1,4 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { Link } from "react-router-dom";
 
 import {
@@ -13,7 +12,6 @@ import {
 import MenuIcon from "@material-ui/icons/Menu";
 import AuthService from "./AuthService";
 import {LoginDialog, RegisterDialog} from "./formDialog";
-import {registerKeyPresses} from "./registerEvents";
 
 
 export class NavBar extends React.Component {
@@ -59,16 +57,14 @@ export class NavBar extends React.Component {
                                     <LoginDialog
                                         buttonText={"Login"}
                                         authService={AuthService}
-                                        onSuccess={values => this.props.onUserChange()}
-                                        // switchOffGlobalListener={bool => registerKeyPresses(!bool, this.handleKeydown)}
+                                        onSuccess={_ => this.props.onUserChange()}
                                     />
                                 </Grid>
                                 <Grid item>
                                     <RegisterDialog
                                         buttonText={"Register"}
                                         authService={AuthService}
-                                        onSuccess={values => this.props.onUserChange()}
-                                        // switchOffGlobalListener={bool => registerKeyPresses(!bool, this.handleKeydown)}
+                                        onSuccess={_ => this.props.onUserChange()}
                                     />
                                 </Grid>
                             </Grid>

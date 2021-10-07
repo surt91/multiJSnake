@@ -1,11 +1,3 @@
-export function registerKeyPresses(bool, callback) {
-    if(bool) {
-        document.onkeydown = callback;
-    } else {
-        document.onkeydown = _ => {};
-    }
-}
-
 // steering using touch gestures
 let xDown = null;
 let yDown = null;

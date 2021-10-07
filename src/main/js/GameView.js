@@ -1,9 +1,6 @@
 import React from "react";
-import {registerKeyPresses, registerTouch} from "./registerEvents";
+import {registerTouch} from "./registerTouch";
 import {registerStompPromise} from "./websocket-listener";
-import AuthService from "./AuthService";
-import {idx2color} from "./color";
-import * as yup from "yup";
 import {
     Box,
     Button,
@@ -18,13 +15,12 @@ import {
 } from "@material-ui/core";
 import Canvas from "./canvas";
 import {draw} from "./canvasDraw";
-import {Link} from "react-router-dom";
-import {LoginDialog, RegisterDialog} from "./formDialog";
 import DoneIcon from "@material-ui/icons/Done";
 import RevertIcon from "@material-ui/icons/NotInterestedOutlined";
 import EditIcon from "@material-ui/icons/Edit";
 import AddIcon from "@material-ui/icons/Add";
-import {NavBar} from "./NavBar";
+import PropTypes from "prop-types";
+import {idx2color} from "./color";
 
 export class GameView extends React.Component {
 
@@ -70,8 +66,13 @@ export class GameView extends React.Component {
 
     componentDidMount() {
         this.init(this.state.game.width, this.state.game.height);
-        registerKeyPresses(true, this.handleKeydown);
         registerTouch(dir => this.move(dir), _ => this.unpause());
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.currentUser && prevProps.currentUser !== this.props.currentUser) {
+            this.handleNameCommit(this.props.currentUser.username)
+        }
     }
 
     newGame(w, h) {
@@ -235,7 +236,9 @@ export class GameView extends React.Component {
     }
 
     handleNameCommit(newName) {
-        this.stompClientPromise.then(x => x.send("/app/setName", {}, newName));
+        if(this.stompClientPromise) {
+            this.stompClientPromise.then(x => x.send("/app/setName", {}, newName));
+        }
         localStorage.setItem('playerName', newName);
         this.setState({
             playerName: newName
@@ -252,7 +255,115 @@ export class GameView extends React.Component {
             bgColor: this.state.bgColor,
             foodColor: this.state.foodColor
         }
-        const scores = this.state.game.snakes.map(snake => {
+
+        return (
+            <Container maxWidth="lg">
+                <Grid container spacing={4}>
+                    <Grid item xs={12} lg={6}>
+                        <Canvas
+                            draw={ctx => draw(ctx, this.state.game, options)}
+                            width={this.state.game.width * this.state.scale}
+                            height={this.state.game.height * this.state.scale}
+                            tabIndex={-1}
+                            onKeyDown={e => this.handleKeydown(e)}
+                        />
+                    </Grid>
+                    <Grid item xs={12} lg={3}>
+                        <PlayerPane
+                            game={this.state.game}
+                            shareUrl={this.state.shareUrl}
+                            idx={this.state.idx}
+                            playerName={this.state.playerName}
+                            currentUser={this.props.currentUser}
+                            handleNameCommit={s => this.handleNameCommit(s)}
+                            handleNameChange={s => this.handleNameChange(s)}
+                            newGame={(w, h) => this.newGame(w, h)}
+                            addAutopilot={name => this.addAutopilot(name)}
+                            togglePause={_ => this.toggle_pause()}
+                            reset={_ => this.reset()}
+                        />
+                    </Grid>
+                    <Grid item xs={12} lg={3}>
+                        <ScorePane
+                            game={this.state.game}
+                            highscores={this.state.highscores}
+                            globalHighscores={this.state.globalHighscores}
+                        />
+                    </Grid>
+                </Grid>
+            </Container>
+        )
+    }
+}
+
+GameView.propTypes = {
+    currentUser: PropTypes.object
+}
+
+class PlayerPane extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return(
+            <Grid container spacing={2} direction={'column'} component={Paper}>
+                <Grid item xs={12}>
+                    <Grid container spacing={2}>
+                        <Grid item>
+                            <Button variant="outlined" onClick={_ => {this.props.toggle_pause()}}>
+                                {this.props.game.paused ? "Unpause" : "Pause"}
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button variant="outlined" onClick={_ => {this.props.reset()}}>
+                                Restart
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <Grid item xs={12}>
+                    <ShareLink
+                        link={this.props.shareUrl}
+                    />
+                </Grid>
+
+                <Grid item xs={12}>
+                    {this.props.idx >= 0 &&
+                        <PlayerName
+                            name={this.props.playerName}
+                            color={idx2color(this.props.idx)}
+                            onCommit={this.props.handleNameCommit}
+                            onChange={this.props.handleNameChange}
+                            loggedIn={Boolean(this.props.currentUser)}
+                        />}
+                </Grid>
+                <Grid item xs={12}>
+                    <FieldSizeSelector
+                        onCommit={(w, h) => this.props.newGame(w, h)}
+                        gameWidth={this.props.game.width}
+                        gameHeight={this.props.game.height}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <AddAutopilot
+                        onCommit={type => this.props.addAutopilot(type)}
+                    />
+                </Grid>
+            </Grid>
+        )
+    }
+}
+
+
+class ScorePane extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const scores = this.props.game.snakes.map(snake => {
             return {
                 idx: snake.idx,
                 playerName: snake.name,
@@ -261,142 +372,35 @@ export class GameView extends React.Component {
             }
         })
 
-        return (
-            <Container maxWidth="lg">
-                <Grid container spacing={2}>
-                    <Grid item xs={12} lg={6}>
-                        <Canvas
-                            draw={ctx => draw(ctx, this.state.game, options)}
-                            width={this.state.game.width * this.state.scale}
-                            height={this.state.game.height * this.state.scale}
-                        />
-                    </Grid>
-                    <Grid item xs={12} lg={6}>
-                        <Grid container spacing={2} component={Paper}>
-                            <Grid item xs={12} lg={6}>
-                                <Grid container spacing={2}>
-                                    <Grid item>
-                                        <Button variant="outlined" onClick={_ => {this.toggle_pause()}}>
-                                            {this.state.game.paused ? "Unpause" : "Pause"}
-                                        </Button>
-                                    </Grid>
-                                    <Grid item>
-                                        <Button variant="outlined" onClick={_ => {this.reset()}}>
-                                            Restart
-                                        </Button>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-
-                            {/*<Grid item xs={12} lg={6}>*/}
-                            {/*    {this.state.currentUser ?*/}
-                            {/*        <Grid container spacing={2}>*/}
-                            {/*            <Grid item>*/}
-                            {/*                <Button variant="outlined" onClick={_ => {AuthService.logout(); this.onLogout()}}>*/}
-                            {/*                    {"Logout"}*/}
-                            {/*                </Button>*/}
-                            {/*            </Grid>*/}
-                            {/*            <Grid item>*/}
-                            {/*                <Link to="/profile">*/}
-                            {/*                    <Button variant="outlined">*/}
-                            {/*                        {"Profile"}*/}
-                            {/*                    </Button>*/}
-                            {/*                </Link>*/}
-                            {/*            </Grid>*/}
-                            {/*        </Grid>*/}
-                            {/*        :*/}
-                            {/*        <Grid container spacing={2}>*/}
-                            {/*            <Grid item>*/}
-                            {/*                <LoginDialog*/}
-                            {/*                    buttonText={"Login"}*/}
-                            {/*                    validationSchema={validationSchemaLogin}*/}
-                            {/*                    authService={AuthService}*/}
-                            {/*                    onSuccess={values => this.onLogin(values)}*/}
-                            {/*                    switchOffGlobalListener={bool => registerKeyPresses(!bool, this.handleKeydown)}*/}
-                            {/*                />*/}
-                            {/*            </Grid>*/}
-                            {/*            <Grid item>*/}
-                            {/*                <RegisterDialog*/}
-                            {/*                    buttonText={"Register"}*/}
-                            {/*                    validationSchema={validationSchemaRegister}*/}
-                            {/*                    authService={AuthService}*/}
-                            {/*                    onSuccess={values => this.onRegistration(values)}*/}
-                            {/*                    switchOffGlobalListener={bool => registerKeyPresses(!bool, this.handleKeydown)}*/}
-                            {/*                />*/}
-                            {/*            </Grid>*/}
-                            {/*        </Grid>*/}
-                            {/*    }*/}
-                            {/*</Grid>*/}
-
-                            <Grid item xs={12} lg={6}>
-                                <ShareLink
-                                    link={this.state.shareUrl}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12} lg={6}>
-                                <Grid container direction={'column'} spacing={2}>
-                                    <Grid item xs={12}>
-                                        <h2>Settings</h2>
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        {this.state.idx >= 0 ?
-                                            <PlayerName
-                                                name={this.state.playerName}
-                                                color={idx2color(this.state.idx)}
-                                                onCommit={this.handleNameCommit}
-                                                onChange={this.handleNameChange}
-                                                loggedIn={Boolean(this.props.currentUser)}
-                                                switchOnGlobalListener={bool => registerKeyPresses(bool, this.handleKeydown)}
-                                            /> : <></>}
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <FieldSizeSelector
-                                            onCommit={(w, h) => this.newGame(w, h)}
-                                            gameWidth={this.state.game.width}
-                                            gameHeight={this.state.game.height}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <AddAutopilot
-                                            onCommit={type => this.addAutopilot(type)}
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                            <Grid item xs={12} lg={6}>
-                                <Grid container direction={'column'} spacing={2}>
-                                    <Grid item xs={12}>
-                                        <Scores
-                                            key="Scores"
-                                            title="Scores"
-                                            scores={scores}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <Scores
-                                            key="highscoresSize"
-                                            title={`Highscores for ${this.state.game.width} x ${this.state.game.height}`}
-                                            scores={this.state.highscores}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                        <Scores
-                                            key="Highscores"
-                                            title="Highscores"
-                                            scores={this.state.globalHighscores}
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
+        return(
+            <Grid container direction={'column'} spacing={2} component={Paper}>
+                <Grid item xs={12}>
+                    <Scores
+                        key="Scores"
+                        title="Scores"
+                        scores={scores}
+                    />
                 </Grid>
-            </Container>
-        )
+                <Grid item xs={12}>
+                    <Scores
+                        key="highscoresSize"
+                        title={`Highscores for ${this.props.game.width} x ${this.props.game.height}`}
+                        scores={this.props.highscores}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <Scores
+                        key="Highscores"
+                        title="Highscores"
+                        scores={this.props.globalHighscores}
+                    />
+                </Grid>
+            </Grid>
+        );
     }
 }
 
+// TODO: rewrite with formik
 class PlayerName extends React.Component {
     constructor(props) {
         super(props);
@@ -416,7 +420,6 @@ class PlayerName extends React.Component {
             editMode: !state.editMode,
             previous: props.name
         }));
-        this.props.switchOnGlobalListener(this.state.editMode);
     };
 
     onRevert() {
@@ -431,56 +434,67 @@ class PlayerName extends React.Component {
 
     render() {
         return(
-            <Grid container spacing={2}>
-                <Grid item>
-                    <ColorViewer color={this.props.color}/>
-                </Grid>
-                <Grid item id={"playerNameView"} component={"Paper"}>
-                    {this.state.editMode ? (
-                        <TextField
-                            value={this.props.name}
-                            name="name"
-                            label="Player Name"
-                            onChange={e => this.props.onChange(e.target.value)}
-                        />
-                    ) : (
-                        this.props.name
-                    )}
-                </Grid>
+            <Box>
+                <h4>You are:</h4>
 
-                {!this.props.loggedIn && this.state.editMode &&
-                <Grid item>
-                    <IconButton
-                        aria-label="done"
-                        onClick={this.onAccept}
-                    >
-                        <DoneIcon/>
-                    </IconButton>
+                <Grid container spacing={2}>
+                    <Grid item>
+                        <ColorViewer color={this.props.color}/>
+                    </Grid>
+                    <Grid item id={"playerNameView"} component={"Paper"}>
+                        {this.state.editMode ? (
+                            <TextField
+                                value={this.props.name}
+                                name="name"
+                                label="Player Name"
+                                onChange={e => this.props.onChange(e.target.value)}
+                            />
+                        ) : (
+                            this.props.name
+                        )}
+                    </Grid>
+
+                    {!this.props.loggedIn && this.state.editMode &&
+                    <Grid item>
+                        <IconButton
+                            aria-label="done"
+                            onClick={this.onAccept}
+                        >
+                            <DoneIcon/>
+                        </IconButton>
+                    </Grid>
+                    }
+                    {!this.props.loggedIn && this.state.editMode &&
+                    <Grid item>
+                        <IconButton
+                            aria-label="revert"
+                            onClick={this.onRevert}
+                        >
+                            <RevertIcon/>
+                        </IconButton>
+                    </Grid>
+                    }
+                    {!this.props.loggedIn && !this.state.editMode &&
+                    <Grid item>
+                        <IconButton
+                            aria-label="edit"
+                            onClick={this.onToggleEditMode}
+                        >
+                            <EditIcon/>
+                        </IconButton>
+                    </Grid>
+                    }
                 </Grid>
-                }
-                {!this.props.loggedIn && this.state.editMode &&
-                <Grid item>
-                    <IconButton
-                        aria-label="revert"
-                        onClick={this.onRevert}
-                    >
-                        <RevertIcon/>
-                    </IconButton>
-                </Grid>
-                }
-                {!this.props.loggedIn && !this.state.editMode &&
-                <Grid item>
-                    <IconButton
-                        aria-label="edit"
-                        onClick={this.onToggleEditMode}
-                    >
-                        <EditIcon/>
-                    </IconButton>
-                </Grid>
-                }
-            </Grid>
+            </Box>
         );
     }
+}
+
+PlayerName.propTypes = {
+    loggedIn: PropTypes.bool,
+    name: PropTypes.string,
+    color: PropTypes.string,
+    onChange: PropTypes.func
 }
 
 class Scores extends React.Component {
@@ -518,6 +532,11 @@ class Scores extends React.Component {
     }
 }
 
+Scores.propTypes = {
+    scores: PropTypes.array,
+    title: PropTypes.string
+}
+
 class ColorViewer extends React.Component {
     constructor(props) {
         super(props);
@@ -534,6 +553,11 @@ class ColorViewer extends React.Component {
     }
 }
 
+ColorViewer.propTypes = {
+    color: PropTypes.string
+}
+
+// TODO: rewrite with formik
 class FieldSizeSelector extends React.Component {
     constructor(props) {
         super(props);
@@ -596,6 +620,12 @@ class FieldSizeSelector extends React.Component {
     }
 }
 
+FieldSizeSelector.propTypes = {
+    onCommit: PropTypes.func,
+    gameWidth: PropTypes.number,
+    gameHeight: PropTypes.number
+}
+
 class AddAutopilot extends React.Component {
     constructor(props) {
         super(props);
@@ -619,6 +649,10 @@ class AddAutopilot extends React.Component {
             </Grid>
         );
     }
+}
+
+AddAutopilot.propTypes = {
+    onCommit: PropTypes.func
 }
 
 class ShareLink extends React.Component {
@@ -652,4 +686,8 @@ class ShareLink extends React.Component {
             </Box>
         );
     }
+}
+
+ShareLink.propTypes = {
+    link: PropTypes.string
 }

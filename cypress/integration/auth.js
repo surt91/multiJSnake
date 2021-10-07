@@ -1,20 +1,20 @@
 describe('Auth Test', () => {
     it('Registration, Login, Logout', () => {
         cy.visit('http://localhost:8080');
-        cy.get("button").should("contain", "Register").contains("Register").click();
+        cy.get('button:contains("Register")').should("exist").click();
         cy.get("input[id=email]").type("cypress@example.com");
         cy.get("input[id=username]").type("cypress");
         cy.get("input[id=password]").type("supersecret");
         cy.get("button[type=submit]").click();
 
-        cy.get("button").should("contain", "Logout").contains("Logout").click();
+        cy.get('button:contains("Logout")').should("exist").click();
 
-        cy.get("button").should("contain", "Login").contains("Login").click();
+        cy.get('button:contains("Login")').should("exist").click();
         cy.get("input[id=username]").type("cypress");
         cy.get("input[id=password]").type("supersecret");
         cy.get("button[type=submit]").click();
 
-        cy.get("button").should("contain", "Logout").contains("Logout").click();
+        cy.get('button:contains("Logout")').should("exist").click();
     });
 
     it('Registration fails', () => {
@@ -27,7 +27,7 @@ describe('Auth Test', () => {
         cy.get("form").contains("Enter a valid email").should("exist");
         cy.get("input[id=email]").clear().type("fail@example.com");
         cy.get("button[type=submit]").click();
-        cy.get("h2").contains("Register").should("not.exist");
+        cy.get('h2:contains("Register")').should("not.exist");
 
         cy.get("button").contains("Logout").click();
         cy.get("button").contains("Register").click();

@@ -15,6 +15,7 @@ class Canvas extends React.Component {
         canvas.style.cssText = "touch-action: none;";
         this.context = canvas.getContext('2d');
         this.props.draw(this.context);
+        canvas.focus();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {

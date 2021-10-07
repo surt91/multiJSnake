@@ -7,8 +7,9 @@ import {
     TextField,
 } from "@material-ui/core";
 import React from "react";
-import { useFormik } from 'formik';
+import {useFormik} from 'formik';
 import * as yup from "yup";
+import PropTypes from "prop-types";
 
 export class SimpleFormDialog extends React.Component {
     constructor(props) {
@@ -18,13 +19,11 @@ export class SimpleFormDialog extends React.Component {
 
     handleClickOpen() {
         this.setState({open: true});
-        this.props.switchOffGlobalListener(true);
     };
 
     handleClose() {
         this.setState({open: false});
         this.props.formik.resetForm();
-        this.props.switchOffGlobalListener(false);
     };
 
     render() {
@@ -50,6 +49,12 @@ export class SimpleFormDialog extends React.Component {
     }
 }
 
+SimpleFormDialog.propTypes = {
+    formik: PropTypes.object,
+    open: PropTypes.bool,
+    buttonText: PropTypes.string,
+    fields: PropTypes.object
+};
 
 export const LoginDialog = (props) => {
 
@@ -117,9 +122,14 @@ export const LoginDialog = (props) => {
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
-            switchOffGlobalListener={props.switchOffGlobalListener}
         />
     )
+}
+
+LoginDialog.propTypes = {
+    authService: PropTypes.any,
+    onSuccess: PropTypes.func,
+    buttonText: PropTypes.string
 }
 
 
@@ -153,6 +163,7 @@ export const RegisterDialog = (props) => {
                     props.onSuccess(values);
                 })
                 .catch(errors => {
+                    console.log(errors);
                     if(errors.response.status === 400) {
                         formik.setErrors(errors.response.data);
                     }
@@ -199,7 +210,12 @@ export const RegisterDialog = (props) => {
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
-            switchOffGlobalListener={props.switchOffGlobalListener}
         />
     )
+}
+
+LoginDialog.propTypes = {
+    authService: PropTypes.any,
+    onSuccess: PropTypes.func,
+    buttonText: PropTypes.string
 }
