@@ -8,6 +8,7 @@ import {
 } from "@material-ui/core";
 import React from "react";
 import { useFormik } from 'formik';
+import * as yup from "yup";
 
 export class SimpleFormDialog extends React.Component {
     constructor(props) {
@@ -51,12 +52,22 @@ export class SimpleFormDialog extends React.Component {
 
 
 export const LoginDialog = (props) => {
+
+    const validationSchemaLogin = yup.object({
+        username: yup
+            .string('Enter your username')
+            .required('Email is required'),
+        password: yup
+            .string('Enter your password')
+            .required('Password is required'),
+    });
+
     const formik = useFormik({
         initialValues: {
             username: '',
             password: '',
         },
-        validationSchema: props.validationSchema,
+        validationSchema: validationSchemaLogin,
         onSubmit: (values) => {
             props.authService.login(values.username, values.password)
                 .then(_response => {
@@ -113,13 +124,29 @@ export const LoginDialog = (props) => {
 
 
 export const RegisterDialog = (props) => {
+
+    const validationSchemaRegister = yup.object({
+        email: yup
+            .string('Enter your email')
+            .email('Enter a valid email')
+            .required('Email is required'),
+        username: yup
+            .string('Enter your username')
+            .min(3, 'Username should be of minimum 3 characters length')
+            .required('Email is required'),
+        password: yup
+            .string('Enter your password')
+            .min(8, 'Password should be of minimum 8 characters length')
+            .required('Password is required'),
+    });
+
     const formik = useFormik({
         initialValues: {
             username: '',
             email: '',
             password: '',
         },
-        validationSchema: props.validationSchema,
+        validationSchema: validationSchemaRegister,
         onSubmit: (values) => {
             props.authService.register(values.username, values.email, values.password)
                 .then(_response => {
