@@ -54,24 +54,30 @@ export function draw(ctx, state, options) {
     state.snakes.forEach(snake => drawSnake(ctx, snake, options));
 
     if(blurred) {
-        ctx.fillStyle = "#aaaa22";
-        ctx.font = "30px Arial";
+        ctx.fillStyle = "#cccc22";
         ctx.textAlign = "center";
+        ctx.font = "30px Arial";
         ctx.fillText("Click here!", width * scale / 2, height * scale / 4);
+        ctx.font = "15px Arial";
+        ctx.fillText("For your key presses to be registered", width * scale / 2, height * scale / 4 + 25);
     }
 
     if(state.paused) {
         ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("Paused", width*scale/2, height*scale/2);
+        ctx.fillText("Paused", width * scale / 2, height * scale / 2);
+        ctx.font = "15px Arial";
+        ctx.fillText("Press 'WASD' to steer your Snake", width * scale / 2, height * scale / 2 + 25);
     }
 
     if(state.gameOver) {
         ctx.fillStyle = "#aaaaaa";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("Game Over!", width*scale/2, height*scale/4*3);
+        ctx.fillText("Game Over!", width * scale / 2, height * scale /4 * 3);
+        ctx.font = "15px Arial";
+        ctx.fillText("Press 'R' to restart the game", width * scale / 2, height * scale / 4 * 3 + 25);
     }
 }
 
