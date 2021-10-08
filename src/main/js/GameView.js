@@ -507,7 +507,7 @@ class Scores extends React.Component {
 
     render() {
         const fields = this.props.scores.map((score, index) =>
-            <TableRow key={score.name + index.toString()}>
+            <TableRow key={score.playerName + index.toString()}>
                 <TableCell>
                     <ColorViewer color={score.color}/>
                 </TableCell>
