@@ -410,7 +410,7 @@ class PlayerName extends React.Component {
 
         this.state = {
             editMode: false,
-            previous: this.props.name
+            previous: props.name
         }
 
         this.onToggleEditMode = this.onToggleEditMode.bind(this);
