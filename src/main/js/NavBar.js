@@ -7,7 +7,9 @@ import {
     Toolbar,
     Typography,
     Button,
-    IconButton, Grid
+    IconButton,
+    Tabs,
+    Tab
 } from "@material-ui/core"
 import MenuIcon from "@material-ui/icons/Menu";
 import AuthService from "./AuthService";
@@ -59,40 +61,31 @@ export class NavBar extends React.Component {
                         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                             {this.props.section}
                         </Typography>
+                        <Tabs>
+                            <Tab label="Game" value="/" to="/" component={Link} />
+                            {this.props.currentUser && <Tab label="Profile" value="/profile" to="/profile" component={Link} />}
+                        </Tabs>
                         {this.props.currentUser ?
-                            <Grid container spacing={2}>
-                                <Grid item>
-                                    <Button variant="outlined" onClick={_ => {AuthService.logout(); this.props.onUserChange()}}>
-                                        {"Logout"}
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Link to="/profile">
-                                        <Button variant="outlined">
-                                            {"Profile"}
-                                        </Button>
-                                    </Link>
-                                </Grid>
-                            </Grid>
+                            <Button color="inherit" onClick={_ => {AuthService.logout(); this.props.onUserChange()}}>
+                                {"Logout"}
+                            </Button>
                             :
-                            <Grid container spacing={2}>
-                                <Grid item>
-                                    <LoginDialog
-                                        buttonText={"Login"}
-                                        authService={AuthService}
-                                        onSuccess={_ => this.props.onUserChange()}
-                                    />
-                                </Grid>
-                                <Grid item>
-                                    <RegisterDialog
-                                        buttonText={"Register"}
-                                        authService={AuthService}
-                                        onSuccess={_ => this.props.onUserChange()}
-                                    />
-                                </Grid>
-                            </Grid>
+                            <>
+                                <LoginDialog
+                                    buttonText={"Login"}
+                                    color="inherit"
+                                    authService={AuthService}
+                                    onSuccess={_ => this.props.onUserChange()}
+                                />
+                                <RegisterDialog
+                                    buttonText={"Register"}
+                                    color="inherit"
+                                    authService={AuthService}
+                                    onSuccess={_ => this.props.onUserChange()}
+                                />
+                            </>
                         }
-                    </Toolbar>
+                        </Toolbar>
                 </AppBar>
             </Box>
         );

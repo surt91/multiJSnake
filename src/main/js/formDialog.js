@@ -28,8 +28,8 @@ export class SimpleFormDialog extends React.Component {
 
     render() {
         return (
-            <div>
-                <Button variant="outlined" onClick={e => this.handleClickOpen(e)}>
+            <>
+                <Button color={this.props.color} onClick={e => this.handleClickOpen(e)}>
                     {this.props.buttonText}
                 </Button>
                 <Dialog open={this.state.open} onClose={e => this.handleClose(e)}>
@@ -44,7 +44,7 @@ export class SimpleFormDialog extends React.Component {
                         </DialogActions>
                     </form>
                 </Dialog>
-            </div>
+            </>
         );
     }
 }
@@ -122,6 +122,7 @@ export const LoginDialog = (props) => {
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
+            color={props.color}
         />
     )
 }
@@ -129,7 +130,8 @@ export const LoginDialog = (props) => {
 LoginDialog.propTypes = {
     authService: PropTypes.any,
     onSuccess: PropTypes.func,
-    buttonText: PropTypes.string
+    buttonText: PropTypes.string,
+    color: PropTypes.string
 }
 
 
@@ -209,6 +211,7 @@ export const RegisterDialog = (props) => {
         <SimpleFormDialog
             fields={fields}
             formik={formik}
+            color={props.color}
             buttonText={props.buttonText}
         />
     )
@@ -217,5 +220,6 @@ export const RegisterDialog = (props) => {
 LoginDialog.propTypes = {
     authService: PropTypes.any,
     onSuccess: PropTypes.func,
-    buttonText: PropTypes.string
+    buttonText: PropTypes.string,
+    color: PropTypes.string
 }
