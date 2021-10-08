@@ -30,7 +30,7 @@ class Profile extends React.Component {
                 response.data.map(h =>
                     <TableRow key={h.id}>
                         <TableCell>{h.score}</TableCell>
-                        <TableCell>{new Date(h.date).toLocaleTimeString()}, {new Date(h.date).toLocaleTimeString()}</TableCell>
+                        <TableCell>{new Date(h.date).toLocaleDateString()}, {new Date(h.date).toLocaleTimeString()}</TableCell>
                         <TableCell>{h.fieldSize}</TableCell>
                     </TableRow>
             ))
