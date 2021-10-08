@@ -151,7 +151,7 @@ export class GameView extends React.Component {
         }
     }
 
-    toggle_pause() {
+    togglePause() {
         if(this.state.game.paused) {
             this.unpause();
         } else {
@@ -224,7 +224,7 @@ export class GameView extends React.Component {
                 this.unpause();
                 break;
             case "KeyP":
-                this.toggle_pause();
+                this.togglePause();
                 break;
             case "KeyR":
                 this.reset();
@@ -282,7 +282,7 @@ export class GameView extends React.Component {
                             handleNameChange={s => this.handleNameChange(s)}
                             newGame={(w, h) => this.newGame(w, h)}
                             addAutopilot={name => this.addAutopilot(name)}
-                            togglePause={_ => this.toggle_pause()}
+                            togglePause={_ => this.togglePause()}
                             reset={_ => this.reset()}
                         />
                     </Grid>
@@ -314,7 +314,7 @@ class PlayerPane extends React.Component {
                 <Grid item xs={12}>
                     <Grid container spacing={2}>
                         <Grid item>
-                            <Button variant="outlined" onClick={_ => {this.props.toggle_pause()}}>
+                            <Button variant="outlined" onClick={_ => {this.props.togglePause()}}>
                                 {this.props.game.paused ? "Unpause" : "Pause"}
                             </Button>
                         </Grid>
