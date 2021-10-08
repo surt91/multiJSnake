@@ -1,7 +1,7 @@
 import React from "react";
 import authHeader from "./authHeader";
 import axios from "axios";
-import {Paper, Table, TableBody, TableCell, TableContainer, TableRow} from "@material-ui/core";
+import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 
 // https://medium.com/@pdx.lucasm/canvas-with-react-js-32e133c05258
 class Profile extends React.Component {
