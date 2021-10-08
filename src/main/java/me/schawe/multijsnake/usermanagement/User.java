@@ -6,6 +6,8 @@ import javax.validation.constraints.Size;
 
 // adapted from https://github.com/springbootbuch/security/blob/master/src/main/java/de/springbootbuch/security/UserEntity.java
 @Entity
+// "user" is a name reserved by postgres, so we have to change it
+@Table(name="users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
