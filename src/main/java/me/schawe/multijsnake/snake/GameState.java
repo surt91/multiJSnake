@@ -145,8 +145,11 @@ public class GameState {
 
     public void kill(int idx) {
         Snake snake = snakes.get(idx);
-        snake.kill();
-        snakeDiesCallback.accept(snake);
+        // killing snakes twice does lead to double highscores
+        if (!snake.isDead()) {
+            snake.kill();
+            snakeDiesCallback.accept(snake);
+        }
     }
 
     public void markForRemoval(int idx) {
