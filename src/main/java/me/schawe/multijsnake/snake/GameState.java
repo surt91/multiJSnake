@@ -37,6 +37,11 @@ public class GameState {
         add_food();
     }
 
+    public GameState(int width, int height, String id) {
+        this(width, height);
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }

@@ -29,6 +29,11 @@ public class GameStateMap {
         return initGamestate(gameState);
     }
 
+    public GameState newGameState(int w, int h, String id) {
+        GameState gameState = new GameState(w, h, id);
+        return initGamestate(gameState);
+    }
+
     public GameState newGameState(int w, int h) {
         GameState gameState = new GameState(w, h);
         return initGamestate(gameState);
@@ -37,7 +42,12 @@ public class GameStateMap {
     private GameState initGamestate(GameState gameState) {
         int size = gameState.getWidth()*gameState.getHeight();
         gameState.setSnakeDiesCallback(x -> updateHighscore(x, size));
+
+        if(gameStateMap.containsKey(gameState.getId())) {
+            throw new InvalidMapException("This id already exists!");
+        }
         gameStateMap.put(gameState.getId(), gameState);
+
         return gameState;
     }
 
@@ -119,6 +129,11 @@ public class GameStateMap {
     }
 
     public void join(String sessionId, String id) {
+        // if the id does not exist, make it exist
+        if(!sessionMap.containsKey(sessionId)) {
+            newGameState(20, 20, id);
+        }
+
         int idx = get(id).addSnake();
 
         putSession(sessionId, new SnakeId(id, idx));
