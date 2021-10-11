@@ -12,13 +12,13 @@ import {
     TableContainer,
     TableRow,
     TextField, Tooltip
-} from "@material-ui/core";
+} from "@mui/material";
 import Canvas from "./canvas";
 import {draw} from "./canvasDraw";
-import DoneIcon from "@material-ui/icons/Done";
-import RevertIcon from "@material-ui/icons/NotInterestedOutlined";
-import EditIcon from "@material-ui/icons/Edit";
-import AddIcon from "@material-ui/icons/Add";
+import DoneIcon from "@mui/icons-material/Done";
+import RevertIcon from "@mui/icons-material/NotInterestedOutlined";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
 import {idx2color} from "./color";
 
@@ -444,7 +444,7 @@ class PlayerName extends React.Component {
                     <Grid item>
                         <ColorViewer color={this.props.color}/>
                     </Grid>
-                    <Grid item id={"playerNameView"} component={"Paper"}>
+                    <Grid item id={"playerNameView"}>
                         {this.state.editMode ? (
                             <TextField
                                 value={this.props.name}

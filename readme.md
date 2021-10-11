@@ -7,28 +7,18 @@ Play it on [multijsnake.herokuapp.com](https://multijsnake.herokuapp.com/).
 
 ## Setup
 
-You need Java 11 and Maven, then the server can be build and started on `http://localhost:8080` with
+You need Java 11 with Maven for the backend and `npm` to build the frontend. With these prerequisites the server can 
+be built and started on `http://localhost:8080` with:
 
 ```
 ./mvnw spring-boot:run
 ```
 
-## TODO:
+## Tests
 
-* User management via Spring Boot security
-  * Load and Save states
-* AI Snakes trained via Reinforcement learning
-  * train with Keras and load model with DL4J? 
-* proper URL snake.schawe.me ?
-* write Tests
-  * unit tests
-  * cypress e2e/integration tests
-* polish the UI
+There are unit tests of the backend and end-to-end tests using cypress. You can run them via
 
-### Bugs:
-
-* we do not have to reconnect the whole websocket, it should be enough to unsubscribe
-  from one subscription and resubscribe to the new one
-* I need to adapt the exception handler such that they are propagated over the websocket
-  (e.g., if the id does not exist)
-* I need to stop the game once all humans disconnected
+```
+./mvnw test
+npm run cy
+```

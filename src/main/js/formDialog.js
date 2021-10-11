@@ -5,7 +5,7 @@ import {
     DialogContent,
     DialogTitle,
     TextField,
-} from "@material-ui/core";
+} from "@mui/material";
 import React from "react";
 import {useFormik} from 'formik';
 import * as yup from "yup";
@@ -29,7 +29,7 @@ export class SimpleFormDialog extends React.Component {
     render() {
         return (
             <>
-                <Button color={this.props.color} onClick={e => this.handleClickOpen(e)}>
+                <Button {...this.props.button} onClick={e => this.handleClickOpen(e)}>
                     {this.props.buttonText}
                 </Button>
                 <Dialog open={this.state.open} onClose={e => this.handleClose(e)}>
@@ -122,7 +122,7 @@ export const LoginDialog = (props) => {
             fields={fields}
             formik={formik}
             buttonText={props.buttonText}
-            color={props.color}
+            button={props.button}
         />
     )
 }
@@ -131,7 +131,7 @@ LoginDialog.propTypes = {
     authService: PropTypes.any,
     onSuccess: PropTypes.func,
     buttonText: PropTypes.string,
-    color: PropTypes.string
+    button: PropTypes.object
 }
 
 
@@ -211,8 +211,8 @@ export const RegisterDialog = (props) => {
         <SimpleFormDialog
             fields={fields}
             formik={formik}
-            color={props.color}
             buttonText={props.buttonText}
+            button={props.button}
         />
     )
 }
@@ -221,5 +221,5 @@ LoginDialog.propTypes = {
     authService: PropTypes.any,
     onSuccess: PropTypes.func,
     buttonText: PropTypes.string,
-    color: PropTypes.string
+    button: PropTypes.object
 }

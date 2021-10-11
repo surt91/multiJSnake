@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {NavLink} from "react-router-dom";
 
 import {
     AppBar,
@@ -7,21 +7,23 @@ import {
     Toolbar,
     Typography,
     Button,
-    IconButton,
-    Tabs,
-    Tab
-} from "@material-ui/core"
-import MenuIcon from "@material-ui/icons/Menu";
+} from "@mui/material";
+import GitHubIcon from '@mui/icons-material/GitHub';
+import PersonIcon from '@mui/icons-material/Person';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 import AuthService from "./AuthService";
 import {LoginDialog, RegisterDialog} from "./formDialog";
 import axios from "axios";
 import authHeader from "./authHeader";
 
-
 // TODO: this navbar also handles logic for expiring logins... that is not very clean
 export class NavBar extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {path: "/"};
 
         this.testJwt();
     }
@@ -39,9 +41,17 @@ export class NavBar extends React.Component {
     // also test every hour (the JWT are only good for a limited amount of time
     componentDidMount() {
         this.interval = setInterval(() => this.testJwt(), 60*60*1000);
+        this.setState({path: location.pathname})
     }
+
     componentWillUnmount() {
         clearInterval(this.interval);
+    }
+
+    tabChanged(e) {
+        // this seems very brittle. Why do I do this?
+        this.setState({path: e.target.parentElement.pathname});
+        console.log(e);
     }
 
     render() {
@@ -49,43 +59,58 @@ export class NavBar extends React.Component {
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="static">
                     <Toolbar>
-                        <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{ mr: 2 }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        <Typography variant="h6" component="div" sx={{ marginRight: "3em" }}>
                             {this.props.section}
                         </Typography>
-                        <Tabs>
-                            <Tab label="Game" value="/" to="/" component={Link} />
-                            {this.props.currentUser && <Tab label="Profile" value="/profile" to="/profile" component={Link} />}
-                        </Tabs>
-                        {this.props.currentUser ?
-                            <Button color="inherit" onClick={_ => {AuthService.logout(); this.props.onUserChange()}}>
-                                {"Logout"}
+
+                        <NavLink to="/" className={"navlink"}>
+                            <Button color="inherit" startIcon={<SportsEsportsIcon />}>
+                                Game
                             </Button>
-                            :
-                            <>
-                                <LoginDialog
-                                    buttonText={"Login"}
-                                    color="inherit"
-                                    authService={AuthService}
-                                    onSuccess={_ => this.props.onUserChange()}
-                                />
-                                <RegisterDialog
-                                    buttonText={"Register"}
-                                    color="inherit"
-                                    authService={AuthService}
-                                    onSuccess={_ => this.props.onUserChange()}
-                                />
-                            </>
+                        </NavLink>
+
+                        {this.props.currentUser &&
+                        <NavLink to="/profile" className={"navlink"}>
+                            <Button color="inherit" startIcon={<PersonIcon />}>
+                                Profile
+                            </Button>
+                        </NavLink>
                         }
-                        </Toolbar>
+
+                        <Button
+                            color="inherit"
+                            href={"https://github.com/surt91/multiJSnake"}
+                            startIcon={<GitHubIcon />}
+                        >
+                            GitHub
+                        </Button>
+
+                        {this.props.currentUser &&
+                        <Button color="inherit" startIcon={<LogoutIcon />} onClick={_ => {
+                            AuthService.logout();
+                            this.props.onUserChange()
+
+                        }}>
+                            Logout
+                        </Button>
+                        }
+                        {!this.props.currentUser &&
+                        <LoginDialog
+                            buttonText={"Login"}
+                            button={{color:"inherit", startIcon:<LoginIcon />}}
+                            authService={AuthService}
+                            onSuccess={_ => this.props.onUserChange()}
+                        />
+                        }
+                        {!this.props.currentUser &&
+                        <RegisterDialog
+                            buttonText={"Register"}
+                            button={{color:"inherit"}}
+                            authService={AuthService}
+                            onSuccess={_ => this.props.onUserChange()}
+                        />
+                        }
+                    </Toolbar>
                 </AppBar>
             </Box>
         );
