@@ -36,3 +36,4 @@ node_modules/
 built/
 cypress/videos/
 cypress/snapshots/actual/
+cypress/snapshots/base/*-16*.png
