@@ -1,12 +1,10 @@
 describe('Canvas Test', () => {
     it("visual test of the canvas", () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.request('POST', '/api/close/cypress');
-        // FIXME: I want to wait for the post to finish, but apparently I do not get how
-        cy.wait(100);
 
         // FIXME this is very hard to test due to timing and the screenshots fluctuating time
-        cy.visit('http://localhost:8080?id=cypress');
+        cy.visit('/?id=cypress');
         // wait until initialization
         cy.get("#currentScores").find('tr').should('have.length', 1);
 

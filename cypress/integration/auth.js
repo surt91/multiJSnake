@@ -1,6 +1,6 @@
 describe('Auth Test', () => {
     it('Registration, Login, Logout', () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.get('button:contains("Register")').should("exist").click();
         cy.get("input[id=email]").type("cypress@example.com");
         cy.get("input[id=username]").type("cypress");
@@ -18,7 +18,7 @@ describe('Auth Test', () => {
     });
 
     it('Registration fails', () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.get("button").contains("Register").click();
         cy.get("input[id=email]").type("failexample.com");
         cy.get("input[id=username]").type("fail");

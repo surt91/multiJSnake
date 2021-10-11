@@ -1,6 +1,6 @@
 describe('UI Test', () => {
     it('Pausing/Unpausing', () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.get("button").contains("Unpause").should("exist");
         cy.get("button").contains("Pause").should("not.exist");
         cy.get("button").contains("Unpause").click();
@@ -13,7 +13,7 @@ describe('UI Test', () => {
     });
 
     it("steering does not lead to errors", () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.wait(100);
         cy.get('canvas').trigger('keydown', { code: "KeyD"});
         cy.wait(300);
@@ -21,7 +21,7 @@ describe('UI Test', () => {
     })
 
     it("add AI does not lead to errors", () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.wait(100);
         cy.get("#currentScores").find('tr').should('have.length', 1);
         cy.get("button").contains("Add AI").click();
@@ -29,7 +29,7 @@ describe('UI Test', () => {
     })
 
     it('New Game, new Size', () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.get("canvas").invoke('width').should('be.equal', 400);
         cy.get("canvas").invoke('height').should('be.equal', 400);
         cy.contains("Highscores for 20 x 20").should("exist");
@@ -42,7 +42,7 @@ describe('UI Test', () => {
     });
 
     it('Rename Player', () => {
-        cy.visit('http://localhost:8080');
+        cy.visit('/');
         cy.get("#playerNameView").contains("Anon 1").should("exist");
         cy.get("#playerNameView").parent().find("button").click();
         cy.get("#playerNameView").parent().find("input").clear().type("Cypress");
