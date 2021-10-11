@@ -3,7 +3,7 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogTitle,
+    DialogTitle, Stack,
     TextField,
 } from "@mui/material";
 import React from "react";
@@ -93,7 +93,7 @@ export const LoginDialog = (props) => {
         }
     });
 
-    const fields = <>
+    const fields = <Stack spacing={2}>
         <TextField
             fullWidth
             id="username"
@@ -115,7 +115,7 @@ export const LoginDialog = (props) => {
             error={formik.touched.password && Boolean(formik.errors.password)}
             helperText={formik.touched.password && formik.errors.password}
         />
-    </>
+    </Stack>
 
     return(
         <SimpleFormDialog
@@ -173,7 +173,7 @@ export const RegisterDialog = (props) => {
         }
     });
 
-    const fields = <>
+    const fields = <Stack spacing={2}>
         <TextField
             fullWidth
             id="email"
@@ -205,7 +205,7 @@ export const RegisterDialog = (props) => {
             error={formik.touched.password && Boolean(formik.errors.password)}
             helperText={formik.touched.password && formik.errors.password}
         />
-    </>
+    </Stack>
 
     return(
         <SimpleFormDialog

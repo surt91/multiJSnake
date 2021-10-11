@@ -7,7 +7,7 @@ import {
     Container,
     Grid,
     IconButton,
-    Paper, Table, TableBody,
+    Paper, Stack, Table, TableBody,
     TableCell,
     TableContainer,
     TableRow,
@@ -260,7 +260,7 @@ export class GameView extends React.Component {
 
         return (
             <Container maxWidth="lg">
-                <Grid container spacing={4}>
+                <Grid container spacing={4} pt={4} justifyContent="space-around" alignItems="flex-start">
                     <Grid item xs={12} lg={6}>
                         <Canvas
                             draw={ctx => draw(ctx, this.state.game, options)}
@@ -269,6 +269,7 @@ export class GameView extends React.Component {
                             tabIndex={-1}
                             onKeyDown={e => this.handleKeydown(e)}
                             focused={b => this.setState({blurred: !b})}
+                            sx={{ mx: "auto" }}
                         />
                     </Grid>
                     <Grid item xs={12} lg={3}>
@@ -310,20 +311,23 @@ class PlayerPane extends React.Component {
 
     render() {
         return(
-            <Grid container spacing={2} direction={'column'} component={Paper}>
+            <Grid container
+                  spacing={2}
+                  pb={2}
+                  direction={'column'}
+                  justifyContent="space-around"
+                  alignItems="baseline"
+                  component={Paper}
+            >
                 <Grid item xs={12}>
-                    <Grid container spacing={2}>
-                        <Grid item>
-                            <Button variant="outlined" onClick={_ => {this.props.togglePause()}}>
-                                {this.props.game.paused ? "Unpause" : "Pause"}
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="outlined" onClick={_ => {this.props.reset()}}>
-                                Restart
-                            </Button>
-                        </Grid>
-                    </Grid>
+                    <Stack direction={"row"} spacing={2}>
+                        <Button variant="outlined" onClick={_ => {this.props.togglePause()}}>
+                            {this.props.game.paused ? "Unpause" : "Pause"}
+                        </Button>
+                        <Button variant="outlined" onClick={_ => {this.props.reset()}}>
+                            Restart
+                        </Button>
+                    </Stack>
                 </Grid>
 
                 <Grid item xs={12}>
@@ -376,22 +380,29 @@ class ScorePane extends React.Component {
         })
 
         return(
-            <Grid container direction={'column'} spacing={2} component={Paper}>
-                <Grid item xs={12}>
+            <Grid container
+                  spacing={2}
+                  pb={2}
+                  direction={'column'}
+                  justifyContent="space-around"
+                  alignItems="baseline"
+                  component={Paper}
+            >
+                <Grid item>
                     <Scores
                         key="Scores"
                         title="Scores"
                         scores={scores}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item>
                     <Scores
                         key="highscoresSize"
                         title={`Highscores for ${this.props.game.width} x ${this.props.game.height}`}
                         scores={this.props.highscores}
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item>
                     <Scores
                         key="Highscores"
                         title="Highscores"
@@ -437,14 +448,11 @@ class PlayerName extends React.Component {
 
     render() {
         return(
-            <Box>
+            <Stack spacing={2}>
                 <h4>You are:</h4>
-
-                <Grid container spacing={2}>
-                    <Grid item>
-                        <ColorViewer color={this.props.color}/>
-                    </Grid>
-                    <Grid item id={"playerNameView"}>
+                <Stack spacing={2} direction={"row"} alignItems={"center"}>
+                    <ColorViewer color={this.props.color}/>
+                    <div id={"playerNameView"}>
                         {this.state.editMode ? (
                             <TextField
                                 value={this.props.name}
@@ -455,40 +463,34 @@ class PlayerName extends React.Component {
                         ) : (
                             this.props.name
                         )}
-                    </Grid>
+                    </div>
 
                     {!this.props.loggedIn && this.state.editMode &&
-                    <Grid item>
                         <IconButton
                             aria-label="done"
                             onClick={this.onAccept}
                         >
                             <DoneIcon/>
                         </IconButton>
-                    </Grid>
                     }
                     {!this.props.loggedIn && this.state.editMode &&
-                    <Grid item>
                         <IconButton
                             aria-label="revert"
                             onClick={this.onRevert}
                         >
                             <RevertIcon/>
                         </IconButton>
-                    </Grid>
                     }
                     {!this.props.loggedIn && !this.state.editMode &&
-                    <Grid item>
                         <IconButton
                             aria-label="edit"
                             onClick={this.onToggleEditMode}
                         >
                             <EditIcon/>
                         </IconButton>
-                    </Grid>
                     }
-                </Grid>
-            </Box>
+                </Stack>
+            </Stack>
         );
     }
 }
@@ -583,42 +585,30 @@ class FieldSizeSelector extends React.Component {
 
     render() {
         return (
-            <Grid container component={Paper}>
-                <Grid item xs={12} lg={6}>
-                    <Box spacing={2} m={2}>
-                        <TextField
-                            type="number"
-                            label="width"
-                            name="width"
-                            value={this.state.width}
-                            onChange={this.onChange}
-                        />
-                    </Box>
-                </Grid>
-                <Grid item xs={12} lg={6}>
-                    <Box spacing={2} m={2}>
-                        <TextField
-                            type="number"
-                            label="height"
-                            name="height"
-                            value={this.state.height}
-                            onChange={this.onChange}
-                        />
-                    </Box>
-                </Grid>
-                <Grid item xs={12} lg={12}>
-                    <Box spacing={2} m={2}>
-                        <Button
-                            aria-label="done"
-                            onClick={_ => this.props.onCommit(this.state.width, this.state.height)}
-                            variant="outlined"
-                        >
-                            new game
-                            <DoneIcon />
-                        </Button>
-                    </Box>
-                </Grid>
-            </Grid>
+            <Stack spacing={2}>
+                <TextField
+                    type="number"
+                    label="width"
+                    name="width"
+                    value={this.state.width}
+                    onChange={this.onChange}
+                />
+                <TextField
+                    type="number"
+                    label="height"
+                    name="height"
+                    value={this.state.height}
+                    onChange={this.onChange}
+                />
+                <Button
+                    aria-label="done"
+                    onClick={_ => this.props.onCommit(this.state.width, this.state.height)}
+                    variant="outlined"
+                >
+                    new game
+                    <DoneIcon />
+                </Button>
+            </Stack>
         );
     }
 }
@@ -636,20 +626,14 @@ class AddAutopilot extends React.Component {
 
     render() {
         return (
-            <Grid container component={Paper}>
-                <Grid item xs={12} lg={12}>
-                    <Box spacing={2} m={2}>
-                        <Button
-                            aria-label="done"
-                            onClick={_ => this.props.onCommit("SKSAW")}
-                            variant="outlined"
-                        >
-                            Add AI
-                            <AddIcon />
-                        </Button>
-                    </Box>
-                </Grid>
-            </Grid>
+            <Button
+                aria-label="done"
+                onClick={_ => this.props.onCommit("SKSAW")}
+                variant="outlined"
+            >
+                Add AI
+                <AddIcon />
+            </Button>
         );
     }
 }
