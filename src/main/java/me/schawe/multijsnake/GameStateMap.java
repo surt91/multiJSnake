@@ -95,6 +95,10 @@ public class GameStateMap {
         return sessionMap.get(sessionId);
     }
 
+    void close(String id) {
+        gameStateMap.remove(id);
+    }
+
     void put(String id, GameState state) {
         gameStateMap.put(id, state);
     }

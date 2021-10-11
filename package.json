@@ -15,7 +15,9 @@
   "scripts": {
     "watch": "webpack --watch --mode development -d eval-source-map",
     "debug": "webpack --mode development -d eval-source-map",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "cy": "./node_modules/.bin/cypress run",
+    "cy-record": "./node_modules/.bin/cypress run --env type=base --config screenshotsFolder=cypress/snapshots/base,testFiles=\\\"canvas.js\\\"\n"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
@@ -23,6 +25,7 @@
     "@babel/preset-react": "^7.14.5",
     "babel-loader": "^8.2.2",
     "cypress": "^8.5.0",
+    "cypress-visual-regression": "^1.6.1",
     "webpack": "^5.57.1",
     "webpack-cli": "^4.8.0"
   }

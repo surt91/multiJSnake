@@ -37,9 +37,13 @@ public class GameState {
         add_food();
     }
 
+    // if we fix the id, derive the RNG state from this id.
+    // this is handy for tests, but might be a bit surprising
     public GameState(int width, int height, String id) {
         this(width, height);
         this.id = id;
+        random = new Random(id.hashCode());
+        add_food();
     }
 
     public String getId() {

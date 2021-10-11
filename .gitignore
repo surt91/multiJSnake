@@ -34,3 +34,5 @@ build/
 
 node_modules/
 built/
+cypress/videos/
+cypress/snapshots/actual/
