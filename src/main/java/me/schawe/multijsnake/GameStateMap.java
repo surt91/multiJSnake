@@ -44,7 +44,7 @@ public class GameStateMap {
         gameState.setSnakeDiesCallback(x -> updateHighscore(x, size));
 
         if(gameStateMap.containsKey(gameState.getId())) {
-            throw new InvalidMapException("This id already exists!");
+            throw new InvalidMapException("This id '" + gameState.getId() + "' already exists!");
         }
         gameStateMap.put(gameState.getId(), gameState);
 
@@ -130,7 +130,7 @@ public class GameStateMap {
 
     public void join(String sessionId, String id) {
         // if the id does not exist, make it exist
-        if(!sessionMap.containsKey(sessionId)) {
+        if(!gameStateMap.containsKey(id)) {
             newGameState(20, 20, id);
         }
 
