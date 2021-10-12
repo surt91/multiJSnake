@@ -1,8 +1,11 @@
+import pygame
 from py4j.java_gateway import JavaGateway
 
 
 class Snake:
     def __init__(self):
+        pygame.init()
+
         gateway = JavaGateway()
         self.gameState = gateway.entry_point.getGameState()
         gateway.jvm.java.lang.System.out.println('Connected to Python!')
@@ -21,7 +24,29 @@ class Snake:
         return self.gameState.trainingState(self.idx)
 
     def render(self):
-        pass
+        scale = 20
+        screen = pygame.display.set_mode((10 * scale, 10 * scale))
+        food = self.gameState.getFood()
+        pygame.draw.rect(
+            screen,
+            [230, 20, 20],
+            [scale * food.getX(), scale * food.getY(), scale, scale]
+        )
+
+        pygame.draw.rect(
+            screen,
+            [100, 230, 100],
+            [scale * self.snake.getHead().getX(), scale * self.snake.getHead().getY(), scale, scale]
+        )
+
+        for i in self.snake.getTailAsList():
+            pygame.draw.rect(
+                screen,
+                [100, 230, 100],
+                [scale * i.getX(), scale * i.getY(), scale, scale]
+            )
+
+        pygame.display.update()
 
     def step(self, action):
         self.gameState.turnRelative(self.idx, action)
@@ -34,8 +59,10 @@ class Snake:
         if self.gameState.isGameOver():
             reward = -1
             done = True
+            print("dead")
         elif self.gameState.isEating(self.snake):
             reward = 1
+            print("nom")
 
         return state, reward, done, "idk"
 

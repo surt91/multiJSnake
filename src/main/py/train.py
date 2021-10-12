@@ -96,6 +96,7 @@ while True:  # Run until solved
         for timestep in range(1, max_steps_per_episode):
             # env.render(); Adding this line would show the attempts
             # of the agent in a pop up window.
+            env.render()
 
             state = tf.convert_to_tensor(state)
             state = tf.expand_dims(state, 0)

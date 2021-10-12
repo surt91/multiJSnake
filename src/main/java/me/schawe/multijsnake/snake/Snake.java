@@ -2,9 +2,7 @@ package me.schawe.multijsnake.snake;
 
 import me.schawe.multijsnake.snake.ai.Autopilot;
 
-import java.util.ArrayDeque;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public class Snake {
     public Coordinate head;
@@ -51,6 +49,10 @@ public class Snake {
 
     public ArrayDeque<Coordinate> getTail() {
         return tail;
+    }
+
+    public List<Coordinate> getTailAsList() {
+        return new ArrayList<>(getTail());
     }
 
     Snake(int idx, Coordinate start, Random random) {
