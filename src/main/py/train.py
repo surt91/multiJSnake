@@ -1,42 +1,8 @@
 """
-Title: Actor Critic Method
-Author: [Apoorv Nandan](https://twitter.com/NandanApoorv)
-Date created: 2020/05/13
-Last modified: 2020/05/13
-Description: Implement Actor Critic Method in CartPole environment.
+This script is very close to https://keras.io/examples/rl/actor_critic_cartpole/
 """
-"""
-## Introduction
 
-This script shows an implementation of Actor Critic method on CartPole-V0 environment.
-
-### Actor Critic Method
-
-As an agent takes actions and moves through an environment, it learns to map
-the observed state of the environment to two possible outputs:
-
-1. Recommended action: A probability value for each action in the action space.
-   The part of the agent responsible for this output is called the **actor**.
-2. Estimated rewards in the future: Sum of all rewards it expects to receive in the
-   future. The part of the agent responsible for this output is the **critic**.
-
-Agent and Critic learn to perform their tasks, such that the recommended actions
-from the actor maximize the rewards.
-
-### CartPole-V0
-
-A pole is attached to a cart placed on a frictionless track. The agent has to apply
-force to move the cart. It is rewarded for every time step the pole
-remains upright. The agent, therefore, must learn to keep the pole from falling over.
-
-### References
-
-- [CartPole](http://www.derongliu.org/adp/adp-cdrom/Barto1983.pdf)
-- [Actor Critic Method](https://hal.inria.fr/hal-00840470/document)
-"""
-"""
-## Setup
-"""
+import sys
 
 import numpy as np
 import tensorflow as tf
@@ -45,11 +11,15 @@ from tensorflow.keras import layers
 
 from snake import Snake
 
+vis = "vis" in sys.argv
+if not vis:
+    print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
+
 # Configuration parameters for the whole setup
 seed = 42
 gamma = 0.99  # Discount factor for past rewards
 max_steps_per_episode = 10000
-env = Snake()  # Create the environment
+env = Snake(vis)  # Create the environment
 env.seed(seed)
 eps = np.finfo(np.float32).eps.item()  # Smallest number such that 1.0 + eps != 1.0
 

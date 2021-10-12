@@ -159,12 +159,15 @@ public class GameState {
     /// get the state of the game
     /// here we just take the 8 fields around the current snakes head
     /// clockwise, starting with the field straight ahead
+    /// -1: snake/wall
     /// 0: free
     /// 1: food
-    /// 2: snake/wall
     /// also two more fields with
     /// distance (L1) to food
-    /// and angle between food and head direction
+    /// and in which direction the food is
+    /// 1: left
+    /// -1: right
+    /// 0: in a +-0.5 radians (28 deg) cone in front
     public List<Integer> trainingState(int idx) {
         Snake snake = snakes.get(idx);
         Coordinate straight = snake.headDirection.toCoord();
@@ -185,9 +188,37 @@ public class GameState {
         int d = Math.abs(snake.head.getX() - food.getX()) + Math.abs(snake.head.getY() - food.getY());
         state.add(d);
 
-        double rad = Math.atan2(food.getY() - snake.head.getY(), food.getX() - snake.head.getX());
-        int deg = (int) (rad * 180 / Math.PI);
-        state.add(deg);
+        // for head direction right
+        double rad;
+        double dx = food.getX() - snake.head.getX();
+        double dy = food.getY() - snake.head.getY();
+
+        // apply coordinate rotation, such that the snake always looks to the right
+        // from the point of view of the atan
+        switch (snake.headDirection) {
+            case right:
+                rad = Math.atan2(dy, dx);
+                break;
+            case up:
+                rad = Math.atan2(dx, dy);
+                break;
+            case left:
+                rad = Math.atan2(-dy, -dx);
+                break;
+            case down:
+                rad = Math.atan2(dx, -dy);
+                break;
+            default:
+                throw new RuntimeException("unreachable!");
+        }
+
+        state.add((int) Math.signum(Math.round(rad)));
+
+//        System.out.println("direction: " + snake.headDirection);
+//        System.out.println(dx + ", " + dy);
+//        System.out.println(food);
+//        System.out.println(snake.head);
+//        System.out.println(deg);
 
         return state;
     }
