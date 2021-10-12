@@ -156,18 +156,23 @@ public class GameState {
         }
     }
 
+    public int danger(Coordinate c) {
+        if(isOccupied(c) || isWall(c)) {
+            return 1;
+        }
+        return 0;
+    }
+
+
     /// get the state of the game
     /// here we just take the 8 fields around the current snakes head
     /// clockwise, starting with the field straight ahead
-    /// -1: snake/wall
+    /// 1: snake/wall
     /// 0: free
-    /// 1: food
-    /// also two more fields with
-    /// distance (L1) to food
     /// and in which direction the food is
-    /// 1: left
-    /// -1: right
-    /// 0: in a +-0.5 radians (28 deg) cone in front
+    /// 0/1: its in front
+    /// 0/1: its left
+    /// 0/1: its right
     public List<Integer> trainingState(int idx) {
         Snake snake = snakes.get(idx);
         Coordinate straight = snake.headDirection.toCoord();
@@ -176,17 +181,14 @@ public class GameState {
         Coordinate back = snake.headDirection.back().toCoord();
 
         ArrayList<Integer> state = new ArrayList<>();
-        state.add(trainingField(snake.head.add(straight)));
-        state.add(trainingField(snake.head.add(straight).add(right)));
-        state.add(trainingField(snake.head.add(right)));
-        state.add(trainingField(snake.head.add(right).add(back)));
-        state.add(trainingField(snake.head.add(back)));
-        state.add(trainingField(snake.head.add(back).add(left)));
-        state.add(trainingField(snake.head.add(left)));
-        state.add(trainingField(snake.head.add(left).add(straight)));
-
-        int d = Math.abs(snake.head.getX() - food.getX()) + Math.abs(snake.head.getY() - food.getY());
-        state.add(d);
+        state.add(danger(snake.head.add(straight)));
+        state.add(danger(snake.head.add(straight).add(right)));
+        state.add(danger(snake.head.add(right)));
+        state.add(danger(snake.head.add(right).add(back)));
+        state.add(danger(snake.head.add(back)));
+        state.add(danger(snake.head.add(back).add(left)));
+        state.add(danger(snake.head.add(left)));
+        state.add(danger(snake.head.add(left).add(straight)));
 
         // for head direction right
         double rad;
@@ -212,25 +214,28 @@ public class GameState {
                 throw new RuntimeException("unreachable!");
         }
 
-        state.add((int) Math.signum(Math.round(rad)));
+        // is food in front?
+        if (Math.abs(rad) < Math.PI / 4) {
+            state.add(1);
+        } else {
+            state.add(0);
+        }
 
-//        System.out.println("direction: " + snake.headDirection);
-//        System.out.println(dx + ", " + dy);
-//        System.out.println(food);
-//        System.out.println(snake.head);
-//        System.out.println(deg);
+        // is food left?
+        if (rad > 0) {
+            state.add(1);
+        } else {
+            state.add(0);
+        }
+
+        // is food right?
+        if (rad < 0) {
+            state.add(1);
+        } else {
+            state.add(0);
+        }
 
         return state;
-    }
-
-    public int trainingField(Coordinate c) {
-        if(isOccupied(c) || isWall(c)) {
-            return 2;
-        }
-        if(c.equals(food)) {
-            return 1;
-        }
-        return 0;
     }
 
     // this takes two ints, because this is the way my training on the python side works
