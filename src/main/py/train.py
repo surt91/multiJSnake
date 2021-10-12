@@ -3,6 +3,7 @@ This script is very close to https://keras.io/examples/rl/actor_critic_cartpole/
 """
 
 import sys
+from glob import glob
 
 import numpy as np
 import tensorflow as tf
@@ -45,7 +46,17 @@ common = layers.Dense(num_hidden, activation="relu")(inputs)
 action = layers.Dense(num_actions, activation="softmax")(common)
 critic = layers.Dense(1)(common)
 
-model = keras.Model(inputs=inputs, outputs=[action, critic])
+# load a snapshot, if we have one
+saves = glob("snake_e*.keras")
+if saves:
+
+    latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
+    start = int(latest.split(".")[0].split("_e")[1])
+    print(f"load `{latest}`")
+    model = keras.models.load_model(latest)
+else:
+    start = 0
+    model = keras.Model(inputs=inputs, outputs=[action, critic])
 
 """
 ## Train
@@ -57,7 +68,7 @@ action_probs_history = []
 critic_value_history = []
 rewards_history = []
 running_reward = 0
-episode_count = 0
+episode_count = start
 
 while True:  # Run until solved
     state = env.reset()
@@ -149,3 +160,4 @@ while True:  # Run until solved
         break
 
 model.save('snake.keras')
+
