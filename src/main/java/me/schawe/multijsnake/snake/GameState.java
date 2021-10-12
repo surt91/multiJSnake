@@ -162,6 +162,9 @@ public class GameState {
     /// 0: free
     /// 1: food
     /// 2: snake/wall
+    /// also two more fields with
+    /// distance (L1) to food
+    /// and angle between food and head direction
     public List<Integer> trainingState(int idx) {
         Snake snake = snakes.get(idx);
         Coordinate straight = snake.headDirection.toCoord();
@@ -178,6 +181,13 @@ public class GameState {
         state.add(trainingField(snake.head.add(back).add(left)));
         state.add(trainingField(snake.head.add(left)));
         state.add(trainingField(snake.head.add(left).add(straight)));
+
+        int d = Math.abs(snake.head.getX() - food.getX()) + Math.abs(snake.head.getY() - food.getY());
+        state.add(d);
+
+        double rad = Math.atan2(food.getY() - snake.head.getY(), food.getX() - snake.head.getX());
+        int deg = (int) (rad * 180 / Math.PI);
+        state.add(deg);
 
         return state;
     }

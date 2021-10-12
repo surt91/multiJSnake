@@ -40,7 +40,7 @@ class Snake:
         return state, reward, done, "idk"
 
     def state_size(self):
-        return 8
+        return 10
 
     def action_size(self):
         return 3
