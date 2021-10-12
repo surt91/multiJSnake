@@ -141,6 +141,9 @@ while True:  # Run until solved
         template = "running reward: {:.2f} at episode {}"
         print(template.format(running_reward, episode_count))
 
+    if episode_count % 1000 == 0:
+        model.save(f'snake_e{episode_count}.keras')
+
     if running_reward > env.max_reward():  # Condition to consider the task solved
         print("Solved at episode {}!".format(episode_count))
         break
