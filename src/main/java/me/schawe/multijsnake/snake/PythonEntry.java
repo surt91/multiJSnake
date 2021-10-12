@@ -11,14 +11,11 @@ import py4j.GatewayServer;
 @Component
 public class PythonEntry implements CommandLineRunner {
 
-    private final GameState gameState;
-
     public PythonEntry() {
-        gameState = new GameState(10, 10);
     }
 
     public GameState getGameState() {
-        return gameState;
+        return new GameState(10, 10);
     }
 
     public void run(String... args) {
