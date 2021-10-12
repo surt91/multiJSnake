@@ -52,11 +52,11 @@ public enum Move {
         if(r < 1) {
             return Move.up;
         } else if (r < 2) {
-            return  Move.down;
+            return Move.down;
         } else if (r < 3) {
-            return  Move.left;
+            return Move.left;
         } else if (r < 4) {
-            return  Move.right;
+            return Move.right;
         }
         // this will not happen
         throw new RuntimeException("unreachable!");
@@ -64,5 +64,72 @@ public enum Move {
 
     public static Move random() {
         return random(new Random());
+    }
+
+    public Move rLeft() {
+        Move next;
+        switch(this) {
+            case up:
+                next = Move.left;
+                break;
+            case down:
+                next = Move.right;
+                break;
+            case left:
+                next = Move.down;
+                break;
+            case right:
+                next = Move.up;
+                break;
+            default:
+                throw new RuntimeException("unreachable!");
+        }
+        return next;
+    }
+
+    public Move rRight() {
+        Move next;
+        switch(this) {
+            case up:
+                next = Move.right;
+                break;
+            case down:
+                next = Move.left;
+                break;
+            case left:
+                next = Move.up;
+                break;
+            case right:
+                next = Move.down;
+                break;
+            default:
+                throw new RuntimeException("unreachable!");
+        }
+        return next;
+    }
+
+    public Move straight() {
+        return this;
+    }
+
+    public Move back() {
+        Move next;
+        switch(this) {
+            case up:
+                next = Move.down;
+                break;
+            case down:
+                next = Move.up;
+                break;
+            case left:
+                next = Move.right;
+                break;
+            case right:
+                next = Move.left;
+                break;
+            default:
+                throw new RuntimeException("unreachable!");
+        }
+        return next;
     }
 }

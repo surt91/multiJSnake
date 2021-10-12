@@ -131,6 +131,10 @@ public class GameState {
         return coordinate.x < 0 || coordinate.x >= width || coordinate.y < 0 || coordinate.y >= height;
     }
 
+    public boolean isEating(Snake snake) {
+        return snake.head.equals(food);
+    }
+
     // FIXME: this will become an infinite loop after a perfect game -- or after enough players spawned
     private Coordinate randomSite() {
         Coordinate site;
@@ -149,6 +153,67 @@ public class GameState {
         if(!snake.isDead()) {
             snake.headDirection = move.toNext(snake.lastHeadDirection)
                     .orElse(snake.headDirection);
+        }
+    }
+
+    /// get the state of the game
+    /// here we just take the 8 fields around the current snakes head
+    /// clockwise, starting with the field straight ahead
+    /// 0: free
+    /// 1: food
+    /// 2: snake/wall
+    public List<Integer> trainingState(int idx) {
+        Snake snake = snakes.get(idx);
+        Coordinate straight = snake.headDirection.toCoord();
+        Coordinate left = snake.headDirection.rLeft().toCoord();
+        Coordinate right = snake.headDirection.rRight().toCoord();
+        Coordinate back = snake.headDirection.back().toCoord();
+
+        ArrayList<Integer> state = new ArrayList<>();
+        state.add(trainingField(snake.head.add(straight)));
+        state.add(trainingField(snake.head.add(straight).add(right)));
+        state.add(trainingField(snake.head.add(right)));
+        state.add(trainingField(snake.head.add(right).add(back)));
+        state.add(trainingField(snake.head.add(back)));
+        state.add(trainingField(snake.head.add(back).add(left)));
+        state.add(trainingField(snake.head.add(left)));
+        state.add(trainingField(snake.head.add(left).add(straight)));
+
+        return state;
+    }
+
+    public int trainingField(Coordinate c) {
+        if(isOccupied(c) || isWall(c)) {
+            return 2;
+        }
+        if(c.equals(food)) {
+            return 1;
+        }
+        return 0;
+    }
+
+    // this takes two ints, because this is the way my training on the python side works
+    public void turnRelative(int idx, int direction) {
+        Snake snake = snakes.get(idx);
+        if(snake.isDead()) {
+            return;
+        }
+
+        switch(direction) {
+            case 0:
+                // left
+                snake.headDirection = snake.lastHeadDirection.rLeft();
+                break;
+            case 1:
+                // straight
+                snake.headDirection = snake.lastHeadDirection.straight();
+                break;
+            case 2:
+                // right
+                snake.headDirection = snake.lastHeadDirection.rRight();
+                break;
+            default:
+                throw new RuntimeException("invalid relative direction: " + direction);
         }
     }
 
@@ -198,7 +263,7 @@ public class GameState {
 
                 snake.tail.add(snake.head.copy());
 
-                if (snake.head.equals(food)) {
+                if (isEating(snake)) {
                     snake.length += 1;
                     score += 1;
                     add_food();
