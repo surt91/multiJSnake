@@ -181,14 +181,14 @@ public class GameState {
         Coordinate back = snake.headDirection.back().toCoord();
 
         ArrayList<Integer> state = new ArrayList<>();
+        state.add(danger(snake.head.add(left)));
+        state.add(danger(snake.head.add(left).add(straight)));
         state.add(danger(snake.head.add(straight)));
         state.add(danger(snake.head.add(straight).add(right)));
         state.add(danger(snake.head.add(right)));
-        state.add(danger(snake.head.add(right).add(back)));
-        state.add(danger(snake.head.add(back)));
-        state.add(danger(snake.head.add(back).add(left)));
-        state.add(danger(snake.head.add(left)));
-        state.add(danger(snake.head.add(left).add(straight)));
+//        state.add(danger(snake.head.add(right).add(back)));
+//        state.add(danger(snake.head.add(back)));
+//        state.add(danger(snake.head.add(back).add(left)));
 
         // for head direction right
         double rad;
@@ -234,6 +234,9 @@ public class GameState {
         } else {
             state.add(0);
         }
+        
+        // distance to food
+        state.add((int) (Math.abs(dx) + Math.abs(dy)));
 
         return state;
     }
