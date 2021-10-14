@@ -163,6 +163,32 @@ public class GameState {
         return 0;
     }
 
+    double angle(Coordinate subject, Move direction, Coordinate object) {
+        double rad;
+        double dx = object.getX() - subject.getX();
+        double dy = object.getY() - subject.getY();
+
+        // apply coordinate rotation, such that the snake always looks to the right
+        // from the point of view of the atan
+        switch (direction) {
+            case right:
+                rad = Math.atan2(dy, dx);
+                break;
+            case up:
+                rad = -Math.atan2(dx, dy);
+                break;
+            case left:
+                rad = Math.atan2(-dy, -dx);
+                break;
+            case down:
+                rad = Math.atan2(dx, -dy);
+                break;
+            default:
+                throw new RuntimeException("unreachable!");
+        }
+
+        return rad;
+    }
 
     /// get the state of the game
     /// here we just take the 8 fields around the current snakes head
@@ -190,53 +216,32 @@ public class GameState {
 //        state.add(danger(snake.head.add(back)));
 //        state.add(danger(snake.head.add(back).add(left)));
 
-        // for head direction right
-        double rad;
-        double dx = food.getX() - snake.head.getX();
-        double dy = food.getY() - snake.head.getY();
-
-        // apply coordinate rotation, such that the snake always looks to the right
-        // from the point of view of the atan
-        switch (snake.headDirection) {
-            case right:
-                rad = Math.atan2(dy, dx);
-                break;
-            case up:
-                rad = -Math.atan2(dx, dy);
-                break;
-            case left:
-                rad = Math.atan2(-dy, -dx);
-                break;
-            case down:
-                rad = Math.atan2(dx, -dy);
-                break;
-            default:
-                throw new RuntimeException("unreachable!");
-        }
+        double rad = angle(snake.head, snake.headDirection, food);
+        double eps = 1e-6;
 
         // is food in front?
-        if (Math.abs(rad) < Math.PI / 2) {
+        if (Math.abs(rad) < Math.PI / 2 - eps) {
             state.add(1);
         } else {
             state.add(0);
         }
 
         // is food left?
-        if (rad > 0) {
+        if (rad > eps && rad < Math.PI - eps) {
             state.add(1);
         } else {
             state.add(0);
         }
 
         // is food right?
-        if (rad < 0) {
+        if (rad < -eps && rad > -Math.PI + eps) {
             state.add(1);
         } else {
             state.add(0);
         }
         
         // is food behind?
-        if (Math.abs(rad) > Math.PI/2.) {
+        if (Math.abs(rad) > Math.PI/2. + eps) {
             state.add(1);
         } else {
             state.add(0);

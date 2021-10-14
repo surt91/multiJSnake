@@ -5,6 +5,10 @@ import me.schawe.multijsnake.snake.ai.RandomAutopilot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameStateTest {
@@ -260,5 +264,110 @@ class GameStateTest {
 
         assertFalse(snake.isDead(), "snake lives");
         assertFalse(gameState.isGameOver(), "game running");
+    }
+
+
+    @Test
+    void detectFood() {
+        int idx = gameState.addSnake();
+        Snake snake = gameState.getSnakes().get(0);
+        List<Integer> state;
+
+        //
+        snake.head = new Coordinate(5, 5);
+        gameState.food = new Coordinate(9, 9);
+
+        snake.headDirection = Move.right;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 1, 0, 0));
+
+        snake.headDirection = Move.up;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 0, 1, 0));
+
+        snake.headDirection = Move.left;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 0, 1, 1));
+
+        snake.headDirection = Move.down;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 1, 0, 1));
+
+
+        gameState.food = new Coordinate(1, 1);
+
+        snake.headDirection = Move.right;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 0, 1, 1));
+
+        snake.headDirection = Move.up;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 1, 0, 1));
+
+        snake.headDirection = Move.left;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 1, 0, 0));
+
+        snake.headDirection = Move.down;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 0, 1, 0));
+
+
+        gameState.food = new Coordinate(9, 1);
+
+        snake.headDirection = Move.right;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 0, 1, 0));
+
+        snake.headDirection = Move.up;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 0, 1, 1));
+
+        snake.headDirection = Move.left;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 1, 0, 1));
+
+        snake.headDirection = Move.down;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 1, 0, 0));
+
+
+        gameState.food = new Coordinate(1, 9);
+
+        snake.headDirection = Move.right;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 1, 0, 1));
+
+        snake.headDirection = Move.up;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 1, 0, 0));
+
+        snake.headDirection = Move.left;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 0, 1, 0));
+
+        snake.headDirection = Move.down;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 0, 1, 1));
+
+
+        gameState.food = new Coordinate(5, 9);
+
+        snake.headDirection = Move.right;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 1, 0, 0));
+
+        snake.headDirection = Move.up;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(1, 0, 0, 0));
+
+        snake.headDirection = Move.left;
+        state = gameState.trainingState(snake.idx);
+        assertThat(state.subList(5, 9), contains(0, 0, 1, 0));
+
+        snake.headDirection = Move.down;
+        state = gameState.trainingState(snake.idx);
+        assertEquals(gameState.angle(snake.head, snake.headDirection, gameState.food), Math.PI);
+        assertThat(state.subList(5, 9), contains(0, 0, 0, 1));
     }
 }
