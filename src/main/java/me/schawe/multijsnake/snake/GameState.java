@@ -202,7 +202,7 @@ public class GameState {
                 rad = Math.atan2(dy, dx);
                 break;
             case up:
-                rad = Math.atan2(dx, dy);
+                rad = -Math.atan2(dx, dy);
                 break;
             case left:
                 rad = Math.atan2(-dy, -dx);
@@ -215,7 +215,7 @@ public class GameState {
         }
 
         // is food in front?
-        if (Math.abs(rad) < Math.PI / 4) {
+        if (Math.abs(rad) < Math.PI / 2) {
             state.add(1);
         } else {
             state.add(0);
@@ -235,8 +235,15 @@ public class GameState {
             state.add(0);
         }
         
+        // is food behind?
+        if (Math.abs(rad) > Math.PI/2.) {
+            state.add(1);
+        } else {
+            state.add(0);
+        }
+        
         // distance to food
-        state.add((int) (Math.abs(dx) + Math.abs(dy)));
+        //state.add((int) (Math.abs(dx) + Math.abs(dy)));
 
         return state;
     }
