@@ -5,11 +5,12 @@ import me.schawe.multijsnake.highscore.HighscoreRepository;
 import me.schawe.multijsnake.snake.*;
 import me.schawe.multijsnake.snake.ai.Autopilot;
 import me.schawe.multijsnake.snake.ai.GreedyAutopilot;
+import me.schawe.multijsnake.snake.ai.KerasModel;
+import me.schawe.multijsnake.snake.ai.RandomAutopilot;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -19,9 +20,13 @@ public class GameStateMap {
     private final WebSocketService webSocketService;
     private final HighscoreRepository highscoreRepository;
 
+    private final Map<String, String> aiDescriptionMap;
+
     GameStateMap(WebSocketService webSocketService, HighscoreRepository highscoreRepository) {
         this.webSocketService = webSocketService;
         this.highscoreRepository = highscoreRepository;
+
+        this.aiDescriptionMap = aiDescriptions();
     }
 
     public GameState newGameState(int w, int h, long seed) {
@@ -162,13 +167,38 @@ public class GameStateMap {
         webSocketService.update(state);
     }
 
-    public void addAI(String sessionId, String type) {
+    public void addAI(String sessionId, String key) {
         SnakeId snakeId = session2id(sessionId);
         GameState state = get(snakeId.getId());
-        // TODO: select strategy, for now only random
-        Autopilot autopilot = new GreedyAutopilot();
+        Autopilot autopilot;
+
+        String type = aiDescriptionMap.get(key);
+        if(Objects.equals(type, "greedy")) {
+            autopilot = new GreedyAutopilot();
+        } else if (type.startsWith("models/")) {
+            autopilot = new KerasModel(type);
+        } else {
+            autopilot = new RandomAutopilot();
+        }
         state.addAISnake(autopilot);
 
         webSocketService.update(state);
+    }
+
+    public static Map<String, String> aiDescriptions() {
+        var out = new HashMap<String, String>();
+
+        out.put("Random", "random");
+        out.put("Greedy", "greedy");
+
+        // TODO: maybe just read the folder ...
+        out.put("Deep Q (n=200)", "models/DQN_200.keras");
+        // out.put("Actor-Critic (n=1000)", "models/AC_1000.keras");
+
+        return out;
+    }
+
+    public List<String> listAi() {
+        return new ArrayList<>(aiDescriptionMap.keySet());
     }
 }

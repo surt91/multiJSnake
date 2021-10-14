@@ -44,7 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                    .antMatchers("/api/auth/**", "/app.css", "/favicon.ico", "/built/**", "/dynamic/**", "/api/init/**", "/api/close/**", "/", "/profile").permitAll()
+                    .antMatchers("/api/auth/**", "/app.css", "/favicon.ico", "/built/**", "/dynamic/**", "/api/init/**", "/api/listAi", "/api/close/**", "/", "/profile").permitAll()
                     .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

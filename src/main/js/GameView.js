@@ -2,6 +2,7 @@ import React from "react";
 import {registerTouch} from "./registerTouch";
 import {registerStompPromise} from "./websocket-listener";
 import {
+    Autocomplete,
     Box,
     Button,
     Container,
@@ -21,6 +22,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
 import {idx2color} from "./color";
+import axios from "axios";
 
 export class GameView extends React.Component {
 
@@ -53,7 +55,8 @@ export class GameView extends React.Component {
             idx: -1,
             blurred: false,
             playerName: "",
-            shareUrl: ""
+            shareUrl: "",
+            aiOptions: []
         };
 
         this.updateGameState = this.updateGameState.bind(this);
@@ -68,6 +71,12 @@ export class GameView extends React.Component {
     componentDidMount() {
         this.init(this.state.game.width, this.state.game.height);
         registerTouch(dir => this.move(dir), _ => this.unpause());
+
+        axios.get("/api/listAi")
+            .then(response => {
+                console.log(response.data);
+                this.setState({aiOptions: response.data});
+            });
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -247,6 +256,7 @@ export class GameView extends React.Component {
     }
 
     addAutopilot(type) {
+        console.log("add " + type);
         this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
     }
 
@@ -283,6 +293,7 @@ export class GameView extends React.Component {
                             handleNameChange={s => this.handleNameChange(s)}
                             newGame={(w, h) => this.newGame(w, h)}
                             addAutopilot={name => this.addAutopilot(name)}
+                            aiOptions={this.state.aiOptions}
                             togglePause={_ => this.togglePause()}
                             reset={_ => this.reset()}
                         />
@@ -356,6 +367,7 @@ class PlayerPane extends React.Component {
                 <Grid item xs={12}>
                     <AddAutopilot
                         onCommit={type => this.props.addAutopilot(type)}
+                        aiOptions={this.props.aiOptions}
                     />
                 </Grid>
             </Grid>
@@ -622,24 +634,45 @@ FieldSizeSelector.propTypes = {
 class AddAutopilot extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {value: "Random"};
+    }
+
+    setValue(newValue) {
+        console.log("chosen: "+newValue)
+        this.setState({
+            value: newValue
+        })
     }
 
     render() {
         return (
-            <Button
-                aria-label="done"
-                onClick={_ => this.props.onCommit("SKSAW")}
-                variant="outlined"
-            >
-                Add AI
-                <AddIcon />
-            </Button>
+            <Stack spacing={2}>
+                <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={this.props.aiOptions}
+                    sx={{ width: 250 }}
+                    renderInput={(params) => <TextField {...params} value={this.state.value} label="AI Strategy" />}
+                    onChange={(e, newValue) => {
+                        this.setValue(newValue);
+                    }}
+                />
+                <Button
+                    aria-label="done"
+                    onClick={_ => this.props.onCommit(this.state.value)}
+                    variant="outlined"
+                >
+                    Add AI
+                    <AddIcon />
+                </Button>
+            </Stack>
         );
     }
 }
 
 AddAutopilot.propTypes = {
-    onCommit: PropTypes.func
+    onCommit: PropTypes.func,
+    aiOptions: PropTypes.array
 }
 
 class ShareLink extends React.Component {

@@ -7,6 +7,8 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class MultiJSnakeController {
     private final GameStateMap map;
@@ -34,6 +36,11 @@ public class MultiJSnakeController {
     ResponseEntity<?> init(@PathVariable String id) {
         map.close(id);
         return ResponseEntity.ok("");
+    }
+
+    @GetMapping("/api/listAi")
+    List<String> listAi() {
+        return map.listAi();
     }
 
     @MessageMapping("/pause")
