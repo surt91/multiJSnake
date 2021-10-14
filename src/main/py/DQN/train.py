@@ -22,9 +22,10 @@ env = Snake(vis)
 max_steps_per_episode = 10000
 memory_size = 100000
 batch_size = 1000
-adam_lr=0.0007
+adam_lr = 0.0007
 training_duration = 80
 fine_training_duration = 20
+
 
 class DQNAgent(object):
     def __init__(self):
@@ -90,7 +91,7 @@ class DQNAgent(object):
                 #print(done[idx], tmp, np.amax(tmp), self.gamma * np.amax(tmp), target[idx], action[idx], Q_new)
                 target[idx][np.argmax(action[idx])] = Q_new
                 #print(target[idx])
-            
+
             #print(len(state), len(target))
             self.model.fit(state, target, epochs=1, verbose=0)
 #            self.model.train_on_batch(state, target)
@@ -107,7 +108,18 @@ class DQNAgent(object):
 def train():
     agent = DQNAgent()
 
-    episode_count = 0
+    saves = glob("snakeDQN_e*.keras")
+    if saves:
+
+        latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
+        start = int(latest.split(".")[0].split("_e")[1])
+        print(f"load `{latest}`")
+        agent.model = keras.models.load_model(latest)
+    else:
+        start = 0
+        # model = keras.Model(inputs=inputs, outputs=[action, critic])
+
+    episode_count = start
 
     while True:  # Run until solved
         state = env.reset()
@@ -117,7 +129,7 @@ def train():
             epsilon = 1-(episode_count/training_duration)
         else:
             epsilon = 0.01*(1-(episode_count-training_duration)/fine_training_duration)
-        
+
         for timestep in range(1, max_steps_per_episode):
             # env.render(); Adding this line would show the attempts
             # of the agent in a pop up window.
@@ -129,14 +141,21 @@ def train():
                 final_move[move] = 1
             else:
                 # predict action based on the old state
-                prediction = agent.model.predict(state.reshape((1,env.state_size())))
+                prediction = agent.model.predict(state.reshape((1, env.state_size())))
+
+                # choose according to weights
+                #move = np.random.choice(env.action_size(), p=np.squeeze(prediction))
+                # or choose the maximum
                 move = int(np.argmax(prediction[0]))
+
                 final_move[move] = 1
                 print(state, prediction, move, final_move)
 
             state_old = state
             state, reward, done, _ = env.step(move)
             state = np.asarray(state)
+
+            #print(state[-4:])
 
             # train short memory base on the new action and state
             agent.train_short_memory(state_old, final_move, reward, state, done)

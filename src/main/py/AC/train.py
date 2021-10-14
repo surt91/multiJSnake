@@ -18,7 +18,7 @@ if not vis:
 
 # Configuration parameters for the whole setup
 seed = 42
-gamma = 0.99  # Discount factor for past rewards
+gamma = 0.9  # Discount factor for past rewards
 max_steps_per_episode = 10000
 env = Snake(vis)  # Create the environment
 env.seed(seed)
@@ -39,7 +39,7 @@ In our implementation, they share the initial layer.
 
 num_inputs = env.state_size()
 num_actions = env.action_size()
-num_hidden = 128
+num_hidden = 256
 
 inputs = layers.Input(shape=(num_inputs,))
 common = layers.Dense(num_hidden, activation="relu")(inputs)
@@ -47,7 +47,7 @@ action = layers.Dense(num_actions, activation="softmax")(common)
 critic = layers.Dense(1)(common)
 
 # load a snapshot, if we have one
-saves = glob("snake_e*.keras")
+saves = glob("snakeAC_e*.keras")
 if saves:
 
     latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
@@ -62,7 +62,7 @@ else:
 ## Train
 """
 
-optimizer = keras.optimizers.Adam(learning_rate=0.01)
+optimizer = keras.optimizers.Adam(learning_rate=0.001)
 huber_loss = keras.losses.Huber()
 action_probs_history = []
 critic_value_history = []
@@ -153,11 +153,11 @@ while True:  # Run until solved
         print(template.format(running_reward, episode_count))
 
     if episode_count % 1000 == 0:
-        model.save(f'snake_e{episode_count}.keras')
+        model.save(f'snakeAC_e{episode_count}.keras')
 
     if running_reward > env.max_reward():  # Condition to consider the task solved
         print("Solved at episode {}!".format(episode_count))
         break
 
-model.save('snake.keras')
+model.save('snakeAC.keras')
 

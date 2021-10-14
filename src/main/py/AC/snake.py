@@ -1,4 +1,4 @@
-import pygame
+import pygame_sdl2 as pygame
 from py4j.java_gateway import JavaGateway
 
 
@@ -37,6 +37,11 @@ class Snake:
         food = self.gameState.getFood()
         pygame.draw.rect(
             screen,
+            [0, 0, 0],
+            [0, 0, 10 * scale, 10 * scale]
+        )
+        pygame.draw.rect(
+            screen,
             [230, 20, 20],
             [scale * food.getX(), scale * food.getY(), scale, scale]
         )
@@ -73,7 +78,7 @@ class Snake:
         elif self.gameState.isEating(self.snake):
             reward = 1
             if self.vis:
-                print("nom")
+                print("nom", end="")
             self.age = 0
         elif self.age > 500:
             reward = -0.5

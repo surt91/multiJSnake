@@ -16,7 +16,7 @@ class Snake:
         self.gameState.setPause(False)
         self.idx = self.gameState.addSnake()
         self.snake = self.gameState.getSnakes()[self.idx]
-        self.state = [] 
+        self.state = []
 
     def seed(self, seed):
         self.gameState.reseed(seed)
@@ -69,6 +69,10 @@ class Snake:
         state = self.gameState.trainingState(self.idx)
         self.state = state
 
+        #print(self.snake.getHeadDirection())
+        #print(self.snake.getHead().getX(), self.snake.getHead().getY())
+        #print(self.gameState.getFood().getX(), self.gameState.getFood().getY())
+
         done = False
         reward = 0
         if self.gameState.isGameOver():
@@ -91,4 +95,3 @@ class Snake:
 
     def max_reward(self):
         return 150
-
