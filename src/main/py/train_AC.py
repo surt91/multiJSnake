@@ -12,16 +12,18 @@ from tensorflow.keras import layers
 
 from snake import Snake
 
+# hyper-parameters
+basename = "snakeAC"
+gamma = 0.9
+max_steps_per_episode = 10000
+adam_lr = 0.001
+
+
 vis = "vis" in sys.argv
 if not vis:
     print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
 
-# Configuration parameters for the whole setup
-seed = 42
-gamma = 0.9  # Discount factor for past rewards
-max_steps_per_episode = 10000
 env = Snake(vis)  # Create the environment
-env.seed(seed)
 eps = np.finfo(np.float32).eps.item()  # Smallest number such that 1.0 + eps != 1.0
 
 """
@@ -47,7 +49,7 @@ action = layers.Dense(num_actions, activation="softmax")(common)
 critic = layers.Dense(1)(common)
 
 # load a snapshot, if we have one
-saves = glob("snakeAC_e*.keras")
+saves = glob(f"{basename}_e*.keras")
 if saves:
 
     latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
@@ -62,7 +64,7 @@ else:
 ## Train
 """
 
-optimizer = keras.optimizers.Adam(learning_rate=0.001)
+optimizer = keras.optimizers.Adam(learning_rate=adam_lr)
 huber_loss = keras.losses.Huber()
 action_probs_history = []
 critic_value_history = []
@@ -72,15 +74,13 @@ episode_count = start
 
 while True:  # Run until solved
     state = env.reset()
+    state = np.asarray(state)
     episode_reward = 0
     with tf.GradientTape() as tape:
-        for timestep in range(1, max_steps_per_episode):
-            # env.render(); Adding this line would show the attempts
-            # of the agent in a pop up window.
+        for timestep in range(max_steps_per_episode):
             env.render()
 
-            state = tf.convert_to_tensor(state)
-            state = tf.expand_dims(state, 0)
+            state = tf.convert_to_tensor([state])
 
             # Predict action probabilities and estimated future rewards
             # from environment state
@@ -92,7 +92,7 @@ while True:  # Run until solved
             action_probs_history.append(tf.math.log(action_probs[0, action]))
 
             # Apply the sampled action in our environment
-            state, reward, done, _ = env.step(action)
+            state, reward, done = env.step(action)
             rewards_history.append(reward)
             episode_reward += reward
 
@@ -153,7 +153,7 @@ while True:  # Run until solved
         print(template.format(running_reward, episode_count))
 
     if episode_count % 1000 == 0:
-        model.save(f'snakeAC_e{episode_count}.keras')
+        model.save(f"{basename}_e{episode_count}.keras")
 
     if running_reward > env.max_reward():  # Condition to consider the task solved
         print("Solved at episode {}!".format(episode_count))

@@ -32,12 +32,14 @@ class Snake:
         if not self.vis:
             return
         scale = 20
-        screen = pygame.display.set_mode((10 * scale, 10 * scale))
+        w = self.gameState.getWidth()
+        h = self.gameState.getHeight()
 
+        screen = pygame.display.set_mode((w * scale, h * scale))
         pygame.draw.rect(
             screen,
             [0, 0, 0],
-            [0, 0, 10 * scale, 10 * scale]
+            [0, 0, w * scale, h * scale]
         )
 
         food = self.gameState.getFood()
@@ -69,10 +71,6 @@ class Snake:
         state = self.gameState.trainingState(self.idx)
         self.state = state
 
-        #print(self.snake.getHeadDirection())
-        #print(self.snake.getHead().getX(), self.snake.getHead().getY())
-        #print(self.gameState.getFood().getX(), self.gameState.getFood().getY())
-
         done = False
         reward = 0
         if self.gameState.isGameOver():
@@ -83,9 +81,9 @@ class Snake:
         elif self.gameState.isEating(self.snake):
             reward = 1
             if self.vis:
-                print("nom")
+                print("nom", end=" ")
 
-        return state, reward, done, "idk"
+        return state, reward, done
 
     def state_size(self):
         return len(self.gameState.trainingState(self.idx))

@@ -13,18 +13,21 @@ import numpy as np
 
 from snake import Snake
 
-
-vis = "vis" in sys.argv
-if not vis:
-    print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
-
-env = Snake(vis)
+# hyper-parameters
+basename = "snakeDNQ"
 max_steps_per_episode = 10000
 memory_size = 100000
 batch_size = 1000
 adam_lr = 0.0007
 training_duration = 80
 fine_training_duration = 20
+
+
+vis = "vis" in sys.argv
+if not vis:
+    print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
+
+env = Snake(vis)
 
 
 class DQNAgent(object):
@@ -40,20 +43,11 @@ class DQNAgent(object):
 
     def network(self):
         model = Sequential()
-#        model.add(Dense(50, activation='relu', input_dim=env.state_size()))
-#        model.add(Dense(300, activation='relu'))
-#        model.add(Dense(50, activation='relu'))
         model.add(Dense(256, activation='relu', input_dim=env.state_size()))
         model.add(Dense(env.action_size(), activation='softmax'))
         opt = keras.optimizers.Adam(adam_lr)
         #loss = keras.losses.Huber()
         model.compile(loss="mse", optimizer=opt)
-
-        saves = glob("snake4_e*.hdf5")
-        if saves:
-            latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
-            print(f"load `{latest}`")
-            model = keras.models.load_load_weights(latest)
 
         return model
 
@@ -61,7 +55,6 @@ class DQNAgent(object):
         self.memory.append((state, action, reward, next_state, done))
 
     def train_long_memory(self):
-        #print("long")
         if len(self.memory) > batch_size:
             minibatch = random.sample(self.memory, batch_size)
         else:
@@ -71,44 +64,30 @@ class DQNAgent(object):
         self.train_step(states, actions, rewards, next_states, dones)
 
     def train_short_memory(self, state, action, reward, next_state, done):
-        #print("short")
         self.train_step([state], [action], [reward], [next_state], [done])
 
     def train_step(self, state, action, reward, next_state, done):
-        if True:
-            state = tf.convert_to_tensor(state)
-            action = tf.convert_to_tensor(action)
-            reward = tf.convert_to_tensor(reward)
-            next_state = tf.convert_to_tensor(next_state)
+        state = tf.convert_to_tensor(state)
+        action = tf.convert_to_tensor(action)
+        reward = tf.convert_to_tensor(reward)
+        next_state = tf.convert_to_tensor(next_state)
 
-            target = self.model.predict(state)
-            for idx in range(len(done)):
-                Q_new = reward[idx]
-                if not done[idx]:
-                    tmp = self.model.predict(tf.convert_to_tensor([next_state[idx]]))
-                    Q_new = float(reward[idx]) + self.gamma * np.amax(tmp)
+        target = self.model.predict(state)
+        for idx in range(len(done)):
+            Q_new = reward[idx]
+            if not done[idx]:
+                tmp = self.model.predict(tf.convert_to_tensor([next_state[idx]]))
+                Q_new = float(reward[idx]) + self.gamma * np.amax(tmp)
 
-                #print(done[idx], tmp, np.amax(tmp), self.gamma * np.amax(tmp), target[idx], action[idx], Q_new)
-                target[idx][np.argmax(action[idx])] = Q_new
-                #print(target[idx])
+            target[idx][np.argmax(action[idx])] = Q_new
 
-            #print(len(state), len(target))
-            self.model.fit(state, target, epochs=1, verbose=0)
-#            self.model.train_on_batch(state, target)
-        else:
-            for idx in range(len(done)):
-                target = reward[idx]
-                if not done[idx]:
-                    target = reward[idx] + self.gamma * np.amax(self.model.predict(next_state[idx].reshape((1, env.state_size())))[0])
-                target_f = self.model.predict(state[idx].reshape((1, env.state_size())))
-                target_f[0][np.argmax(action[idx])] = target
-                self.model.fit(state[idx].reshape((1, env.state_size())), target_f, epochs=1, verbose=0)
+        self.model.fit(state, target, epochs=1, verbose=0)
 
 
 def train():
     agent = DQNAgent()
 
-    saves = glob("snakeDQN_e*.keras")
+    saves = globf(f"{basename}_e*.keras")
     if saves:
 
         latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
@@ -117,7 +96,6 @@ def train():
         agent.model = keras.models.load_model(latest)
     else:
         start = 0
-        # model = keras.Model(inputs=inputs, outputs=[action, critic])
 
     episode_count = start
 
@@ -131,8 +109,6 @@ def train():
             epsilon = 0.01*(1-(episode_count-training_duration)/fine_training_duration)
 
         for timestep in range(1, max_steps_per_episode):
-            # env.render(); Adding this line would show the attempts
-            # of the agent in a pop up window.
             env.render()
 
             final_move = [0, 0, 0]
@@ -144,7 +120,7 @@ def train():
                 prediction = agent.model.predict(state.reshape((1, env.state_size())))
 
                 # choose according to weights
-                #move = np.random.choice(env.action_size(), p=np.squeeze(prediction))
+                # move = np.random.choice(env.action_size(), p=np.squeeze(prediction))
                 # or choose the maximum
                 move = int(np.argmax(prediction[0]))
 
@@ -152,10 +128,8 @@ def train():
                 print(state, prediction, move, final_move)
 
             state_old = state
-            state, reward, done, _ = env.step(move)
+            state, reward, done = env.step(move)
             state = np.asarray(state)
-
-            #print(state[-4:])
 
             # train short memory base on the new action and state
             agent.train_short_memory(state_old, final_move, reward, state, done)
@@ -177,7 +151,7 @@ def train():
             print(f"reward: {episode_reward:.2f} at episode {episode_count}")
 
         if episode_count % 50 == 0:
-            agent.model.save(f'snakeDQN_e{episode_count}.keras')
+            agent.model.save(f"{basename}_e{episode_count}.keras")
 
         if episode_reward > env.max_reward():  # Condition to consider the task solved
             print("Solved at episode {}!".format(episode_count))
