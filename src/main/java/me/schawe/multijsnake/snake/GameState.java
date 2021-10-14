@@ -202,20 +202,7 @@ public class GameState {
     /// 0/1: its right
     public List<Integer> trainingState(int idx) {
         Snake snake = snakes.get(idx);
-        Coordinate straight = snake.headDirection.toCoord();
-        Coordinate left = snake.headDirection.rLeft().toCoord();
-        Coordinate right = snake.headDirection.rRight().toCoord();
-        Coordinate back = snake.headDirection.back().toCoord();
-
         ArrayList<Integer> state = new ArrayList<>();
-        state.add(danger(snake.head.add(left)));
-        state.add(danger(snake.head.add(left).add(straight)));
-        state.add(danger(snake.head.add(straight)));
-        state.add(danger(snake.head.add(straight).add(right)));
-        state.add(danger(snake.head.add(right)));
-//        state.add(danger(snake.head.add(right).add(back)));
-//        state.add(danger(snake.head.add(back)));
-//        state.add(danger(snake.head.add(back).add(left)));
 
         double rad = angle(snake.head, snake.headDirection, food);
         double eps = 1e-6;
@@ -247,9 +234,29 @@ public class GameState {
         } else {
             state.add(0);
         }
-        
-        // distance to food
-        //state.add((int) (Math.abs(dx) + Math.abs(dy)));
+
+        Coordinate straight = snake.headDirection.toCoord();
+        Coordinate left = snake.headDirection.rLeft().toCoord();
+        Coordinate right = snake.headDirection.rRight().toCoord();
+        Coordinate back = snake.headDirection.back().toCoord();
+
+        // first neighbors
+        state.add(danger(snake.head.add(left)));
+        state.add(danger(snake.head.add(straight)));
+        state.add(danger(snake.head.add(right)));
+        // omit back, its always occupied
+
+        // second neighbors
+        state.add(danger(snake.head.add(back).add(left)));
+        state.add(danger(snake.head.add(left).add(straight)));
+        state.add(danger(snake.head.add(straight).add(right)));
+        state.add(danger(snake.head.add(right).add(back)));
+
+        // third neighbors
+        state.add(danger(snake.head.add(left).add(left)));
+        state.add(danger(snake.head.add(straight).add(straight)));
+        state.add(danger(snake.head.add(right).add(right)));
+        state.add(danger(snake.head.add(back).add(back)));
 
         return state;
     }
