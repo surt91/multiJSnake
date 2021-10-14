@@ -3,4 +3,5 @@
 # to maven to not include very large but unnecessary native libraries
 # (this can be achieved by setting the `MAVEN_CUSTOM_OPTS` variable in heroku)
 
-node_modules/
+/node_modules
+/target/node
