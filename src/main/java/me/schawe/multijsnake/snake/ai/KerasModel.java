@@ -62,6 +62,7 @@ public class KerasModel implements Autopilot {
         } else if(modelFunctional != null) {
             output = modelFunctional.output(input)[0];
         } else {
+            gameState.kill(snake.getIdx());
             throw new RuntimeException("failed to load model `" + pathToModel + "`");
         }
 
