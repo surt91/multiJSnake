@@ -3,6 +3,7 @@ package me.schawe.multijsnake.snake.ai;
 import me.schawe.multijsnake.snake.GameState;
 import me.schawe.multijsnake.snake.Move;
 import me.schawe.multijsnake.snake.Snake;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 import org.deeplearning4j.nn.modelimport.keras.exceptions.InvalidKerasConfigurationException;
 import org.deeplearning4j.nn.modelimport.keras.exceptions.UnsupportedKerasConfigurationException;
@@ -16,19 +17,36 @@ import java.util.Random;
 
 // https://deeplearning4j.konduit.ai/deeplearning4j/how-to-guides/keras-import
 public class KerasModel implements Autopilot {
-    MultiLayerNetwork model;
+    ComputationGraph modelFunctional;
+    MultiLayerNetwork modelSequential;
+    String pathToModel;
 
-    public KerasModel(String pathToModel) {
+    public KerasModel(String pathToModel, boolean isFunctional) {
+        this.pathToModel = pathToModel;
+
         // load model
-        try {
-            String simpleMlp = new ClassPathResource(pathToModel).getFile().getPath();
-            model = KerasModelImport.importKerasSequentialModelAndWeights(simpleMlp);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnsupportedKerasConfigurationException e) {
-            e.printStackTrace();
-        } catch (InvalidKerasConfigurationException e) {
-            e.printStackTrace();
+        if(isFunctional) {
+            try {
+                String savedModel = new ClassPathResource(pathToModel).getFile().getPath();
+                modelFunctional = KerasModelImport.importKerasModelAndWeights(savedModel);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (UnsupportedKerasConfigurationException e) {
+                e.printStackTrace();
+            } catch (InvalidKerasConfigurationException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                String savedModel = new ClassPathResource(pathToModel).getFile().getPath();
+                modelSequential = KerasModelImport.importKerasSequentialModelAndWeights(savedModel);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (UnsupportedKerasConfigurationException e) {
+                e.printStackTrace();
+            } catch (InvalidKerasConfigurationException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -37,7 +55,15 @@ public class KerasModel implements Autopilot {
         // infer
         var state = gameState.trainingState(snake.getIdx());
         INDArray input = Nd4j.create(state).reshape(1, state.size());
-        INDArray output = model.output(input);
+
+        INDArray output;
+        if(modelSequential != null) {
+            output = modelSequential.output(input);
+        } else if(modelFunctional != null) {
+            output = modelFunctional.output(input)[0];
+        } else {
+            throw new RuntimeException("failed to load model `" + pathToModel + "`");
+        }
 
         int action = output.ravel().argMax().getInt(0);
 

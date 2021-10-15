@@ -175,8 +175,10 @@ public class GameStateMap {
         String type = aiDescriptionMap.get(key);
         if(Objects.equals(type, "greedy")) {
             autopilot = new GreedyAutopilot();
-        } else if (type.startsWith("models/")) {
-            autopilot = new KerasModel(type);
+        } else if (type.startsWith("models/func/")) {
+            autopilot = new KerasModel(type, true);
+        } else if (type.startsWith("models/seq/")) {
+            autopilot = new KerasModel(type, false);
         } else {
             autopilot = new RandomAutopilot();
         }
@@ -192,8 +194,8 @@ public class GameStateMap {
         out.put("Greedy", "greedy");
 
         // TODO: maybe just read the folder ...
-        out.put("Deep Q (n=200)", "models/DQN_200.keras");
-        // out.put("Actor-Critic (n=1000)", "models/AC_1000.keras");
+        out.put("Deep Q (n=200)", "models/seq/DQN_200.keras");
+        out.put("Actor-Critic (n=1000)", "models/func/AC_1000.keras");
 
         return out;
     }
