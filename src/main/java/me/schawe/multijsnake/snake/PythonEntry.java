@@ -14,8 +14,8 @@ public class PythonEntry implements CommandLineRunner {
     public PythonEntry() {
     }
 
-    public GameState getGameState() {
-        return new GameState(10, 10);
+    public GameState getGameState(int w, int h) {
+        return new GameState(w, h);
     }
 
     public void run(String... args) {

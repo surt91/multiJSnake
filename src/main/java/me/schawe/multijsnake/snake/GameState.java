@@ -288,6 +288,11 @@ public class GameState {
             }
         }
 
+        // your own head is ok .. this is probably not necessary ...
+        if(!isWall(snake.head)) {
+            state[snake.head.getX()][snake.head.getY()][2] = 0;
+        }
+
         return state;
     }
 

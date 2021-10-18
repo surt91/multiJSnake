@@ -1,5 +1,7 @@
 """
 This script is very close to https://keras.io/examples/rl/actor_critic_cartpole/
+with elements from https://github.com/pawel-kieliszczyk/snake-reinforcement-learning
+and https://towardsdatascience.com/learning-to-play-snake-at-1-million-fps-4aae8d36d2f1
 """
 
 import sys
@@ -23,7 +25,7 @@ vis = "vis" in sys.argv
 if not vis:
     print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
 
-env = Snake(vis)  # Create the environment
+env = Snake(vis, w=5, h=5)  # Create the environment
 eps = np.finfo(np.float32).eps.item()  # Smallest number such that 1.0 + eps != 1.0
 
 """
@@ -41,15 +43,20 @@ In our implementation, they share the initial layer.
 
 num_inputs = env.state_size()
 num_actions = env.action_size()
-num_hidden = 256
 
-inputs = layers.Input(shape=num_inputs)
+inputs = layers.Input(shape=(None, None, 3))
 conv1 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(inputs)
-conv2 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv1)
-flat = layers.Flatten()(conv2)
-dense1 = layers.Dense(num_hidden, activation="relu")(flat)
-action = layers.Dense(num_actions, activation="softmax")(dense1)
-critic = layers.Dense(1)(dense1)
+#conv2 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv1)
+conv_final = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv1)
+#conv3 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv2)
+#conv_final = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv3)
+
+action1 = layers.GlobalMaxPool2D()(conv_final)
+action = layers.Dense(num_actions, activation="softmax")(action1)
+
+critic1 = layers.GlobalMaxPool2D()(conv_final)
+critic2 = layers.Dense(64, activation="relu")(critic1)
+critic = layers.Dense(1)(critic2)
 
 # load a snapshot, if we have one
 saves = glob(f"{basename}_e*.keras")
@@ -62,6 +69,8 @@ if saves:
 else:
     start = 0
     model = keras.Model(inputs=inputs, outputs=[action, critic])
+
+model.summary()
 
 """
 ## Train
@@ -84,6 +93,7 @@ while True:  # Run until solved
         for timestep in range(max_steps_per_episode):
             env.render()
 
+            state = np.asarray(state)
             state = tf.convert_to_tensor([state])
 
             # Predict action probabilities and estimated future rewards
