@@ -4,13 +4,13 @@ from py4j.java_gateway import JavaGateway
 
 
 class Snake:
-    def __init__(self, vis):
+    def __init__(self, vis, w=10, h=10):
         self.vis = vis
         if vis:
             pygame.init()
 
         gateway = JavaGateway()
-        self.gameState = gateway.entry_point.getGameState()
+        self.gameState = gateway.entry_point.getGameState(w, h)
         gateway.jvm.java.lang.System.out.println('Connected to Python!')
 
         self.gameState.setPause(False)
