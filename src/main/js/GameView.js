@@ -649,9 +649,9 @@ class AddAutopilot extends React.Component {
             <Stack spacing={2}>
                 <Autocomplete
                     disablePortal
-                    id="combo-box-demo"
                     options={this.props.aiOptions}
                     sx={{ width: 250 }}
+                    value={this.state.value}
                     renderInput={(params) => <TextField {...params} value={this.state.value} label="AI Strategy" />}
                     onChange={(e, newValue) => {
                         this.setValue(newValue);
