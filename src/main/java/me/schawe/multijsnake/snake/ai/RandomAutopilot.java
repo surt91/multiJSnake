@@ -26,10 +26,9 @@ public class RandomAutopilot implements Autopilot {
          String[] names = {
                 "Kzzt", "Bwok", "Blip", "Koaxi", "Dwook", "Kwok", "Vworp", "Trock", "Clanck",
                 "Qwert", "Zyzzyx", "Blixt", "Bleep", "Fzzz", "Thwock", "Zonk", "Tessel",
-                "Vrrr", "Whirr", "Flik", "Clack", "Vizz", "Klonk", "Zap", "Plonk", "Krank",
-                "Vert", "Pix", "Plink", "Bolt", "Klink", "Zpark", "Bzzt", "Cyl", "Axl", "Wovv",
-                "Klik", "Mekk", "Brrow", "Ping", "Dex", "Werx", "Gizmek", "Auton", "Motron",
-                "Scy", "Int", "Char", "Bool", "Daton"
+                "Vrrr", "Whirr", "Flik", "Clack", "Vizz", "Klonk", "Zap", "Plonk",
+                "Plink", "Klink", "Zpark", "Bzzt", "Cyl", "Wovv",
+                "Klik", "Mekk", "Brrow", "Werx", "Gizmek", "Scy"
         };
 
         Random random = new Random();

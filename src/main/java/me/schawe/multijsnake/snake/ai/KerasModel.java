@@ -95,7 +95,7 @@ public class KerasModel implements Autopilot {
                 "Cybroid", "Machinus", "Prismus", "Robonus", "Integron", "Tessellon", "Protron", "Strobus",
                 "Mechanex", "Zoplex", "Retrion", "Cyphorex", "Robex", "Robitron", "Combinus", "Arcus",
                 "Fluxitron", "Magnetron", "Positrex", "Negabit", "Antiplex", "Technus", "Synthon", "Datus",
-                "Maxus", "Gyricon", "Nega", "Lazerex", "Radex", "Radion", "Teslus", "Voxus", "Voxon",
+                "Maxus", "Gyricon", "Lazerex", "Radex", "Radion", "Teslus", "Voxus", "Voxon",
                 "Plexon", "Itron", "Techron", "Extron", "Terminex", "Valicron", "Quatron", "Helixon", "Leptonex",
                 "Nucleux", "Cybro", "Solaron", "Spectron", "Enertron", "Kaonus", "Negitron", "Atomiton",
                 "Positrus", "Symmetrus", "Qubex"
