@@ -192,8 +192,7 @@ public class GameState {
     }
 
     /// get the state of the game
-    /// here we just take the 8 fields around the current snakes head
-    /// clockwise, starting with the field straight ahead
+    /// here we just take up to third nearest neighbor fields of the snake's head
     /// 1: snake/wall
     /// 0: free
     /// and in which direction the food is
@@ -261,6 +260,37 @@ public class GameState {
         return state;
     }
 
+    /// get the state of the game
+    /// here we take bitmap of the field with multiple layers:
+    /// first layer: 1: food, else 0
+    /// second layer: 1: head of the current snake, else 0
+    /// third layer: number of turns the site will be occupied by the tail of a snake
+    /// this is inspired by https://towardsdatascience.com/learning-to-play-snake-at-1-million-fps-4aae8d36d2f1
+    public int[][][] trainingBitmap(int idx) {
+        Snake snake = snakes.get(idx);
+        // this is initialized to 0 https://stackoverflow.com/a/2154340
+        int[][][] state = new int[width][height][3];
+
+        state[food.getX()][food.getY()][0] = 1;
+        // the head can be outside of the field (after collision with a wall)
+        if(!isWall(snake.head)) {
+            state[snake.head.getX()][snake.head.getY()][1] = 1;
+        }
+
+        for(Snake s : getSnakes()) {
+            int ctr = 1;
+            for(Coordinate site : s.getTail()) {
+                state[site.getX()][site.getY()][2] = ctr;
+                ctr += 1;
+            }
+            if(!isWall(s.head)) {
+                state[s.head.getX()][s.head.getY()][2] = ctr;
+            }
+        }
+
+        return state;
+    }
+
     // this takes two ints, because this is the way my training on the python side works
     public void turnRelative(int idx, int direction) {
         Snake snake = snakes.get(idx);
@@ -283,6 +313,35 @@ public class GameState {
                 break;
             default:
                 throw new RuntimeException("invalid relative direction: " + direction);
+        }
+    }
+
+    // this takes two ints, because this is the way my training on the python side works
+    public void turnAbsolute(int idx, int direction) {
+        Snake snake = snakes.get(idx);
+        if(snake.isDead()) {
+            return;
+        }
+
+        switch(direction) {
+            case 0:
+                // north
+                snake.headDirection = Move.up;
+                break;
+            case 1:
+                // east
+                snake.headDirection = Move.right;
+                break;
+            case 2:
+                // south
+                snake.headDirection = Move.down;
+                break;
+            case 3:
+                // west
+                snake.headDirection = Move.left;
+                break;
+            default:
+                throw new RuntimeException("invalid absolute direction: " + direction);
         }
     }
 
