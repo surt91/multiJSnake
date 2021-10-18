@@ -188,14 +188,18 @@ public class GameStateMap {
     }
 
     public static Map<String, String> aiDescriptions() {
-        var out = new HashMap<String, String>();
+        var out = new LinkedHashMap<String, String>();
 
         out.put("Random", "random");
         out.put("Greedy", "greedy");
 
         // TODO: maybe just read the folder ...
         out.put("Deep Q (n=200)", "models/seq/DQN_200.keras");
+        out.put("Actor-Critic (n=100)", "models/func/AC_100.keras");
+        out.put("Actor-Critic (n=300)", "models/func/AC_300.keras");
+        out.put("Actor-Critic (n=600)", "models/func/AC_600.keras");
         out.put("Actor-Critic (n=1000)", "models/func/AC_1000.keras");
+        out.put("Actor-Critic (n=36000)", "models/func/AC_36000.keras");
 
         return out;
     }
