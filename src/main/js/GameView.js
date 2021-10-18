@@ -649,6 +649,7 @@ class AddAutopilot extends React.Component {
             <Stack spacing={2}>
                 <Autocomplete
                     disablePortal
+                    id={"aiChooser"}
                     options={this.props.aiOptions}
                     sx={{ width: 250 }}
                     value={this.state.value}
