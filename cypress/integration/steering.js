@@ -24,6 +24,9 @@ describe('UI Test', () => {
         cy.visit('/');
         cy.wait(100);
         cy.get("#currentScores").find('tr').should('have.length', 1);
+        cy.get("button").contains("Add AI").should('be.disabled');
+        cy.get("#aiChooser").type("Greedy");
+        cy.contains("Greedy").click();
         cy.get("button").contains("Add AI").click();
         cy.get("#currentScores").find('tr').should('have.length', 2);
     })
