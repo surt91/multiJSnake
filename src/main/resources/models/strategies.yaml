@@ -1,0 +1,51 @@
+random:
+    name: Random
+    description: Perform a random walk on the field.
+    model_path: random
+greedy:
+    name: Greedy
+    description: Go directly to the next food and do not step on obstacles, if not necessary.
+    model_path: greedy
+
+dqn_200:
+    name: Deep Q (n=200)
+    description: A Deep Q neural network after 200 games played.
+        Has only local information (third nearest neighbors of the head)
+        and the direction of the food.
+    model_path: models/seq/DQN_200.keras
+
+ac_100:
+    name: Actor-Critic (n=100)
+    description: An Actor-Critic neural network model trained on 100 games.
+        Has only local information (third nearest neighbors of the head)
+        and the direction of the food.
+    model_path: models/func/AC_100.keras
+ac_300:
+    name: Actor-Critic (n=300)
+    description: An Actor-Critic neural network model trained on 300 games.
+        Has only local information (third nearest neighbors of the head)
+        and the direction of the food.
+    model_path: models/func/AC_300.keras
+ac_600:
+    name: Actor-Critic (n=600)
+    description: An Actor-Critic neural network model trained on 600 games.
+        Has only local information (third nearest neighbors of the head)
+        and the direction of the food.
+    model_path: models/func/AC_600.keras
+ac_36000:
+    name: Actor-Critic (n=36000)
+    description: An Actor-Critic neural network model trained on 36000 games.
+        Has only local information (third nearest neighbors of the head)
+        and the direction of the food.
+    model_path: models/func/AC_36000.keras
+
+conv_ac_4000:
+    name: Global Actor-Critic (n=4000)
+    description: An Actor-Critic (convolutional) neural network model trained on 4000 games.
+      Has global information (sees basically the same as a human player).
+    model_path: models/global/func/convAC_4000.keras
+conv_ac_10000:
+    name: Global Actor-Critic (n=10000)
+    description: An Actor-Critic (convolutional) neural network model trained on 10000 games.
+        Has global information (sees basically the same as a human player).
+    model_path: models/global/func/convAC_10000.keras

@@ -634,7 +634,7 @@ FieldSizeSelector.propTypes = {
 class AddAutopilot extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {value: "Random"};
+        this.state = {value: null};
     }
 
     setValue(newValue) {
@@ -653,14 +653,18 @@ class AddAutopilot extends React.Component {
                     options={this.props.aiOptions}
                     sx={{ width: 250 }}
                     value={this.state.value}
-                    renderInput={(params) => <TextField {...params} value={this.state.value} label="AI Strategy" />}
+                    renderInput={(params) => <TextField {...params} label="AI Strategy" />}
                     onChange={(e, newValue) => {
                         this.setValue(newValue);
                     }}
                 />
+                <Box sx={{ width: 250 }}>
+                    {this.state.value && this.state.value.description}
+                </Box>
                 <Button
                     aria-label="done"
-                    onClick={_ => this.props.onCommit(this.state.value)}
+                    disabled={this.state.value === null}
+                    onClick={_ => this.state.value && this.props.onCommit(this.state.value.id)}
                     variant="outlined"
                 >
                     Add AI

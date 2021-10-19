@@ -17,7 +17,7 @@ public class GameStateMap {
     private final WebSocketService webSocketService;
     private final HighscoreRepository highscoreRepository;
 
-    private final Map<String, String> aiDescriptionMap;
+    private final Map<String, AutopilotDescription> aiDescriptionMap;
 
     GameStateMap(WebSocketService webSocketService, HighscoreRepository highscoreRepository) {
         this.webSocketService = webSocketService;
@@ -167,45 +167,19 @@ public class GameStateMap {
     public void addAI(String sessionId, String key) {
         SnakeId snakeId = session2id(sessionId);
         GameState state = get(snakeId.getId());
-        Autopilot autopilot;
 
-        String type = aiDescriptionMap.get(key);
-        if(Objects.equals(type, "greedy")) {
-            autopilot = new GreedyAutopilot();
-        } else if (type.startsWith("models/func/")) {
-            autopilot = new LocalDeepAutopilot(type, true);
-        } else if (type.startsWith("models/seq/")) {
-            autopilot = new LocalDeepAutopilot(type, false);
-        } else if (type.startsWith("models/global/func/")) {
-            autopilot = new GlobalDeepAutopilot(type, true);
-        } else {
-            autopilot = new RandomAutopilot();
-        }
+        Autopilot autopilot = new AutopilotFactory().build(key);
+
         state.addAISnake(autopilot);
 
         webSocketService.update(state);
     }
 
-    public static Map<String, String> aiDescriptions() {
-        var out = new LinkedHashMap<String, String>();
-
-        out.put("Random", "random");
-        out.put("Greedy", "greedy");
-
-        // TODO: maybe just read the folder ...
-        out.put("local Deep Q (n=200)", "models/seq/DQN_200.keras");
-        out.put("local Actor-Critic (n=100)", "models/func/AC_100.keras");
-        out.put("local Actor-Critic (n=300)", "models/func/AC_300.keras");
-        out.put("local Actor-Critic (n=600)", "models/func/AC_600.keras");
-        out.put("local Actor-Critic (n=1000)", "models/func/AC_1000.keras");
-        out.put("local Actor-Critic (n=36000)", "models/func/AC_36000.keras");
-
-        out.put("global Actor-Critic (n=4000)", "models/global/func/convAC_4000.keras");
-        out.put("global Actor-Critic (n=10000)", "models/global/func/convAC_10000.keras");
-        return out;
+    public static Map<String, AutopilotDescription> aiDescriptions() {
+        return new AutopilotFactory().getAutopilots();
     }
 
-    public List<String> listAi() {
-        return new ArrayList<>(aiDescriptionMap.keySet());
+    public List<AutopilotDescription> listAi() {
+        return new ArrayList<>(aiDescriptionMap.values());
     }
 }

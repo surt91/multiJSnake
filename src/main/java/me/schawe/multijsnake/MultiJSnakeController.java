@@ -2,6 +2,7 @@ package me.schawe.multijsnake;
 
 import me.schawe.multijsnake.snake.GameState;
 import me.schawe.multijsnake.snake.Move;
+import me.schawe.multijsnake.snake.ai.AutopilotDescription;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -39,7 +40,7 @@ public class MultiJSnakeController {
     }
 
     @GetMapping("/api/listAi")
-    List<String> listAi() {
+    List<AutopilotDescription> listAi() {
         return map.listAi();
     }
 
