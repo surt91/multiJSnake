@@ -288,12 +288,47 @@ public class GameState {
             }
         }
 
-        // your own head is ok .. this is probably not necessary ...
+        // your own head is ok ... this is probably not necessary ...
         if(!isWall(snake.head)) {
             state[snake.head.getX()][snake.head.getY()][2] = 0;
         }
 
         return state;
+    }
+
+    public Move relativeAction2Move(int action, Move lastHeadDirection) {
+        switch(action) {
+            case 0:
+                // left
+                return lastHeadDirection.rLeft();
+            case 1:
+                // straight
+                return lastHeadDirection.straight();
+            case 2:
+                // right
+                return lastHeadDirection.rRight();
+            default:
+                throw new RuntimeException("invalid relative direction: " + action);
+        }
+    }
+
+    public Move absoluteAction2Move(int action) {
+        switch (action) {
+            case 0:
+                // north
+                return Move.up;
+            case 1:
+                // east
+                return Move.right;
+            case 2:
+                // south
+                return Move.down;
+            case 3:
+                // west
+                return Move.left;
+            default:
+                throw new RuntimeException("invalid absolute direction: " + action);
+        }
     }
 
     // this takes two ints, because this is the way my training on the python side works
@@ -303,22 +338,8 @@ public class GameState {
             return;
         }
 
-        switch(direction) {
-            case 0:
-                // left
-                snake.headDirection = snake.lastHeadDirection.rLeft();
-                break;
-            case 1:
-                // straight
-                snake.headDirection = snake.lastHeadDirection.straight();
-                break;
-            case 2:
-                // right
-                snake.headDirection = snake.lastHeadDirection.rRight();
-                break;
-            default:
-                throw new RuntimeException("invalid relative direction: " + direction);
-        }
+        snake.headDirection = relativeAction2Move(direction, snake.lastHeadDirection);
+
     }
 
     // this takes two ints, because this is the way my training on the python side works
@@ -328,26 +349,7 @@ public class GameState {
             return;
         }
 
-        switch(direction) {
-            case 0:
-                // north
-                snake.headDirection = Move.up;
-                break;
-            case 1:
-                // east
-                snake.headDirection = Move.right;
-                break;
-            case 2:
-                // south
-                snake.headDirection = Move.down;
-                break;
-            case 3:
-                // west
-                snake.headDirection = Move.left;
-                break;
-            default:
-                throw new RuntimeException("invalid absolute direction: " + direction);
-        }
+        snake.headDirection = absoluteAction2Move(direction);
     }
 
     public void kill(int idx) {

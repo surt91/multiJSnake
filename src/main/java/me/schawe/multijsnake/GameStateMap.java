@@ -3,10 +3,7 @@ package me.schawe.multijsnake;
 import me.schawe.multijsnake.highscore.Highscore;
 import me.schawe.multijsnake.highscore.HighscoreRepository;
 import me.schawe.multijsnake.snake.*;
-import me.schawe.multijsnake.snake.ai.Autopilot;
-import me.schawe.multijsnake.snake.ai.GreedyAutopilot;
-import me.schawe.multijsnake.snake.ai.KerasModel;
-import me.schawe.multijsnake.snake.ai.RandomAutopilot;
+import me.schawe.multijsnake.snake.ai.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -176,9 +173,11 @@ public class GameStateMap {
         if(Objects.equals(type, "greedy")) {
             autopilot = new GreedyAutopilot();
         } else if (type.startsWith("models/func/")) {
-            autopilot = new KerasModel(type, true);
+            autopilot = new LocalDeepAutopilot(type, true);
         } else if (type.startsWith("models/seq/")) {
-            autopilot = new KerasModel(type, false);
+            autopilot = new LocalDeepAutopilot(type, false);
+        } else if (type.startsWith("models/global/func/")) {
+            autopilot = new GlobalDeepAutopilot(type, true);
         } else {
             autopilot = new RandomAutopilot();
         }
@@ -194,13 +193,15 @@ public class GameStateMap {
         out.put("Greedy", "greedy");
 
         // TODO: maybe just read the folder ...
-        out.put("Deep Q (n=200)", "models/seq/DQN_200.keras");
-        out.put("Actor-Critic (n=100)", "models/func/AC_100.keras");
-        out.put("Actor-Critic (n=300)", "models/func/AC_300.keras");
-        out.put("Actor-Critic (n=600)", "models/func/AC_600.keras");
-        out.put("Actor-Critic (n=1000)", "models/func/AC_1000.keras");
-        out.put("Actor-Critic (n=36000)", "models/func/AC_36000.keras");
+        out.put("local Deep Q (n=200)", "models/seq/DQN_200.keras");
+        out.put("local Actor-Critic (n=100)", "models/func/AC_100.keras");
+        out.put("local Actor-Critic (n=300)", "models/func/AC_300.keras");
+        out.put("local Actor-Critic (n=600)", "models/func/AC_600.keras");
+        out.put("local Actor-Critic (n=1000)", "models/func/AC_1000.keras");
+        out.put("local Actor-Critic (n=36000)", "models/func/AC_36000.keras");
 
+        out.put("global Actor-Critic (n=4000)", "models/global/func/convAC_4000.keras");
+        out.put("global Actor-Critic (n=10000)", "models/global/func/convAC_10000.keras");
         return out;
     }
 
