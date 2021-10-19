@@ -27,7 +27,9 @@ describe('Canvas Test', () => {
         cy.get('canvas').click();
     })
 
-    it("is autopilot moving", () => {
+    it("is autopilot moving", {
+        defaultCommandTimeout: 20000
+    }, () => {
         cy.visit('/');
         cy.request('POST', '/api/close/cypress-ai');
 
