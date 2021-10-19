@@ -18,7 +18,13 @@ public class WebSocketEventListener {
 
     @EventListener
     public void onDisconnectEvent(SessionDisconnectEvent event) {
-        SnakeId snakeId = gameStateMap.session2id(event.getSessionId());
+        SnakeId snakeId;
+        try {
+            snakeId = gameStateMap.session2id(event.getSessionId());
+        } catch (InvalidMapException e) {
+            return;
+        }
+
         GameState gameState = gameStateMap.get(snakeId.getId());
         gameState.kill(snakeId.getIdx());
         gameState.markForRemoval(snakeId.getIdx());
