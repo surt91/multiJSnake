@@ -1,9 +1,18 @@
-import numpy as np
+from abc import ABC, abstractmethod
+
 import pygame_sdl2 as pygame
 from py4j.java_gateway import JavaGateway
 
 
-class Snake:
+class Snake(ABC):
+    @abstractmethod
+    def get_state(self, idx):
+        pass
+
+    @abstractmethod
+    def state_size(self):
+        pass
+
     def __init__(self, vis, w=10, h=10):
         self.vis = vis
         if vis:
@@ -26,7 +35,7 @@ class Snake:
         self.gameState.reset()
         self.gameState.setPause(False)
 
-        return self.gameState.trainingState(self.idx)
+        return self.get_state(self.idx)
 
     def render(self):
         if not self.vis:
@@ -68,7 +77,7 @@ class Snake:
         self.gameState.turnRelative(self.idx, action)
         self.gameState.update()
 
-        state = self.gameState.trainingState(self.idx)
+        state = self.get_state(self.idx)
         self.state = state
 
         done = False
@@ -85,11 +94,21 @@ class Snake:
 
         return state, reward, done
 
-    def state_size(self):
-        return len(self.gameState.trainingState(self.idx))
-
-    def action_size(self):
-        return 3
-
     def max_reward(self):
         return 150
+
+
+class LocalSnake:
+    def get_state(self, idx):
+        return self.gameState.trainingState(self.idx)
+
+    def state_size(self):
+        return len(self.get_state(self.idx))
+
+
+class GlobalSnake:
+    def get_state(self, idx):
+        return self.gameState.trainingBitmap(self.idx)
+
+    def state_size(self):
+        return (self.gameState.getWidth(), self.gameState.getHeight(), 3)

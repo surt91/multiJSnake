@@ -10,7 +10,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-from snake import Snake
+from snake import LocalSnake
 
 # hyper-parameters
 basename = "snakeAC"
@@ -23,7 +23,7 @@ vis = "vis" in sys.argv
 if not vis:
     print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
 
-env = Snake(vis)  # Create the environment
+env = LocalSnake(vis)  # Create the environment
 eps = np.finfo(np.float32).eps.item()  # Smallest number such that 1.0 + eps != 1.0
 
 """
@@ -40,7 +40,7 @@ In our implementation, they share the initial layer.
 """
 
 num_inputs = env.state_size()
-num_actions = env.action_size()
+num_actions = 3
 num_hidden = 256
 
 inputs = layers.Input(shape=(num_inputs,))
@@ -152,7 +152,7 @@ while True:  # Run until solved
         template = "running reward: {:.2f} at episode {}"
         print(template.format(running_reward, episode_count))
 
-    if episode_count % 1000 == 0:
+    if episode_count < 1000 and episode_count % 100 == 0 or episode_count % 1000 == 0:
         model.save(f"{basename}_e{episode_count}.keras")
 
     if running_reward > env.max_reward():  # Condition to consider the task solved
@@ -160,4 +160,3 @@ while True:  # Run until solved
         break
 
 model.save('snakeAC.keras')
-
