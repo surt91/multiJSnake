@@ -1,6 +1,6 @@
+import sys
 from abc import ABC, abstractmethod
 
-import pygame_sdl2 as pygame
 import jpype
 import jpype.imports
 from jpype.types import *
@@ -23,11 +23,7 @@ class Snake(ABC):
     def do_action(self, action):
         pass
 
-    def __init__(self, vis, w=10, h=10):
-        self.vis = vis
-        if vis:
-            pygame.init()
-
+    def __init__(self, w=10, h=10):
         self.gameState = GameState(w, h)
 
         self.gameState.setPause(False)
@@ -100,12 +96,8 @@ class Snake(ABC):
         if self.gameState.isGameOver():
             reward = -1
             done = True
-            if self.vis:
-                print("dead")
         elif self.gameState.isEating(self.snake):
             reward = 1
-            if self.vis:
-                print("nom", end=" ")
 
         return state, reward, done
 
