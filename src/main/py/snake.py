@@ -1,7 +1,13 @@
 from abc import ABC, abstractmethod
 
 import pygame_sdl2 as pygame
-from py4j.java_gateway import JavaGateway
+import jpype
+import jpype.imports
+from jpype.types import *
+
+# Launch the JVM
+jpype.startJVM(classpath=['../../../target/classes'])
+from me.schawe.multijsnake.snake import GameState
 
 
 class Snake(ABC):
@@ -22,9 +28,7 @@ class Snake(ABC):
         if vis:
             pygame.init()
 
-        gateway = JavaGateway()
-        self.gameState = gateway.entry_point.getGameState(w, h)
-        gateway.jvm.java.lang.System.out.println('Connected to Python!')
+        self.gameState = GameState(w, h)
 
         self.gameState.setPause(False)
         self.idx = self.gameState.addSnake()
