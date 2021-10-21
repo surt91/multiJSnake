@@ -12,20 +12,21 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-from snake_abs import Snake
+from snake import GlobalSnake
 
 # hyper-parameters
 basename = "snakeConvAC"
-gamma = 0.9
+gamma = 0.99
 max_steps_per_episode = 10000
-adam_lr = 0.001
+adam_lr = 0.0003
 
 
 vis = "vis" in sys.argv
 if not vis:
     print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
 
-env = Snake(vis, w=5, h=5)  # Create the environment
+# start training on a smaller field for faster progress, then train on larger fields
+env = GlobalSnake(vis, w=10, h=10)  # Create the environment
 eps = np.finfo(np.float32).eps.item()  # Smallest number such that 1.0 + eps != 1.0
 
 """
@@ -42,26 +43,23 @@ In our implementation, they share the initial layer.
 """
 
 num_inputs = env.state_size()
-num_actions = env.action_size()
+num_actions = 4
 
 inputs = layers.Input(shape=(None, None, 3))
 conv1 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(inputs)
-#conv2 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv1)
-conv_final = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv1)
-#conv3 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv2)
-#conv_final = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv3)
+conv2 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv1)
+conv3 = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv2)
+conv_final = layers.Conv2D(64, (3, 3), padding='same', activation='relu')(conv3)
 
-action1 = layers.GlobalMaxPool2D()(conv_final)
-action = layers.Dense(num_actions, activation="softmax")(action1)
+common1 = layers.GlobalMaxPool2D()(conv_final)
+common2 = layers.Dense(64, activation="relu")(common1)
 
-critic1 = layers.GlobalMaxPool2D()(conv_final)
-critic2 = layers.Dense(64, activation="relu")(critic1)
-critic = layers.Dense(1)(critic2)
+action = layers.Dense(num_actions, activation="softmax")(common2)
+critic = layers.Dense(1)(common2)
 
 # load a snapshot, if we have one
-saves = glob(f"{basename}_e*.keras")
+saves = glob("checkpoint_e*.keras")
 if saves:
-
     latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
     start = int(latest.split(".")[0].split("_e")[1])
     print(f"load `{latest}`")
@@ -72,106 +70,111 @@ else:
 
 model.summary()
 
-"""
-## Train
-"""
-
-optimizer = keras.optimizers.Adam(learning_rate=adam_lr)
-huber_loss = keras.losses.Huber()
-action_probs_history = []
-critic_value_history = []
-rewards_history = []
-running_reward = 0
 episode_count = start
 
-while True:  # Run until solved
-    state = env.reset()
-    state = np.asarray(state)
 
-    episode_reward = 0
-    with tf.GradientTape() as tape:
-        for timestep in range(max_steps_per_episode):
-            env.render()
+def run():
+    optimizer = keras.optimizers.Adam(learning_rate=adam_lr)
+    huber_loss = keras.losses.Huber()
+    action_probs_history = []
+    critic_value_history = []
+    rewards_history = []
+    global episode_count
+    running_reward = 0
 
-            state = np.asarray(state)
-            state = tf.convert_to_tensor([state])
+    while True:  # Run until solved
+        state = env.reset()
+        state = np.asarray(state)
 
-            # Predict action probabilities and estimated future rewards
-            # from environment state
-            action_probs, critic_value = model(state)
-            critic_value_history.append(critic_value[0, 0])
+        episode_reward = 0
+        with tf.GradientTape() as tape:
+            for timestep in range(max_steps_per_episode):
+                env.render()
 
-            # Sample action from action probability distribution
-            action = np.random.choice(num_actions, p=np.squeeze(action_probs))
-            action_probs_history.append(tf.math.log(action_probs[0, action]))
+                state = np.asarray(state)
+                state = tf.convert_to_tensor([state])
 
-            # Apply the sampled action in our environment
-            state, reward, done = env.step(action)
-            rewards_history.append(reward)
-            episode_reward += reward
+                # Predict action probabilities and estimated future rewards
+                # from environment state
+                action_probs, critic_value = model(state)
+                critic_value_history.append(critic_value[0, 0])
 
-            if done:
-                break
+                # Sample action from action probability distribution
+                action = np.random.choice(num_actions, p=np.squeeze(action_probs))
+                action_probs_history.append(tf.math.log(action_probs[0, action]))
 
-        # Update running reward to check condition for solving
-        running_reward = 0.05 * episode_reward + (1 - 0.05) * running_reward
+                # Apply the sampled action in our environment
+                state, reward, done = env.step(action)
+                rewards_history.append(reward)
+                episode_reward += reward
 
-        # Calculate expected value from rewards
-        # - At each timestep what was the total reward received after that timestep
-        # - Rewards in the past are discounted by multiplying them with gamma
-        # - These are the labels for our critic
-        returns = []
-        discounted_sum = 0
-        for r in rewards_history[::-1]:
-            discounted_sum = r + gamma * discounted_sum
-            returns.insert(0, discounted_sum)
+                if done:
+                    break
 
-        # Normalize
-        returns = np.array(returns)
-        returns = (returns - np.mean(returns)) / (np.std(returns) + eps)
-        returns = returns.tolist()
+            # Update running reward to check condition for solving
+            running_reward = 0.05 * episode_reward + (1 - 0.05) * running_reward
 
-        # Calculating loss values to update our network
-        history = zip(action_probs_history, critic_value_history, returns)
-        actor_losses = []
-        critic_losses = []
-        for log_prob, value, ret in history:
-            # At this point in history, the critic estimated that we would get a
-            # total reward = `value` in the future. We took an action with log probability
-            # of `log_prob` and ended up recieving a total reward = `ret`.
-            # The actor must be updated so that it predicts an action that leads to
-            # high rewards (compared to critic's estimate) with high probability.
-            diff = ret - value
-            actor_losses.append(-log_prob * diff)  # actor loss
+            # Calculate expected value from rewards
+            # - At each timestep what was the total reward received after that timestep
+            # - Rewards in the past are discounted by multiplying them with gamma
+            # - These are the labels for our critic
+            returns = []
+            discounted_sum = 0
+            for r in rewards_history[::-1]:
+                discounted_sum = r + gamma * discounted_sum
+                returns.insert(0, discounted_sum)
 
-            # The critic must be updated so that it predicts a better estimate of
-            # the future rewards.
-            critic_losses.append(
-                huber_loss(tf.expand_dims(value, 0), tf.expand_dims(ret, 0))
-            )
+            # Normalize
+            returns = np.array(returns)
+            returns = (returns - np.mean(returns)) / (np.std(returns) + eps)
+            returns = returns.tolist()
 
-        # Backpropagation
-        loss_value = sum(actor_losses) + sum(critic_losses)
-        grads = tape.gradient(loss_value, model.trainable_variables)
-        optimizer.apply_gradients(zip(grads, model.trainable_variables))
+            # Calculating loss values to update our network
+            history = zip(action_probs_history, critic_value_history, returns)
+            actor_losses = []
+            critic_losses = []
+            for log_prob, value, ret in history:
+                # At this point in history, the critic estimated that we would get a
+                # total reward = `value` in the future. We took an action with log probability
+                # of `log_prob` and ended up recieving a total reward = `ret`.
+                # The actor must be updated so that it predicts an action that leads to
+                # high rewards (compared to critic's estimate) with high probability.
+                advantage = ret - value
+                actor_losses.append(-log_prob * advantage)  # actor loss
 
-        # Clear the loss and reward history
-        action_probs_history.clear()
-        critic_value_history.clear()
-        rewards_history.clear()
+                # The critic must be updated so that it predicts a better estimate of
+                # the future rewards.
+                critic_losses.append(
+                    huber_loss(tf.expand_dims(value, 0), tf.expand_dims(ret, 0))
+                )
 
-    # Log details
-    episode_count += 1
-    if episode_count % 10 == 0:
-        template = "running reward: {:.2f} at episode {}"
-        print(template.format(running_reward, episode_count))
+            # Backpropagation
+            loss_value = sum(actor_losses) + sum(critic_losses)
+            grads = tape.gradient(loss_value, model.trainable_variables)
+            optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
-    if episode_count < 1000 and episode_count % 100 == 0 or episode_count % 1000 == 0:
-        model.save(f"{basename}_e{episode_count}.keras")
+            # Clear the loss and reward history
+            action_probs_history.clear()
+            critic_value_history.clear()
+            rewards_history.clear()
 
-    if running_reward > env.max_reward():  # Condition to consider the task solved
-        print("Solved at episode {}!".format(episode_count))
-        break
+        # Log details
+        episode_count += 1
+        if episode_count % 10 == 0:
+            template = "running reward: {:.2f} at episode {}"
+            print(template.format(running_reward, episode_count))
 
-model.save('snakeAC.keras')
+        if episode_count < 1000 and episode_count % 100 == 0 or episode_count % 1000 == 0:
+            model.save(f"{basename}_e{episode_count}.keras")
 
+        if running_reward > env.max_reward():  # Condition to consider the task solved
+            print("Solved at episode {}!".format(episode_count))
+            break
+
+
+try:
+    run()
+except:
+    model.save(f'checkpoint_e{episode_count}.keras')
+
+model.save('snakeConvAC.keras')
