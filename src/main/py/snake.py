@@ -46,8 +46,15 @@ class Snake(ABC):
         return self.get_state()
 
     def render(self):
-        if not self.vis:
-            return
+        if 'pygame' not in sys.modules:
+            try:
+                import pygame_sdl2 as pygame
+            except ImportError:
+                print("install pygame to show the visualization")
+                return
+            else:
+                pygame.init()
+
         scale = 20
         w = self.gameState.getWidth()
         h = self.gameState.getHeight()
