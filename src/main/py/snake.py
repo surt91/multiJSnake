@@ -6,11 +6,15 @@ from py4j.java_gateway import JavaGateway
 
 class Snake(ABC):
     @abstractmethod
-    def get_state(self, idx):
+    def get_state(self):
         pass
 
     @abstractmethod
     def state_size(self):
+        pass
+
+    @abstractmethod
+    def do_action(self, action):
         pass
 
     def __init__(self, vis, w=10, h=10):
@@ -35,7 +39,7 @@ class Snake(ABC):
         self.gameState.reset()
         self.gameState.setPause(False)
 
-        return self.get_state(self.idx)
+        return self.get_state()
 
     def render(self):
         if not self.vis:
@@ -74,10 +78,10 @@ class Snake(ABC):
         pygame.display.update()
 
     def step(self, action):
-        self.gameState.turnRelative(self.idx, action)
+        self.do_action(action)
         self.gameState.update()
 
-        state = self.get_state(self.idx)
+        state = self.get_state()
         self.state = state
 
         done = False
@@ -99,16 +103,22 @@ class Snake(ABC):
 
 
 class LocalSnake:
-    def get_state(self, idx):
+    def get_state(self):
         return self.gameState.trainingState(self.idx)
 
     def state_size(self):
         return len(self.get_state(self.idx))
 
+    def do_action(self, action):
+        self.gameState.turnRelative(self.idx, action)
+
 
 class GlobalSnake:
-    def get_state(self, idx):
+    def get_state(self):
         return self.gameState.trainingBitmap(self.idx)
 
     def state_size(self):
         return (self.gameState.getWidth(), self.gameState.getHeight(), 3)
+
+    def do_action(self, action):
+        self.gameState.turnAbsolute(self.idx, action)
