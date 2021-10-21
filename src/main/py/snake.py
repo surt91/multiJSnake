@@ -102,18 +102,19 @@ class Snake(ABC):
         return 150
 
 
-class LocalSnake:
+class LocalSnake(Snake):
     def get_state(self):
         return self.gameState.trainingState(self.idx)
 
     def state_size(self):
-        return len(self.get_state(self.idx))
+        return len(self.get_state())
 
     def do_action(self, action):
         self.gameState.turnRelative(self.idx, action)
 
 
-class GlobalSnake:
+class GlobalSnake(Snake):
+
     def get_state(self):
         return self.gameState.trainingBitmap(self.idx)
 
