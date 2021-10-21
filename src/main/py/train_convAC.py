@@ -171,6 +171,9 @@ def run():
             print("Solved at episode {}!".format(episode_count))
             break
 
+        if "--test" in sys.argv:
+            sys.exit()
+
 
 try:
     run()

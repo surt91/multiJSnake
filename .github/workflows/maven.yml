@@ -30,3 +30,19 @@ jobs:
       with:
         start: bash ./mvnw spring-boot:run
         wait-on: http://localhost:8080
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install Python dependencies
+      uses: py-actions/py-dependency-install@v2
+
+    - name: Run one training iteration
+      run: cd src/main/py ; python train_AC.py --test ; python train_convAC.py --test
