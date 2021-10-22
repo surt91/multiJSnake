@@ -35,7 +35,15 @@ class AgentA2C:
         if self.model is None:
             self.model = model
 
+        self.model.compile(
+            loss=[self.actor_loss, keras.losses.Huber()],
+            optimizer=keras.optimizers.Adam(learning_rate)
+        )
+
         # init memory
+        self.states_memory = []
+        self.chosen_action_memory = []
+        self.chosen_action_prob_memory = []
         self.action_probs_memory = []
         self.critic_value_memory = []
         self.rewards_memory = []
@@ -47,17 +55,23 @@ class AgentA2C:
             latest = sorted(saves, key=lambda x: int(x.split(".")[0].split("_e")[1]))[-1]
             self.episode_count = int(latest.split(".")[0].split("_e")[1])
             print(f"load `{latest}`")
-            model = keras.models.load_model(latest)
+            model = keras.models.load_model(latest, custom_objects={"actor_loss": self.actor_loss})
             return model
 
         return None
 
-    def remember(self, action_prob, critic_value, reward):
-        self.action_probs_memory.append(action_prob)
+    def remember(self, state, chosen_action, action_probs, critic_value, reward):
+        self.states_memory.append(state)
+        self.chosen_action_memory.append(chosen_action)
+        self.chosen_action_prob_memory.append(action_probs[chosen_action])
+        self.action_probs_memory.append(action_probs)
         self.critic_value_memory.append(critic_value)
         self.rewards_memory.append(reward)
 
     def forget(self):
+        self.states_memory.clear()
+        self.chosen_action_memory.clear()
+        self.chosen_action_prob_memory.clear()
         self.action_probs_memory.clear()
         self.critic_value_memory.clear()
         self.rewards_memory.clear()
@@ -76,80 +90,69 @@ class AgentA2C:
 
         # Normalize
         discounted_rewards = (discounted_rewards - np.mean(discounted_rewards)) / (np.std(discounted_rewards) + eps)
-        discounted_rewards = discounted_rewards.tolist()
 
         return discounted_rewards
 
     def save(self, name):
         self.model.save(name)
 
-    def train(self):
-        optimizer = keras.optimizers.Adam(learning_rate=self.learning_rate)
-        huber_loss = keras.losses.Huber()
+    def actor_loss(self, actions_and_advantages, predicted):
+        action = actions_and_advantages[:, 0]
+        advantage = actions_and_advantages[:, 1]
 
+        scce = keras.losses.SparseCategoricalCrossentropy()
+        actions = tf.cast(action, tf.int32)
+        policy_loss = scce(actions, predicted, sample_weight=advantage)
+
+        return policy_loss
+
+    def train(self):
         running_reward = 0
 
         while True:  # Run until solved
             state = self.env.reset()
+            state = np.asarray(state)
 
             episode_reward = 0
-            with tf.GradientTape() as tape:
-                for timestep in range(self.max_steps_per_episode):
-                    if self.vis:
-                        self.env.render()
+            for timestep in range(self.max_steps_per_episode):
+                if self.vis:
+                    self.env.render()
 
-                    state = tf.convert_to_tensor([state])
+                # Predict action probabilities and estimated future rewards
+                # from environment state
+                action_probs, critic_value = self.model(tf.convert_to_tensor([state]))
 
-                    # Predict action probabilities and estimated future rewards
-                    # from environment state
-                    action_probs, critic_value = self.model(state)
+                # Sample action from action probability distribution
+                probs = np.squeeze(action_probs)
+                action = np.random.choice(len(probs), p=probs)
 
-                    # Sample action from action probability distribution
-                    probs = np.squeeze(action_probs)
-                    action = np.random.choice(len(probs), p=probs)
+                # Apply the sampled action in our environment
+                new_state, reward, done = self.env.step(action)
+                new_state = np.asarray(new_state)
 
-                    # Apply the sampled action in our environment
-                    state, reward, done = self.env.step(action)
+                self.remember(state, action, action_probs[0, :], critic_value[0, 0], reward)
+                state = new_state
 
-                    self.remember(action_probs[0, action], critic_value[0, 0], reward)
+                episode_reward += reward
 
-                    episode_reward += reward
+                if done:
+                    break
 
-                    if done:
-                        break
+            # Update running reward to check condition for solving
+            running_reward = 0.05 * episode_reward + (1 - 0.05) * running_reward
 
-                # Update running reward to check condition for solving
-                running_reward = 0.05 * episode_reward + (1 - 0.05) * running_reward
+            discounted_rewards = self.discount(self.rewards_memory)
+            advantage = discounted_rewards - np.asarray(self.critic_value_memory)
 
-                discounted_rewards = self.discount(self.rewards_memory)
+            actions_and_advantages = np.hstack([
+                np.vstack(self.chosen_action_memory),
+                np.vstack(advantage)
+            ])
+            discounted_rewards = np.vstack(discounted_rewards)
+            self.model.fit(np.asarray(self.states_memory), [actions_and_advantages, discounted_rewards])
 
-                # Calculating loss values to update our network
-                history = zip(self.action_probs_memory, self.critic_value_memory, discounted_rewards)
-                actor_losses = []
-                critic_losses = []
-                for prob, value, ret in history:
-                    # At this point in history, the critic estimated that we would get a
-                    # total reward = `value` in the future. We took an action with log probability
-                    # of `log_prob` and ended up recieving a total reward = `ret`.
-                    # The actor must be updated so that it predicts an action that leads to
-                    # high rewards (compared to critic's estimate) with high probability.
-                    advantage = ret - value
-                    log_prob = tf.math.log(prob)
-                    actor_losses.append(-log_prob * advantage)  # actor loss
-
-                    # The critic must be updated so that it predicts a better estimate of
-                    # the future rewards.
-                    critic_losses.append(
-                        huber_loss(tf.expand_dims(value, 0), tf.expand_dims(ret, 0))
-                    )
-
-                # Backpropagation
-                loss_value = sum(actor_losses) + sum(critic_losses)
-                grads = tape.gradient(loss_value, self.model.trainable_variables)
-                optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
-
-                # Clear the loss and reward history
-                self.forget()
+            # Clear the loss and reward history
+            self.forget()
 
             # Log details
             self.episode_count += 1
@@ -168,16 +171,3 @@ class AgentA2C:
                 sys.exit()
 
         self.model.save(f'{self.basename}.keras')
-
-
-if __name__ == "__main__":
-    vis = "vis" in sys.argv
-    if not vis:
-        print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
-
-    agent = Agent("snakeAC", vis=vis)
-
-    try:
-        agent.train()
-    except:
-        agent.save(f'checkpoint_e{agent.episode_count}.keras')
