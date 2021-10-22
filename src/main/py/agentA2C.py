@@ -44,6 +44,8 @@ class AgentA2C:
             optimizer=keras.optimizers.Adam(learning_rate)
         )
 
+        self.model.summary()
+
         # init memory
         self.states_memory = []
         self.chosen_action_memory = []
