@@ -38,7 +38,7 @@ if __name__ == "__main__":
         print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
 
     name = "snakeConvPPO"
-    agent = AgentPPO(name, GlobalSnake(10, 10), model(), vis=vis, gamma=0.99, learning_rate=0.0003)
+    agent = AgentPPO(name, GlobalSnake(10, 10), model(), num_actions=4, vis=vis, gamma=0.99, learning_rate=0.0003)
 
     # training this much deeper net with far larger input takes more time, especially in the beginning to
     # see any kind of improvement
