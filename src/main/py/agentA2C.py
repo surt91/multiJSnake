@@ -104,12 +104,17 @@ class AgentA2C:
         action = actions_and_advantages[:, 0]
         advantage = actions_and_advantages[:, 1]
 
+        # this is equal to:
+        # action = tf.one_hot(actions, self.num_actions)
+        # prob = tf.reduce_sum(predicted * action, 1)
+        # policy_loss = -tf.reduce_mean(tf.math.log(prob) * advantage)
+
         scce = keras.losses.SparseCategoricalCrossentropy()
         actions = tf.cast(action, tf.int32)
         policy_loss = scce(actions, predicted, sample_weight=advantage)
 
-        # the entropy loss to maximize entropy (close to uniform) to encourage exploration
-        entropy_loss = keras.losses.categorical_crossentropy(predicted, predicted)
+        # the entropy loss to maximize entropy to encourage exploration
+        entropy_loss = tf.reduce_mean(tf.reduce_sum(-predicted * tf.math.log(predicted), 1))
 
         return policy_loss - self.loss_weight_entropy * entropy_loss
 
