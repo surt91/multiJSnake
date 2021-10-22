@@ -17,6 +17,7 @@ class AgentA2C:
         basename,
         env,
         model,
+        num_actions,
         gamma=0.99,
         max_steps_per_episode=10**4,
         learning_rate=0.001,
@@ -28,6 +29,8 @@ class AgentA2C:
         self.max_steps_per_episode = max_steps_per_episode
         self.learning_rate = learning_rate
         self.vis = vis
+
+        self.num_actions = num_actions
 
         self.loss_weight_entropy = 5e-3
 
@@ -134,7 +137,7 @@ class AgentA2C:
 
                 # Predict action probabilities and estimated future rewards
                 # from environment state
-                action_probs, critic_value = self.model(tf.convert_to_tensor([state]))
+                action_probs, critic_value = self.model(np.asarray([state]))
 
                 # Sample action from action probability distribution
                 probs = np.squeeze(action_probs)

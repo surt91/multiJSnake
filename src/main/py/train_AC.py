@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     name = "snakeA2C"
     env = LocalSnake(10, 10)
-    agent = AgentA2C(name, env, model(env.state_size()), vis=vis, gamma=0.9)
+    agent = AgentA2C(name, env, model(env.state_size()), num_actions=3, vis=vis, gamma=0.9)
 
     try:
         agent.train()
