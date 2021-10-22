@@ -37,4 +37,6 @@ if __name__ == "__main__":
     try:
         agent.train()
     except:
-        agent.save(f'checkpoint_{name}_e{agent.episode_count}.keras')
+        if agent.episode_count > 0:
+            agent.save(f'checkpoint_{name}_e{agent.episode_count}.keras')
+        raise
