@@ -1,0 +1,38 @@
+import sys
+
+from tensorflow import keras
+from tensorflow.keras import layers
+
+from snake import LocalSnake
+from agentPPO import AgentPPO
+
+
+def model(num_inputs):
+    num_actions = 3
+    num_hidden = 256
+
+    inputs = layers.Input(shape=(num_inputs,))
+    common = layers.Dense(num_hidden, activation="relu")(inputs)
+    action = layers.Dense(num_actions, activation="softmax")(common)
+    critic = layers.Dense(1)(common)
+
+    model = keras.Model(inputs=inputs, outputs=[action, critic])
+
+    return model
+
+
+if __name__ == "__main__":
+    vis = "vis" in sys.argv
+    if not vis:
+        print(f"If you want to see visualizations, call this script like `{sys.argv[0]} vis`")
+
+    name = "snakePPO"
+    env = LocalSnake(10, 10)
+    agent = AgentPPO(name, env, model(env.state_size()), num_actions=3, vis=vis, gamma=0.9)
+
+    try:
+        agent.train()
+    except:
+        if agent.episode_count > 0:
+            agent.save(f'checkpoint_{name}_e{agent.episode_count}.keras')
+        raise
