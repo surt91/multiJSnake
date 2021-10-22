@@ -29,6 +29,8 @@ class AgentA2C:
         self.learning_rate = learning_rate
         self.vis = vis
 
+        self.loss_weight_entropy = 1e-4
+
         self.env = env
 
         self.episode_count = 0
@@ -106,7 +108,10 @@ class AgentA2C:
         actions = tf.cast(action, tf.int32)
         policy_loss = scce(actions, predicted, sample_weight=advantage)
 
-        return policy_loss
+        # the entropy loss to maximize entropy (close to uniform) to encourage exploration
+        entropy_loss = keras.losses.categorical_crossentropy(predicted, predicted)
+
+        return policy_loss - self.loss_weight_entropy * entropy_loss
 
     def train(self):
         running_reward = collections.deque(maxlen=20)
