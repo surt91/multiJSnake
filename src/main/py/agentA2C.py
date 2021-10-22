@@ -29,7 +29,7 @@ class AgentA2C:
         self.learning_rate = learning_rate
         self.vis = vis
 
-        self.loss_weight_entropy = 1e-4
+        self.loss_weight_entropy = 5e-3
 
         self.env = env
 
