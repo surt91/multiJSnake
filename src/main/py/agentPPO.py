@@ -178,7 +178,10 @@ class AgentPPO:
             ])
             discounted_rewards = np.vstack(discounted_rewards)
 
-            self.model.fit(np.asarray(self.states_memory), [actions_and_advantages, discounted_rewards], verbose=0)
+            # model.fit does lead to deterioation of the performance of the convolutional model
+            # ... for some reason (maybe caused by training on small batches instead of the full trajectory?)
+            # self.model.fit(np.asarray(self.states_memory), [actions_and_advantages, discounted_rewards], verbose=0)
+            self.model.train_on_batch(np.asarray(self.states_memory), [actions_and_advantages, discounted_rewards])
 
             # Clear the loss and reward history
             self.forget()
