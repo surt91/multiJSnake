@@ -4,6 +4,7 @@ This script is very close to https://keras.io/examples/rl/actor_critic_cartpole/
 
 import sys
 from glob import glob
+import collections
 
 import numpy as np
 import tensorflow as tf
@@ -31,6 +32,7 @@ class AgentA2C:
         self.env = env
 
         self.episode_count = 0
+
         self.model = self.load_model_checkpoint()
         if self.model is None:
             self.model = model
@@ -107,7 +109,7 @@ class AgentA2C:
         return policy_loss
 
     def train(self):
-        running_reward = 0
+        running_reward = collections.deque(maxlen=20)
 
         while True:  # Run until solved
             state = self.env.reset()
@@ -139,7 +141,7 @@ class AgentA2C:
                     break
 
             # Update running reward to check condition for solving
-            running_reward = 0.05 * episode_reward + (1 - 0.05) * running_reward
+            running_reward.append(episode_reward)
 
             discounted_rewards = self.discount(self.rewards_memory)
             advantage = discounted_rewards - np.asarray(self.critic_value_memory)
@@ -158,12 +160,12 @@ class AgentA2C:
             self.episode_count += 1
             if self.episode_count % 10 == 0:
                 template = "running reward: {:.2f} at episode {}"
-                print(template.format(running_reward, self.episode_count))
+                print(template.format(np.mean(running_reward), self.episode_count))
 
             if self.episode_count < 1000 and self.episode_count % 100 == 0 or self.episode_count % 1000 == 0:
                 self.model.save(f"{self.basename}_e{self.episode_count}.keras")
 
-            if running_reward > self.env.max_reward():  # Condition to consider the task solved
+            if np.mean(running_reward) > self.env.max_reward():  # Condition to consider the task solved
                 print("Solved at episode {}!".format(self.episode_count))
                 break
 
