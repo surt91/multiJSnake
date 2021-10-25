@@ -23,13 +23,18 @@ class Snake(ABC):
     def do_action(self, action):
         pass
 
-    def __init__(self, w=10, h=10):
+    def __init__(self, w=10, h=10, num=1):
         self.gameState = GameState(w, h)
 
         self.gameState.setPause(False)
         self.idx = self.gameState.addSnake()
         self.snake = self.gameState.getSnakes()[self.idx]
         self.state = []
+
+        self.others = []
+        for _ in range(num - 1):
+            idx = self.gameState.addSnake()
+            self.others.append(idx)
 
     def seed(self, seed):
         self.gameState.reseed(seed)
@@ -69,18 +74,19 @@ class Snake(ABC):
             [scale * food.getX(), scale * food.getY(), scale, scale]
         )
 
-        pygame.draw.rect(
-            screen,
-            [140, 230, 140],
-            [scale * self.snake.getHead().getX(), scale * self.snake.getHead().getY(), scale, scale]
-        )
-
-        for i in self.snake.getTailAsList():
+        for s in self.gameState.getSnakes():
             pygame.draw.rect(
                 screen,
-                [80, 230, 80],
-                [scale * i.getX(), scale * i.getY(), scale, scale]
+                [140, 230, 140] if s.getIdx() == self.idx else [230, 140, 140],
+                [scale * s.getHead().getX(), scale * s.getHead().getY(), scale, scale]
             )
+
+            for i in s.getTailAsList():
+                pygame.draw.rect(
+                    screen,
+                    [80, 230, 80]if s.getIdx() == self.idx else [230, 80, 80],
+                    [scale * i.getX(), scale * i.getY(), scale, scale]
+                )
 
         pygame.display.update()
 
@@ -93,7 +99,7 @@ class Snake(ABC):
 
         done = False
         reward = 0
-        if self.gameState.isGameOver():
+        if self.snake.isDead():
             reward = -1
             done = True
         elif self.gameState.isEating(self.snake):
@@ -106,23 +112,30 @@ class Snake(ABC):
 
 
 class LocalSnake(Snake):
-    def get_state(self):
-        return self.gameState.trainingState(self.idx)
+    def get_state(self, idx=None):
+        if idx is None:
+            idx = self.idx
+        return self.gameState.trainingState(idx)
 
     def state_size(self):
         return len(self.get_state())
 
-    def do_action(self, action):
-        self.gameState.turnRelative(self.idx, action)
+    def do_action(self, action, idx=None):
+        if idx is None:
+            idx = self.idx
+        self.gameState.turnRelative(idx, action)
 
 
 class GlobalSnake(Snake):
-
-    def get_state(self):
-        return self.gameState.trainingBitmap(self.idx)
+    def get_state(self, idx=None):
+        if idx is None:
+            idx = self.idx
+        return self.gameState.trainingBitmap(idx)
 
     def state_size(self):
         return (self.gameState.getWidth(), self.gameState.getHeight(), 3)
 
-    def do_action(self, action):
-        self.gameState.turnAbsolute(self.idx, action)
+    def do_action(self, action, idx=None):
+        if idx is None:
+            idx = self.idx
+        self.gameState.turnAbsolute(idx, action)

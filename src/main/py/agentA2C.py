@@ -140,6 +140,15 @@ class AgentA2C:
                 # from environment state
                 action_probs, critic_value = self.model(np.asarray([state]))
 
+                # move other snakes
+                other_states = []
+                for i in self.env.others:
+                    other_states.append(self.env.get_state(i))
+                other_actions, _ = self.model(np.asarray(other_states))
+                other_actions = np.argmax(other_actions, axis=1)
+                for i, a in zip(self.env.others, other_actions):
+                    self.env.do_action(a, i)
+
                 # Sample action from action probability distribution
                 probs = np.squeeze(action_probs)
                 action = np.random.choice(len(probs), p=probs)
