@@ -197,7 +197,7 @@ class Ai extends React.Component {
     }
 
     componentDidMount() {
-        this.model_promise = tf.loadLayersModel('models/snakeConvPPO_e24000/model.json');
+        this.model_promise = tf.loadLayersModel('models/snakeConvA2C_e27000/model.json');
         this.refresh = setInterval(_ => this.step(), 30);
     }
 
