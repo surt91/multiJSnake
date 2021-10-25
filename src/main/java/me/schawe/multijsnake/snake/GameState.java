@@ -360,10 +360,11 @@ public class GameState {
         snake.headDirection = absoluteAction2Move(direction);
     }
 
-    public checkPerfectGame() {
-        int occupied_fields = snakes.values().stream().sum(snake ->
-            snake.length + 1
-        );
+    public boolean checkPerfectGame() {
+        int occupied_fields = snakes.values().stream()
+                .map(snake -> snake.length + 1)
+                .mapToInt(Integer::intValue)
+                .sum();
         return occupied_fields == width * height;
     }
 
