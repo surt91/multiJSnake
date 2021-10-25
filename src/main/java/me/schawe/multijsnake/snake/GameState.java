@@ -135,13 +135,21 @@ public class GameState {
         return snake.head.equals(food);
     }
 
-    // FIXME: this will become an infinite loop after a perfect game -- or after enough players spawned
     private Coordinate randomSite() {
+        if(checkPerfectGame()) {
+            // this should have been checked, and should therefore not happen
+            throw new RuntimeException("Perfect Game!");
+        }
+
         Coordinate site;
         do {
-            site = new Coordinate((int) (random.nextFloat() * width), (int) (random.nextFloat() * height));
+            site = randomSiteAll();
         } while (isOccupied(site));
         return site;
+    }
+
+    private Coordinate randomSiteAll() {
+        return new Coordinate((int) (random.nextFloat() * width), (int) (random.nextFloat() * height));
     }
 
     public void add_food() {
@@ -226,7 +234,7 @@ public class GameState {
         } else {
             state.add(0);
         }
-        
+
         // is food behind?
         if (Math.abs(rad) > Math.PI/2. + eps) {
             state.add(1);
@@ -352,6 +360,13 @@ public class GameState {
         snake.headDirection = absoluteAction2Move(direction);
     }
 
+    public checkPerfectGame() {
+        int occupied_fields = snakes.values().stream().sum(snake ->
+            snake.length + 1
+        );
+        return occupied_fields == width * height;
+    }
+
     public void kill(int idx) {
         Snake snake = snakes.get(idx);
         // killing snakes twice does lead to double highscores
@@ -372,7 +387,7 @@ public class GameState {
         toBeRemoved.clear();
 
         for(Snake snake : snakes.values()) {
-            snake.reset(randomSite());
+            snake.reset(randomSiteAll());
         }
         score = 0;
         add_food();
@@ -381,6 +396,10 @@ public class GameState {
     }
 
     public void update() {
+        if(checkPerfectGame()) {
+            gameOver = true;
+        }
+
         if(gameOver) {
             return;
         }
