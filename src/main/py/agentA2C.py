@@ -19,6 +19,7 @@ class AgentA2C:
         model,
         num_actions,
         gamma=0.99,
+        loss_weight_entropy=5e-3,
         max_steps_per_episode=10**4,
         learning_rate=0.001,
         vis=False,
@@ -32,7 +33,7 @@ class AgentA2C:
 
         self.num_actions = num_actions
 
-        self.loss_weight_entropy = 5e-3
+        self.loss_weight_entropy = loss_weight_entropy
 
         self.env = env
 

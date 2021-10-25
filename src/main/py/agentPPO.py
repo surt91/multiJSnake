@@ -23,6 +23,7 @@ class AgentPPO:
         model,
         num_actions,
         gamma=0.99,
+        loss_weight_entropy = 5e-3
         max_steps_per_episode=10**4,
         learning_rate=0.001,
         vis=False,
@@ -34,7 +35,7 @@ class AgentPPO:
         self.learning_rate = learning_rate
         self.vis = vis
 
-        self.loss_weight_entropy = 5e-3
+        self.loss_weight_entropy = loss_weight_entropy
         self.epsilon = 0.2
 
         self.num_actions = num_actions
