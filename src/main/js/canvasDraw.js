@@ -2,6 +2,7 @@ import {desaturized_idx2color, idx2color} from "./color";
 
 function drawSnake(ctx, snake, options) {
     const {scale} = options;
+    const thickness = 0.8;
     let color;
     if(snake.dead) {
         color = desaturized_idx2color(snake.idx);
@@ -13,25 +14,26 @@ function drawSnake(ctx, snake, options) {
     let x = snake.head.x;
     let y = snake.head.y;
     if(snake.headDirection === "right") {
-        ctx.fillRect(x*scale, y*scale, scale/2, scale);
         ctx.fillRect(x*scale+scale/2., y*scale+scale/4, scale/2., scale/2);
     }
     if(snake.headDirection === "left") {
-        ctx.fillRect(x*scale+scale/2., y*scale, scale/2, scale);
         ctx.fillRect(x*scale, y*scale+scale/4, scale/2., scale/2);
     }
     if(snake.headDirection === "down") {
-        ctx.fillRect(x*scale, y*scale, scale, scale/2);
         ctx.fillRect(x*scale+scale/4., y*scale+scale/2, scale/2., scale/2);
     }
     if(snake.headDirection === "up") {
-        ctx.fillRect(x*scale, y*scale+scale/2, scale, scale/2);
         ctx.fillRect(x*scale+scale/4., y*scale, scale/2., scale/2);
     }
 
+    ctx.lineWidth = thickness*scale;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
     for(let seg of snake.tail) {
-        ctx.fillRect(seg.x*scale, seg.y*scale, scale, scale);
+        ctx.lineTo(seg.x*scale + scale/2, seg.y*scale + scale/2);
     }
+    ctx.lineTo(x*scale + scale/2, y*scale + scale/2);
+    ctx.stroke();
 }
 
 export function draw(ctx, state, options) {
