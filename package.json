@@ -5,6 +5,7 @@
     "@mui/icons-material": "^5.0.3",
     "@mui/material": "^5.0.3",
     "@stomp/stompjs": "^6.1.2",
+    "@tensorflow/tfjs": "^3.10.0",
     "axios": "^0.22.0",
     "formik": "^2.2.9",
     "prop-types": "^15.7.2",

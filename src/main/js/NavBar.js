@@ -13,6 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import FastForwardIcon from '@mui/icons-material/FastForward';
 import AuthService from "./AuthService";
 import {LoginDialog, RegisterDialog} from "./formDialog";
 import axios from "axios";
@@ -76,6 +77,12 @@ export class NavBar extends React.Component {
                             </Button>
                         </NavLink>
                         }
+
+                        <NavLink to="/ai" className={"navlink"}>
+                            <Button color="inherit" startIcon={<FastForwardIcon />}>
+                                AI
+                            </Button>
+                        </NavLink>
 
                         <Button
                             color="inherit"

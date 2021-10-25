@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 
 import {GameView} from "./GameView";
 import Profile from "./Profile";
+import Ai from "./Ai";
 import {NavBar} from "./NavBar";
 import AuthService from "./AuthService";
 
@@ -41,6 +42,7 @@ class App extends React.Component {
                         />
                     </Route>
                     <Route exact path={["/profile"]} component={Profile} />
+                    <Route exact path={["/ai"]} component={Ai} />
                 </Switch>
             </BrowserRouter>
         )

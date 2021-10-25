@@ -8,7 +8,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class SingleSiteAppController {
     @RequestMapping(value="/profile", method = RequestMethod.GET)
-    public String handleAll() {
+    public String profile() {
+        return "forward:/index.html";
+    }
+
+    @RequestMapping(value="/ai", method = RequestMethod.GET)
+    public String ai() {
         return "forward:/index.html";
     }
 }
