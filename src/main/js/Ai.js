@@ -24,6 +24,8 @@ class JsGameState {
         this.food = {x: -1, y: -1};
         this.snakes = [new JsSnake()];
 
+        this.delay_ctr = 0;
+
         this.reset();
     }
 
@@ -145,29 +147,33 @@ class JsGameState {
 
     update() {
         let snake = this.snakes[0];
+        if(!snake.dead) {
 
-        let next = this.next_site(snake.head, snake.headDirection);
+            let next = this.next_site(snake.head, snake.headDirection);
 
-        // copy
-        snake.tail.push({x: snake.head.x, y: snake.head.y});
+            // copy
+            snake.tail.push({x: snake.head.x, y: snake.head.y});
 
-        if (this.isEating(snake)) {
-            snake.length += 1;
-            this.add_food();
-        }
+            if (this.isEating(snake)) {
+                snake.length += 1;
+                this.add_food();
+            }
 
-        while (snake.tail.length >= snake.length + 1) {
-            snake.tail.shift();
-        }
+            while (snake.tail.length >= snake.length + 1) {
+                snake.tail.shift();
+            }
 
-        if (this.isWall(next) || this.isOccupied(next)) {
-            snake.dead = true;
-        }
+            if (this.isWall(next) || this.isOccupied(next)) {
+                snake.dead = true;
+            }
 
-        snake.head = next;
-
-        if(snake.dead) {
-            this.reset();
+            snake.head = next;
+        } else {
+            this.delay_ctr += 1;
+            if(this.delay_ctr >= 30) {
+                this.reset();
+                this.delay_ctr = 0;
+            }
         }
     }
 
