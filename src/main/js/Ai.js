@@ -5,6 +5,7 @@ import {Container, Grid} from "@mui/material";
 import * as tf from "@tensorflow/tfjs";
 
 import JsGameState from "./SnakeLogic/JsGameState";
+import AddAutopilot from "./AddAutopilot";
 
 class Ai extends React.Component {
 
@@ -21,15 +22,37 @@ class Ai extends React.Component {
         };
 
         this.model_promise = null;
+
+        let convA2C_desc = "A convolutional neural network, which takes the whole field as input. " +
+            "The field is split in three layers: the tail, the head and the food. " +
+            "The model uses the Advantage Actor-Critic (A2C) approach. We use a deep convolutional " +
+            "network which branches in the last layer. One branch is the actor, it predicts the " +
+            "next step to take (up, down, left, right). The other branch is the critic, it predicts " +
+            "the quality of the taken moves, i.e., how many points the snakes will likely still collect. ";
+
+        this.aiJsOptions = [
+            {
+                id: "models/snakeConvA2C_e27000/model.json",
+                label: "convolutional A2C N=27000",
+                description: convA2C_desc +
+                    "The model was trained by playing 27.000 games."
+            }
+
+        ]
     }
 
     componentDidMount() {
-        this.model_promise = tf.loadLayersModel('models/snakeConvA2C_e27000/model.json');
+        this.setAi('models/snakeConvA2C_e27000/model.json')
         this.refresh = setInterval(_ => this.step(), 30);
     }
 
     componentWillUnmount() {
         clearInterval(this.refresh);
+    }
+
+    setAi(path) {
+        console.log(path);
+        this.model_promise = tf.loadLayersModel(path);
     }
 
     step() {
@@ -63,10 +86,20 @@ class Ai extends React.Component {
                             focused={_ => {}}
                         />
                     </Grid>
+                    <Grid item xs={12} lg={6}>
+                        <AddAutopilot
+                            onCommit={id => this.setAi(id)}
+                            aiOptions={this.aiJsOptions}
+                            submitText={"Change AI"}
+                            width={500}
+                            defaultValue={this.aiJsOptions[0]}
+                        />
+                    </Grid>
                 </Grid>
             </Container>
         )
     }
 }
+
 
 export default Ai

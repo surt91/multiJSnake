@@ -2,7 +2,6 @@ import React from "react";
 import {registerTouch} from "./registerTouch";
 import {registerStompPromise} from "./websocket-listener";
 import {
-    Autocomplete,
     Box,
     Button,
     Container,
@@ -19,10 +18,10 @@ import {draw} from "./visualization/canvasDraw";
 import DoneIcon from "@mui/icons-material/Done";
 import RevertIcon from "@mui/icons-material/NotInterestedOutlined";
 import EditIcon from "@mui/icons-material/Edit";
-import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
 import {idx2color} from "./visualization/color";
 import axios from "axios";
+import AddAutopilot from "./AddAutopilot";
 
 export class GameView extends React.Component {
 
@@ -629,55 +628,6 @@ FieldSizeSelector.propTypes = {
     onCommit: PropTypes.func,
     gameWidth: PropTypes.number,
     gameHeight: PropTypes.number
-}
-
-class AddAutopilot extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {value: null};
-    }
-
-    setValue(newValue) {
-        console.log("chosen: "+newValue)
-        this.setState({
-            value: newValue
-        })
-    }
-
-    render() {
-        return (
-            <Stack spacing={2}>
-                <Autocomplete
-                    disablePortal
-                    id={"aiChooser"}
-                    options={this.props.aiOptions}
-                    sx={{ width: 250 }}
-                    value={this.state.value}
-                    renderInput={(params) => <TextField {...params} label="AI Strategy" />}
-                    onChange={(e, newValue) => {
-                        this.setValue(newValue);
-                    }}
-                />
-                <Box sx={{ width: 250 }}>
-                    {this.state.value && this.state.value.description}
-                </Box>
-                <Button
-                    aria-label="done"
-                    disabled={this.state.value === null}
-                    onClick={_ => this.state.value && this.props.onCommit(this.state.value.id)}
-                    variant="outlined"
-                >
-                    Add AI
-                    <AddIcon />
-                </Button>
-            </Stack>
-        );
-    }
-}
-
-AddAutopilot.propTypes = {
-    onCommit: PropTypes.func,
-    aiOptions: PropTypes.array
 }
 
 class ShareLink extends React.Component {
