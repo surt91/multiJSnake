@@ -14,14 +14,14 @@ import {
     TableRow,
     TextField, Tooltip
 } from "@mui/material";
-import Canvas from "./canvas";
-import {draw} from "./canvasDraw";
+import Canvas from "./visualization/canvas";
+import {draw} from "./visualization/canvasDraw";
 import DoneIcon from "@mui/icons-material/Done";
 import RevertIcon from "@mui/icons-material/NotInterestedOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import PropTypes from "prop-types";
-import {idx2color} from "./color";
+import {idx2color} from "./visualization/color";
 import axios from "axios";
 
 export class GameView extends React.Component {
