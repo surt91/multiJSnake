@@ -11,6 +11,32 @@ import tensorflow as tf
 from tensorflow import keras
 
 
+class Experience:
+    def __init__(self):
+        self.states = []
+        self.chosen_action = []
+        self.chosen_action_prob = []
+        self.action_probs = []
+        self.critic_value = []
+        self.rewards = []
+
+    def remember(self, state, chosen_action, action_probs, critic_value, reward):
+        self.states.append(state)
+        self.chosen_action.append(chosen_action)
+        self.chosen_action_prob.append(action_probs[chosen_action])
+        self.action_probs.append(action_probs)
+        self.critic_value.append(critic_value)
+        self.rewards.append(reward)
+
+    def forget(self):
+        self.states.clear()
+        self.chosen_action.clear()
+        self.chosen_action_prob.clear()
+        self.action_probs.clear()
+        self.critic_value.clear()
+        self.rewards.clear()
+
+
 class AgentA2C:
     def __init__(
         self,
@@ -51,12 +77,7 @@ class AgentA2C:
         self.model.summary()
 
         # init memory
-        self.states_memory = []
-        self.chosen_action_memory = []
-        self.chosen_action_prob_memory = []
-        self.action_probs_memory = []
-        self.critic_value_memory = []
-        self.rewards_memory = []
+        self.experiences = [Experience() for _ in range(self.env.num)]
 
     def load_model_checkpoint(self):
         # load a snapshot, if we have one
@@ -69,22 +90,6 @@ class AgentA2C:
             return model
 
         return None
-
-    def remember(self, state, chosen_action, action_probs, critic_value, reward):
-        self.states_memory.append(state)
-        self.chosen_action_memory.append(chosen_action)
-        self.chosen_action_prob_memory.append(action_probs[chosen_action])
-        self.action_probs_memory.append(action_probs)
-        self.critic_value_memory.append(critic_value)
-        self.rewards_memory.append(reward)
-
-    def forget(self):
-        self.states_memory.clear()
-        self.chosen_action_memory.clear()
-        self.chosen_action_prob_memory.clear()
-        self.action_probs_memory.clear()
-        self.critic_value_memory.clear()
-        self.rewards_memory.clear()
 
     def discount(self, rewards):
         # Calculate expected value from rewards
@@ -144,9 +149,9 @@ class AgentA2C:
                 other_states = []
                 for i in self.env.others:
                     other_states.append(self.env.get_state(i))
-                other_actions, _ = self.model(np.asarray(other_states))
-                other_actions = np.argmax(other_actions, axis=1)
-                for i, a in zip(self.env.others, other_actions):
+                other_actions, other_values = self.model(np.asarray(other_states))
+                other_action = np.argmax(other_actions, axis=1)
+                for i, a in zip(self.env.others, other_action):
                     self.env.do_action(a, i)
 
                 # Sample action from action probability distribution
@@ -157,7 +162,11 @@ class AgentA2C:
                 new_state, reward, done = self.env.step(action)
                 new_state = np.asarray(new_state)
 
-                self.remember(state, action, action_probs[0, :], critic_value[0, 0], reward)
+                self.experiences[0].remember(state, action, action_probs[0, :], critic_value[0, 0], reward)
+                for i in self.env.others:
+                    r = self.env.get_reward(i)
+                    self.experiences[i].remember(state, other_action[i - 1], other_actions[i - 1, :], other_values[i - 1, 0], r)
+
                 state = new_state
 
                 episode_reward += reward
@@ -168,22 +177,23 @@ class AgentA2C:
             # Update running reward to check condition for solving
             running_reward.append(episode_reward)
 
-            discounted_rewards = self.discount(self.rewards_memory)
-            advantage = discounted_rewards - np.asarray(self.critic_value_memory)
+            for i in [self.env.idx] + self.env.others:
+                discounted_rewards = self.discount(self.experiences[i].rewards)
+                advantage = discounted_rewards - np.asarray(self.experiences[i].critic_value)
 
-            actions_and_advantages = np.hstack([
-                np.vstack(self.chosen_action_memory),
-                np.vstack(advantage)
-            ])
-            discounted_rewards = np.vstack(discounted_rewards)
+                actions_and_advantages = np.hstack([
+                    np.vstack(self.experiences[i].chosen_action),
+                    np.vstack(advantage)
+                ])
+                discounted_rewards = np.vstack(discounted_rewards)
 
-            # model.fit does lead to rapid deterioation of the performance of the convolutional model
-            # ... for some reason (maybe caused by training on small batches instead of the full trajectory?)
-            # self.model.fit(np.asarray(self.states_memory), [actions_and_advantages, discounted_rewards], verbose=2)
-            self.model.train_on_batch(np.asarray(self.states_memory), [actions_and_advantages, discounted_rewards])
+                # model.fit does lead to rapid deterioation of the performance of the convolutional model
+                # ... for some reason (maybe caused by training on small batches instead of the full trajectory?)
+                # self.model.fit(np.asarray(self.experiences[i].states), [actions_and_advantages, discounted_rewards], verbose=2)
+                self.model.train_on_batch(np.asarray(self.experiences[i].states), [actions_and_advantages, discounted_rewards])
 
-            # Clear the loss and reward history
-            self.forget()
+                # Clear the loss and reward history
+                self.experiences[i].forget()
 
             # Log details
             self.episode_count += 1

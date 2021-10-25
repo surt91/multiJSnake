@@ -25,11 +25,14 @@ class Snake(ABC):
 
     def __init__(self, w=10, h=10, num=1):
         self.gameState = GameState(w, h)
+        self.num = num
 
         self.gameState.setPause(False)
         self.idx = self.gameState.addSnake()
         self.snake = self.gameState.getSnakes()[self.idx]
         self.state = []
+
+        self.already_dead = [False for _ in range(num)]
 
         self.others = []
         for _ in range(num - 1):
@@ -43,6 +46,7 @@ class Snake(ABC):
     def reset(self):
         self.gameState.reset()
         self.gameState.setPause(False)
+        self.already_dead = [False for _ in range(self.num)]
 
         return self.get_state()
 
@@ -99,13 +103,25 @@ class Snake(ABC):
 
         done = False
         reward = 0
-        if self.snake.isDead():
+        if self.snake.isDead() and not self.already_dead[0]:
             reward = -1
-            done = True
+            self.already_dead[0] = True
         elif self.gameState.isEating(self.snake):
             reward = 1
 
+        if self.gameState.isGameOver():
+            done = True
+
         return state, reward, done
+
+    def get_reward(self, idx):
+        reward = 0
+        if self.gameState.getSnakes()[idx].isDead() and not self.already_dead[idx]:
+            reward = -1
+            self.already_dead[0] = True
+        elif self.gameState.isEating(self.gameState.getSnakes()[idx]):
+            reward = 1
+        return reward
 
     def max_reward(self):
         return 150
