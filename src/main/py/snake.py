@@ -118,10 +118,13 @@ class Snake(ABC):
         reward = 0
         if self.gameState.getSnakes()[idx].isDead() and not self.already_dead[idx]:
             reward = -1
-            self.already_dead[0] = True
+            self.already_dead[idx] = True
         elif self.gameState.isEating(self.gameState.getSnakes()[idx]):
             reward = 1
         return reward
+
+    def is_dead(self, idx):
+        return self.already_dead[idx]
 
     def max_reward(self):
         return 150
