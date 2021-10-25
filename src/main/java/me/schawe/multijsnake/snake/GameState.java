@@ -362,10 +362,10 @@ public class GameState {
 
     public boolean checkPerfectGame() {
         int occupied_fields = snakes.values().stream()
-                .map(snake -> snake.length + 1)
+                .map(snake -> snake.length + 1)  // +1 for the heads
                 .mapToInt(Integer::intValue)
                 .sum();
-        return occupied_fields == width * height;
+        return occupied_fields == width * height - 1; // -1 to place new food
     }
 
     public void kill(int idx) {
@@ -419,9 +419,9 @@ public class GameState {
                 snake.tail.add(snake.head.copy());
 
                 if (isEating(snake)) {
+                    add_food();
                     snake.length += 1;
                     score += 1;
-                    add_food();
                 }
 
                 while (snake.tail.size() >= snake.length + 1) {
