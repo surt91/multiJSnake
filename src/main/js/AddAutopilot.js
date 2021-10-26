@@ -34,7 +34,7 @@ class AddAutopilot extends React.Component {
                 <Box sx={{ width: this.props.width || 250 }}>
                     {this.state.value && this.state.value.description}
                 </Box>
-                {this.props.immediateMode ||
+                {this.props.commitMode &&
                 <Button
                     aria-label="done"
                     disabled={this.state.value === null}

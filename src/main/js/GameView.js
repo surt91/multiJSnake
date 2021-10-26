@@ -368,6 +368,7 @@ class PlayerPane extends React.Component {
                     <AddAutopilot
                         onCommit={type => this.props.addAutopilot(type)}
                         aiOptions={this.props.aiOptions}
+                        commitMode={true}
                     />
                 </Grid>
             </Grid>

@@ -141,7 +141,7 @@ class Ai extends React.Component {
                             submitText={"Change AI"}
                             width={500}
                             defaultValue={this.aiJsOptions[0]}
-                            immediateMode={true}
+                            commitMode={false}
                         />
                     </Grid>
                 </Grid>
