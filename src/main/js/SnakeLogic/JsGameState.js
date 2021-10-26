@@ -26,11 +26,18 @@ class JsGameState {
     }
 
     isEating(snake) {
-        return snake.head.x === this.food.x && snake.head.y === this.food.y;
+        return this.food && snake.head.x === this.food.x && snake.head.y === this.food.y;
     }
 
-    // FIXME this will be an infinite loop after a perfect game!
+    checkPerfectGame() {
+        let occupied_fields = this.snakes[0].length + 1;  // +1 for the head
+        return occupied_fields === this.width * this.height - 1; // -1 to place new food
+    }
+
     randomSite() {
+        if(this.checkPerfectGame())
+            return null;
+
         let site;
         do {
             site = {x: Math.floor(Math.random() * this.width), y: Math.floor(Math.random() * this.height)};
@@ -40,6 +47,10 @@ class JsGameState {
 
     add_food() {
         this.food = this.randomSite();
+        // in case of a perfect game
+        // if(this.food === null) {
+        //     this.food = {x: -1, y: -1};
+        // }
     }
 
     /// get the state of the game
@@ -61,7 +72,10 @@ class JsGameState {
         }
         let snake = this.snakes[0];
 
-        state[this.food.x][this.food.y][0] = 1;
+        // after a perfect game, there is no food on the field
+        if(this.food !== null) {
+            state[this.food.x][this.food.y][0] = 1;
+        }
         // the head can be outside of the field (after collision with a wall)
         if(!this.isWall(snake.head)) {
             state[snake.head.x][snake.head.y][1] = 1;
@@ -280,16 +294,16 @@ class JsGameState {
     }
 
     reset() {
-        this.food = this.randomSite();
-        this.snakes[0].head = this.randomSite();
         this.snakes[0].length = 2;
         this.snakes[0].dead = false;
         this.snakes[0].tail = [];
+        this.snakes[0].head = this.randomSite();
+        this.add_food();
     }
 
     update() {
         let snake = this.snakes[0];
-        if(!snake.dead) {
+        if(!snake.dead && !this.checkPerfectGame()) {
 
             let next = this.next_site(snake.head, snake.headDirection);
 

@@ -48,10 +48,12 @@ export function draw(ctx, state, options) {
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, width*scale, height*scale);
 
-    ctx.fillStyle = foodColor;
-    let x = state.food.x;
-    let y = state.food.y;
-    ctx.fillRect(x*scale, y*scale, scale, scale);
+    if(state.food !== null) {
+        ctx.fillStyle = foodColor;
+        let x = state.food.x;
+        let y = state.food.y;
+        ctx.fillRect(x * scale, y * scale, scale, scale);
+    }
 
     state.snakes.forEach(snake => drawSnake(ctx, snake, options));
 
