@@ -14,35 +14,76 @@ class Ai extends React.Component {
 
         const game = new JsGameState(10, 10);
 
+        let dense_desc = "A deep, fully connected network -- but in this case `deep` only means one hidden layer. " +
+            "The input is just the local area around the head of the snake and the direction of the food. "
+        let conv_desc = "A deep convolutional neural network, which takes the whole field as input. " +
+            "The field is split in three layers: the tail, the head and the food. "
+        let a2c_desc =
+            "The model uses the Advantage Actor-Critic (A2C) approach. The neural network " +
+            "branches in the last layer: One branch is the actor, it suggests the next step to " +
+            "take (up, down, left, right). The other branch is the critic, it estimates the quality " +
+            "of the current state, i.e., how many points the snakes will be able to collect in the future. ";
+
+        this.aiJsOptions = [
+            {
+                path: "models/snakeConvA2C_e29000/model.json",
+                label: "convolutional A2C N=29000",
+                input: "global",
+                description: conv_desc + a2c_desc +
+                    "The model was trained by playing 29.000 games."
+            },
+            {
+                path: "models/AC_e100/model.json",
+                label: "local A2C N=100",
+                input: "local",
+                description: dense_desc + a2c_desc +
+                    "The model was trained by playing 100 games."
+            },
+            {
+                path: "models/AC_e300/model.json",
+                label: "local A2C N=300",
+                input: "local",
+                description: dense_desc + a2c_desc +
+                    "The model was trained by playing 300 games."
+            },
+            {
+                path: "models/AC_e600/model.json",
+                label: "local A2C N=600",
+                input: "local",
+                description: dense_desc + a2c_desc +
+                    "The model was trained by playing 600 games."
+            },
+            {
+                path: "models/AC_e1000/model.json",
+                label: "local A2C N=1000",
+                input: "local",
+                description: dense_desc + a2c_desc +
+                    "The model was trained by playing 1000 games."
+            },
+            {
+                path: "models/AC_e36000/model.json",
+                label: "local A2C N=36000",
+                input: "local",
+                description: dense_desc + a2c_desc +
+                    "The model was trained by playing 36.000 games."
+            }
+        ]
+
         this.state = {
             scale: 20,
             foodColor: "#cc2200",
             bgColor: "#000",
-            game: game
+            game: game,
+            currentModel: this.aiJsOptions[0]
         };
 
         this.model_promise = null;
 
-        let convA2C_desc = "A convolutional neural network, which takes the whole field as input. " +
-            "The field is split in three layers: the tail, the head and the food. " +
-            "The model uses the Advantage Actor-Critic (A2C) approach. We use a deep convolutional " +
-            "network which branches in the last layer. One branch is the actor, it predicts the " +
-            "next step to take (up, down, left, right). The other branch is the critic, it predicts " +
-            "the quality of the taken moves, i.e., how many points the snakes will likely still collect. ";
 
-        this.aiJsOptions = [
-            {
-                id: "models/snakeConvA2C_e27000/model.json",
-                label: "convolutional A2C N=27000",
-                description: convA2C_desc +
-                    "The model was trained by playing 27.000 games."
-            }
-
-        ]
     }
 
     componentDidMount() {
-        this.setAi('models/snakeConvA2C_e27000/model.json')
+        this.setAi(this.state.currentModel)
         this.refresh = setInterval(_ => this.step(), 30);
     }
 
@@ -50,16 +91,22 @@ class Ai extends React.Component {
         clearInterval(this.refresh);
     }
 
-    setAi(path) {
-        console.log(path);
-        this.model_promise = tf.loadLayersModel(path);
+    setAi(obj) {
+        this.setState({currentModel: obj});
+        this.model_promise = tf.loadLayersModel(obj.path);
     }
 
     step() {
         this.model_promise.then(model => {
-            let action = model.predict(tf.tensor([this.state.game.trainingBitmap()]));
-            action = action[0].argMax(1).arraySync()[0];
-            this.state.game.absoluteAction2Move(action);
+            if(this.state.currentModel.input === "global") {
+                let action = model.predict(tf.tensor([this.state.game.trainingBitmap()]));
+                action = action[0].argMax(1).arraySync()[0];
+                this.state.game.absoluteAction2Move(action);
+            } else {
+                let action = model.predict(tf.tensor([this.state.game.trainingState()]));
+                action = action[0].argMax(1).arraySync()[0];
+                this.state.game.relativeAction2Move(action);
+            }
             this.state.game.update();
 
             this.setState({game: this.state.game});
@@ -89,10 +136,12 @@ class Ai extends React.Component {
                     <Grid item xs={12} lg={6}>
                         <AddAutopilot
                             onCommit={id => this.setAi(id)}
+                            onChange={id => this.setAi(id)}
                             aiOptions={this.aiJsOptions}
                             submitText={"Change AI"}
                             width={500}
                             defaultValue={this.aiJsOptions[0]}
+                            immediateMode={true}
                         />
                     </Grid>
                 </Grid>

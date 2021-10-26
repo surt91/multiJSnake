@@ -29,6 +29,7 @@ class JsGameState {
         return snake.head.x === this.food.x && snake.head.y === this.food.y;
     }
 
+    // FIXME this will be an infinite loop after a perfect game!
     randomSite() {
         let site;
         do {
@@ -75,6 +76,131 @@ class JsGameState {
         return state;
     }
 
+    /// get the state of the game
+    /// here we just take up to third nearest neighbor fields of the snake's head
+    /// 1: snake/wall
+    /// 0: free
+    /// and in which direction the food is
+    /// 0/1: its in front
+    /// 0/1: its left
+    /// 0/1: its right
+    trainingState() {
+        let snake = this.snakes[0];
+        let state = [];
+
+        let rad = this.angle(snake.head, snake.headDirection, this.food);
+        let eps = 1e-6;
+
+        // is food in front?
+        if (Math.abs(rad) < Math.PI / 2 - eps) {
+            state.push(1);
+        } else {
+            state.push(0);
+        }
+
+        // is food left?
+        if (rad > eps && rad < Math.PI - eps) {
+            state.push(1);
+        } else {
+            state.push(0);
+        }
+
+        // is food right?
+        if (rad < -eps && rad > -Math.PI + eps) {
+            state.push(1);
+        } else {
+            state.push(0);
+        }
+
+        // is food behind?
+        if (Math.abs(rad) > Math.PI/2. + eps) {
+            state.push(1);
+        } else {
+            state.push(0);
+        }
+
+        // first neighbors
+        const straight = this.next_site(snake.head, snake.headDirection);
+        const left = this.next_site(snake.head, this.rLeft(snake.headDirection));
+        const right = this.next_site(snake.head, this.rRight(snake.headDirection));
+        const back = this.next_site(snake.head, this.back(snake.headDirection));
+        state.push(this.danger(left));
+        state.push(this.danger(straight));
+        state.push(this.danger(right));
+        // omit back, its always occupied
+
+        // second neighbors
+        const lb = this.next_site(left, this.back(snake.headDirection));
+        const ls = this.next_site(left, snake.headDirection);
+        const rs = this.next_site(right, snake.headDirection);
+        const rb = this.next_site(right, this.back(snake.headDirection));
+        state.push(this.danger(lb));
+        state.push(this.danger(ls));
+        state.push(this.danger(rs));
+        state.push(this.danger(rb));
+
+        // third neighbors
+        const ll = this.next_site(left, this.rLeft(snake.headDirection));
+        const ss = this.next_site(straight, snake.headDirection);
+        const rr = this.next_site(right, this.rRight(snake.headDirection));
+        const bb = this.next_site(back, this.back(snake.headDirection));
+        state.push(this.danger(ll));
+        state.push(this.danger(ss));
+        state.push(this.danger(rr));
+        state.push(this.danger(bb));
+
+        return state;
+    }
+
+    danger(site) {
+        if(this.isOccupied(site) || this.isWall(site))
+            return 1;
+        return 0;
+    }
+
+    angle(subject, direction, object) {
+        let rad;
+        let dx = object.x - subject.x;
+        let dy = object.y - subject.y;
+
+        // apply coordinate rotation, such that the snake always looks to the right
+        // from the point of view of the atan
+        // also note that our coordinate system grows down, so up points to lower values of y
+        switch (direction) {
+            case "right":
+                rad = -Math.atan2(dy, dx);
+                break;
+            case "up":
+                rad = Math.atan2(-dx, -dy);
+                break;
+            case "left":
+                rad = -Math.atan2(-dy, -dx);
+                break;
+            case "down":
+                rad = Math.atan2(dx, dy);
+                break;
+        }
+
+        return rad;
+    }
+
+    relativeAction2Move(action) {
+        let snake = this.snakes[0];
+        switch(action) {
+            case 0:
+                // left
+                snake.headDirection = this.rLeft(snake.headDirection);
+                break;
+            case 1:
+                // straight
+                break;
+            case 2:
+                // right
+                snake.headDirection = this.rRight(snake.headDirection);
+                break;
+        }
+    }
+
     absoluteAction2Move(action) {
         let snake = this.snakes[0];
         switch (action) {
@@ -111,6 +237,45 @@ class JsGameState {
             case "left":
                 // west
                 return {x: site.x - 1, y: site.y};
+        }
+    }
+
+    rLeft(direction) {
+        switch(direction) {
+            case "up":
+                return "left";
+            case "down":
+                return "right";
+            case "left":
+                return "down";
+            case "right":
+                return "up";
+        }
+    }
+
+    rRight(direction) {
+        switch(direction) {
+            case "up":
+                return "right";
+            case "down":
+                return "left";
+            case "left":
+                return "up";
+            case "right":
+                return "down";
+        }
+    }
+
+    back(direction) {
+        switch(direction) {
+            case "up":
+                return "down";
+            case "down":
+                return "up";
+            case "left":
+                return "right";
+            case "right":
+                return "left";
         }
     }
 

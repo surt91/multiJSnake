@@ -28,20 +28,23 @@ class AddAutopilot extends React.Component {
                     renderInput={(params) => <TextField {...params} label="AI Strategy" />}
                     onChange={(e, newValue) => {
                         this.setValue(newValue);
+                        this.props.onChange && newValue && this.props.onChange(newValue)
                     }}
                 />
                 <Box sx={{ width: this.props.width || 250 }}>
                     {this.state.value && this.state.value.description}
                 </Box>
+                {this.props.immediateMode ||
                 <Button
                     aria-label="done"
                     disabled={this.state.value === null}
-                    onClick={_ => this.state.value && this.props.onCommit(this.state.value.id)}
+                    onClick={_ => this.state.value && this.props.onCommit(this.state.value)}
                     variant="outlined"
                 >
                     {this.props.submitText || "Add Autopilot"}
-                    <AddIcon />
+                    <AddIcon/>
                 </Button>
+                }
             </Stack>
         );
     }

@@ -254,7 +254,8 @@ export class GameView extends React.Component {
         });
     }
 
-    addAutopilot(type) {
+    addAutopilot(obj) {
+        let type = obj.id;
         console.log("add " + type);
         this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
     }
