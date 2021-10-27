@@ -49,3 +49,8 @@ conv_ac_10000:
     description: An Actor-Critic (convolutional) neural network model trained on 10000 games.
         Has global information (sees basically the same as a human player).
     model_path: models/global/func/convAC_10000.keras
+conv_ac_50000:
+    name: Global Actor-Critic (n=50000)
+    description: An Actor-Critic (convolutional) neural network model trained on 50000 games.
+        Has global information (sees basically the same as a human player).
+    model_path: models/global/func/convAC_50000.keras

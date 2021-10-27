@@ -24,13 +24,6 @@ class Ai extends React.Component {
 
         this.aiJsOptions = [
             {
-                path: "models/snakeConvA2C_e29000/model.json",
-                label: "convolutional A2C N=29000",
-                input: "global",
-                description: conv_desc + a2c_desc +
-                    "The model was trained by playing 29.000 games."
-            },
-            {
                 path: "models/AC_e100/model.json",
                 label: "local A2C N=100",
                 input: "local",
@@ -64,6 +57,34 @@ class Ai extends React.Component {
                 input: "local",
                 description: dense_desc + a2c_desc +
                     "The model was trained by playing 36.000 games."
+            },
+            {
+                path: "models/convAC_4000/model.json",
+                label: "convolutional A2C N=4000",
+                input: "global",
+                description: conv_desc + a2c_desc +
+                    "The model was trained by playing 4.000 games."
+            },
+            {
+                path: "models/convAC_10000/model.json",
+                label: "convolutional A2C N=10000",
+                input: "global",
+                description: conv_desc + a2c_desc +
+                    "The model was trained by playing 10.000 games."
+            },
+            {
+                path: "models/snakeConvA2C_e29000/model.json",
+                label: "convolutional A2C N=29000",
+                input: "global",
+                description: conv_desc + a2c_desc +
+                    "The model was trained by playing 29.000 games."
+            },
+            {
+                path: "models/snakeConvA2C_e50000/model.json",
+                label: "convolutional A2C N=50000",
+                input: "global",
+                description: conv_desc + a2c_desc +
+                    "The model was trained by playing 50.000 games."
             }
         ]
 
@@ -72,7 +93,7 @@ class Ai extends React.Component {
             foodColor: "#cc2200",
             bgColor: "#000",
             game: new JsGameState(10, 10),
-            currentModel: this.aiJsOptions[0]
+            currentModel: this.aiJsOptions[this.aiJsOptions.length - 1]
         };
 
         this.model_promise = null;
