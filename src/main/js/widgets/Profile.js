@@ -1,5 +1,5 @@
 import React from "react";
-import authHeader from "./authHeader";
+import authHeader from "../auth/authHeader";
 import axios from "axios";
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 

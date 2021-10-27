@@ -1,18 +1,16 @@
 import React from "react";
-import Canvas from "./visualization/canvas";
-import {draw} from "./visualization/canvasDraw";
-import {Container, Grid} from "@mui/material";
+import Canvas from "../visualization/canvas";
+import {draw} from "../visualization/canvasDraw";
+import {Container, Grid, Stack} from "@mui/material";
 import * as tf from "@tensorflow/tfjs";
 
-import JsGameState from "./SnakeLogic/JsGameState";
+import JsGameState from "../SnakeLogic/JsGameState";
 import AddAutopilot from "./AddAutopilot";
 
 class Ai extends React.Component {
 
     constructor(props) {
         super(props);
-
-        const game = new JsGameState(10, 10);
 
         let dense_desc = "A deep, fully connected network -- but in this case `deep` only means one hidden layer. " +
             "The input is just the local area around the head of the snake and the direction of the food. "
@@ -73,13 +71,11 @@ class Ai extends React.Component {
             scale: 20,
             foodColor: "#cc2200",
             bgColor: "#000",
-            game: game,
+            game: new JsGameState(10, 10),
             currentModel: this.aiJsOptions[0]
         };
 
         this.model_promise = null;
-
-
     }
 
     componentDidMount() {
@@ -89,6 +85,11 @@ class Ai extends React.Component {
 
     componentWillUnmount() {
         clearInterval(this.refresh);
+    }
+
+    newGame(width, height) {
+        const game = new JsGameState(width, height);
+        this.setState({game: game});
     }
 
     setAi(obj) {

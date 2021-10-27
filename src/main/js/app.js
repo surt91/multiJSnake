@@ -2,11 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
-import {GameView} from "./GameView";
-import Profile from "./Profile";
-import Ai from "./Ai";
+import {GameView} from "./widgets/GameView";
+import Profile from "./widgets/Profile";
+import Ai from "./widgets/Ai";
 import {NavBar} from "./NavBar";
-import AuthService from "./AuthService";
+import AuthService from "./auth/AuthService";
 
 // make sure to use https, otherwise the copy to clipboard will not work
 if (location.protocol !== 'https:' && location.hostname !== "localhost") {

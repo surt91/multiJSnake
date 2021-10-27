@@ -14,10 +14,11 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FastForwardIcon from '@mui/icons-material/FastForward';
-import AuthService from "./AuthService";
-import {LoginDialog, RegisterDialog} from "./formDialog";
+import AuthService from "./auth/AuthService";
 import axios from "axios";
-import authHeader from "./authHeader";
+import authHeader from "./auth/authHeader";
+import LoginDialog from "./widgets/LoginDialog";
+import RegisterDialog from "./widgets/RegisterDialog";
 
 // TODO: this navbar also handles logic for expiring logins... that is not very clean
 export class NavBar extends React.Component {
@@ -47,12 +48,6 @@ export class NavBar extends React.Component {
 
     componentWillUnmount() {
         clearInterval(this.interval);
-    }
-
-    tabChanged(e) {
-        // this seems very brittle. Why do I do this?
-        this.setState({path: e.target.parentElement.pathname});
-        console.log(e);
     }
 
     render() {
