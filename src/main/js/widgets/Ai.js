@@ -22,7 +22,7 @@ class Ai extends React.Component {
             "take (up, down, left, right). The other branch is the critic, it estimates the quality " +
             "of the current state, i.e., how many points the snakes will be able to collect in the future. ";
 
-        this.aiJsOptions = [
+        const aiJsOptions = [
             {
                 path: "models/AC_e100/model.json",
                 label: "local A2C N=100",
@@ -88,12 +88,14 @@ class Ai extends React.Component {
             }
         ]
 
+        this.aiJsOptions = aiJsOptions;
+
         this.state = {
             scale: 20,
             foodColor: "#cc2200",
             bgColor: "#000",
             game: new JsGameState(10, 10),
-            currentModel: this.aiJsOptions[this.aiJsOptions.length - 1]
+            currentModel: aiJsOptions[aiJsOptions.length - 1]
         };
 
         this.model_promise = null;
@@ -162,7 +164,7 @@ class Ai extends React.Component {
                             aiOptions={this.aiJsOptions}
                             submitText={"Change AI"}
                             width={500}
-                            defaultValue={this.aiJsOptions[0]}
+                        defaultValue={this.state.currentModel}
                             commitMode={false}
                         />
                     </Grid>
