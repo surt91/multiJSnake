@@ -57,6 +57,7 @@ public class GameStateMap {
     void periodicUpdate() {
         Set<String> ids = allIds();
         for (String id : ids) {
+            // TODO: check if a game is orphaned (no human players) and delete it
             GameState gameState = gameStateMap.get(id);
             if(!gameState.isPaused() && !gameState.isGameOver()) {
                 gameState.update();
