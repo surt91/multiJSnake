@@ -44,7 +44,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                    .antMatchers("/api/auth/**", "/app.css", "/favicon.ico", "/built/**", "/dynamic/**", "/api/init/**", "/api/listAi", "/api/close/**", "/", "/profile", "/ai", "/models/**").permitAll()
+                    .antMatchers(
+                            "/api/auth/**",  // everything related to login, register, ...
+                            "/app.css",  // static files
+                            "/favicon.ico",
+                            "/built/**",
+                            "/models/**",
+                            "/dynamic/**",  // websockets
+                            "/api/init/**",  // public api endpoints
+                            "/api/listAi",
+                            "/api/close/**",
+                            "/",  // public routes for react
+                            "/profile",
+                            "/ai"
+                    ).permitAll()
                     .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
