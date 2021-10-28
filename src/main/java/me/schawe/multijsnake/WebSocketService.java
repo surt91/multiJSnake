@@ -2,7 +2,6 @@ package me.schawe.multijsnake;
 
 import me.schawe.multijsnake.highscore.HighscoreRepository;
 import me.schawe.multijsnake.snake.GameState;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
@@ -16,7 +15,6 @@ public class WebSocketService {
     private final SimpMessagingTemplate websocket;
     private final HighscoreRepository repo;
 
-    @Autowired
     public WebSocketService(SimpMessagingTemplate websocket, HighscoreRepository repo) {
         this.websocket = websocket;
         this.repo = repo;

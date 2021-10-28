@@ -209,9 +209,9 @@ public class GameState {
     /// 1: snake/wall
     /// 0: free
     /// and in which direction the food is
-    /// 0/1: its in front
-    /// 0/1: its left
-    /// 0/1: its right
+    /// 0/1: it's in front
+    /// 0/1: it's left
+    /// 0/1: it's right
     public List<Integer> trainingState(int idx) {
         Snake snake = snakes.get(idx);
         ArrayList<Integer> state = new ArrayList<>();
@@ -285,7 +285,7 @@ public class GameState {
         int[][][] state = new int[width][height][3];
 
         state[food.getX()][food.getY()][0] = 1;
-        // the head can be outside of the field (after collision with a wall)
+        // the head can be outside the field (after collision with a wall)
         if(!isWall(snake.head)) {
             state[snake.head.getX()][snake.head.getY()][1] = 1;
         }

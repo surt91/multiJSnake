@@ -8,7 +8,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class GlobalDeepAutopilot extends KerasModel{
@@ -24,7 +23,7 @@ public class GlobalDeepAutopilot extends KerasModel{
         // this should work, but somehow does not work
         // INDArray input = Nd4j.create(state);
         
-        // threfore I need this workaround
+        // therefore, I need this workaround
         var flat = Arrays.stream(ArrayUtil.flatten(state)).boxed().collect(Collectors.toList());
         INDArray input = Nd4j.create(flat).reshape(1, state.length, state[0].length, state[0][0].length);
 

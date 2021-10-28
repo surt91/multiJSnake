@@ -26,7 +26,6 @@ public interface Autopilot {
                 move.isOpposite(snake.headDirection)
                 || gameState.isOccupied(move.toCoord().add(snake.head))
                 || gameState.isWall(move.toCoord().add(snake.head))
-                || move.isOpposite(snake.headDirection)
         );
     }
 }
