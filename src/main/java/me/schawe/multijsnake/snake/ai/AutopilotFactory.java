@@ -4,6 +4,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -20,13 +21,14 @@ public class AutopilotFactory {
         Autopilot autopilot;
         if(Objects.equals(desc.model_path, "greedy")) {
             autopilot = new GreedyAutopilot();
-        } else if (desc.model_path.startsWith("models/func/")) {
-            autopilot = new LocalDeepAutopilot(desc.model_path, true);
-        } else if (desc.model_path.startsWith("models/seq/")) {
-            autopilot = new LocalDeepAutopilot(desc.model_path, false);
-        } else if (desc.model_path.startsWith("models/global/func/")) {
-            autopilot = new GlobalDeepAutopilot(desc.model_path, true);
+        } else if(Objects.equals(desc.model_path, "random")) {
+            autopilot = new RandomAutopilot();
+        } else if (desc.input.equals("local")) {
+            autopilot = new LocalDeepAutopilot(desc.model_path, desc.mode.equals("functional"));
+        } else if (desc.input.equals("global")) {
+            autopilot = new GlobalDeepAutopilot(desc.model_path, desc.mode.equals("functional"));
         } else {
+            // TODO: handle the unexpected input
             autopilot = new RandomAutopilot();
         }
 
@@ -38,15 +40,21 @@ public class AutopilotFactory {
         InputStream inputStream = AutopilotFactory.class
                 .getClassLoader()
                 .getResourceAsStream("models/strategies.yaml");
-        Map<String, Map<String, String>> obj = yaml.load(inputStream);
+        List<Map<String, String>> array = yaml.load(inputStream);
 
         LinkedHashMap<String, AutopilotDescription> out = new LinkedHashMap<>();
 
-        for (Map.Entry<String, Map<String, String>> entry : obj.entrySet()) {
-            String key = entry.getKey();
-            Map<String, String> value = entry.getValue();
+        for (Map<String, String> obj : array) {
 
-            out.put(key, new AutopilotDescription(key, value.get("model_path"), value.get("name"), value.get("description")));
+            var desc = new AutopilotDescription(
+                    obj.get("id"),
+                    obj.get("model_path_java"),
+                    obj.get("input"),
+                    obj.get("mode"),
+                    obj.get("label"),
+                    obj.get("description")
+            );
+            out.put(obj.get("id"), desc);
         }
         
         return out;

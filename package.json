@@ -8,6 +8,7 @@
     "@tensorflow/tfjs": "^3.10.0",
     "axios": "^0.22.0",
     "formik": "^2.2.9",
+    "js-yaml": "^4.1.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -29,6 +30,7 @@
     "babel-loader": "^8.2.2",
     "cypress": "^8.5.0",
     "cypress-visual-regression": "^1.6.1",
+    "raw-loader": "^4.0.2",
     "webpack": "^5.57.1",
     "webpack-cli": "^4.8.0"
   }

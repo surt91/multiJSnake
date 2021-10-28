@@ -18,6 +18,10 @@ module.exports = {
                         presets: ["@babel/preset-env", "@babel/preset-react"]
                     }
                 }]
+            },
+            {
+                test: /\.yaml$/i,
+                use: 'raw-loader',
             }
         ],
     }

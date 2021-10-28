@@ -1,56 +1,120 @@
-random:
-    name: Random
+-   id: random
+    label: Random
     description: Perform a random walk on the field.
-    model_path: random
-greedy:
-    name: Greedy
+    model_path_java: random
+    input: none
+    mode: none
+
+-   id: greedy
+    label: Greedy
     description: Go directly to the next food and do not step on obstacles, if not necessary.
-    model_path: greedy
+    model_path_java: greedy
+    input: local
+    mode: none
 
-dqn_200:
-    name: Deep Q (n=200)
-    description: A Deep Q neural network after 200 games played.
-        Has only local information (third nearest neighbors of the head)
-        and the direction of the food.
-    model_path: models/seq/DQN_200.keras
+-   id: dqn_200
+    label: Deep Q (n=200)
+    description: A deep, fully connected network -- but in this case `deep` only means one hidden layer.
+        The input is just the local area around the head of the snake and the direction of the food.
+        The model used Deep Q learning to train a neural network with 200 played games.
+    model_path_java: models/seq/DQN_200.keras
+    input: local
+    mode: sequential
 
-ac_100:
-    name: Actor-Critic (n=100)
-    description: An Actor-Critic neural network model trained on 100 games.
-        Has only local information (third nearest neighbors of the head)
-        and the direction of the food.
-    model_path: models/func/AC_100.keras
-ac_300:
-    name: Actor-Critic (n=300)
-    description: An Actor-Critic neural network model trained on 300 games.
-        Has only local information (third nearest neighbors of the head)
-        and the direction of the food.
-    model_path: models/func/AC_300.keras
-ac_600:
-    name: Actor-Critic (n=600)
-    description: An Actor-Critic neural network model trained on 600 games.
-        Has only local information (third nearest neighbors of the head)
-        and the direction of the food.
-    model_path: models/func/AC_600.keras
-ac_36000:
-    name: Actor-Critic (n=36000)
-    description: An Actor-Critic neural network model trained on 36000 games.
-        Has only local information (third nearest neighbors of the head)
-        and the direction of the food.
-    model_path: models/func/AC_36000.keras
+-   id: ac_100
+    label: Actor-Critic (n=100)
+    description: "A deep, fully connected network -- but in this case `deep` only means one hidden layer.
+        The input is just the local area around the head of the snake and the direction of the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 100 games."
+    model_path_java: models/func/AC_100.keras
+    model_path_js: models/AC_e100/model.json
+    input: local
+    mode: functional
 
-conv_ac_4000:
-    name: Global Actor-Critic (n=4000)
-    description: An Actor-Critic (convolutional) neural network model trained on 4000 games.
-      Has global information (sees basically the same as a human player).
-    model_path: models/global/func/convAC_4000.keras
-conv_ac_10000:
-    name: Global Actor-Critic (n=10000)
-    description: An Actor-Critic (convolutional) neural network model trained on 10000 games.
-        Has global information (sees basically the same as a human player).
-    model_path: models/global/func/convAC_10000.keras
-conv_ac_50000:
-    name: Global Actor-Critic (n=50000)
-    description: An Actor-Critic (convolutional) neural network model trained on 50000 games.
-        Has global information (sees basically the same as a human player).
-    model_path: models/global/func/convAC_50000.keras
+-   id: ac_300
+    label: Actor-Critic (n=300)
+    description: "A deep, fully connected network -- but in this case `deep` only means one hidden layer.
+        The input is just the local area around the head of the snake and the direction of the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 300 games."
+    model_path_java: models/func/AC_300.keras
+    model_path_js: models/AC_e300/model.json
+    input: local
+    mode: functional
+
+-   id: ac_600
+    label: Actor-Critic (n=600)
+    description: "A deep, fully connected network -- but in this case `deep` only means one hidden layer.
+        The input is just the local area around the head of the snake and the direction of the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 600 games."
+    model_path_java: models/func/AC_600.keras
+    model_path_js: models/AC_e600/model.json
+    input: local
+    mode: functional
+
+-   id: ac_36000
+    label: Actor-Critic (n=36000)
+    description: "A deep, fully connected network -- but in this case `deep` only means one hidden layer.
+        The input is just the local area around the head of the snake and the direction of the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 36000 games."
+    model_path_java: models/func/AC_36000.keras
+    model_path_js: models/AC_e36000/model.json
+    input: local
+    mode: functional
+
+-   id: conv_ac_4000
+    label: Global Actor-Critic (n=4000)
+    description: "A deep convolutional neural network, which takes the whole field as input.
+        The field is split in three layers: the tail, the head and the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 4000 games."
+    model_path_java: models/global/func/convAC_4000.keras
+    model_path_js: models/convAC_4000/model.json
+    input: global
+    mode: functional
+
+-   id: conv_ac_10000
+    label: Global Actor-Critic (n=10000)
+    description: "A deep convolutional neural network, which takes the whole field as input.
+        The field is split in three layers: the tail, the head and the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 10000 games."
+    model_path_java: models/global/func/convAC_10000.keras
+    model_path_js: models/convAC_10000/model.json
+    input: global
+    mode: functional
+
+-   id: conv_ac_50000
+    label: Global Actor-Critic (n=50000)
+    description: "A deep convolutional neural network, which takes the whole field as input.
+        The field is split in three layers: the tail, the head and the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 50000 games."
+    model_path_java: models/global/func/convAC_50000.keras
+    model_path_js: models/snakeConvA2C_e50000/model.json
+    input: global
+    mode: functional
