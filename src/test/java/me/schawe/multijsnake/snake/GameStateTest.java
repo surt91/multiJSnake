@@ -102,31 +102,18 @@ class GameStateTest {
 
     @Test
     void changeName() {
+        int idx = gameState.addSnake();
+        int idx2 = gameState.addSnake();
+        assertNotEquals(gameState.snakes.get(idx).name, "Test1");
+        assertNotEquals(gameState.snakes.get(idx2).name, "Test1");
+        gameState.changeName(idx, "Test1");
+        assertEquals(gameState.snakes.get(idx).name, "Test1");
+        assertNotEquals(gameState.snakes.get(idx2).name, "Test1");
     }
 
     @Test
     void gen_id() {
         assertEquals(10, gameState.gen_id().length());
-    }
-
-    @Test
-    void addSnake() {
-    }
-
-    @Test
-    void addAISnake() {
-    }
-
-    @Test
-    void isOccupied() {
-    }
-
-    @Test
-    void isWall() {
-    }
-
-    @Test
-    void add_food() {
     }
 
     @Test
