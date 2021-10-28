@@ -55,14 +55,26 @@ public class GameStateMap {
 
     @Scheduled(fixedRate = 300)
     void periodicUpdate() {
-        Set<String> ids = allIds();
-        for (String id : ids) {
-            // TODO: check if a game is orphaned (no human players) and delete it
+        ArrayList<String> abandoned = new ArrayList<>();
+
+        for (String id : allIds()) {
             GameState gameState = gameStateMap.get(id);
+            if(gameState.isAbandoned()) {
+                // can we remove the keys here directly? do we iterate over a copy of the key set?
+                // better be safe and remove them after the iteration, in case it is
+                // a reference, like apparently everything in Java
+                abandoned.add(id);
+                continue;
+            }
             if(!gameState.isPaused() && !gameState.isGameOver()) {
                 gameState.update();
                 webSocketService.update(gameState);
             }
+        }
+
+        // now delete the abandoned instances
+        for(String id : abandoned) {
+            gameStateMap.remove(id);
         }
     }
 

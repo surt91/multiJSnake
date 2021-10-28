@@ -5,6 +5,7 @@ import me.schawe.multijsnake.snake.ai.RandomAutopilot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -78,6 +79,25 @@ class GameStateTest {
                 gameState.isGameOver(),
                 "isGameOver should work."
         );
+    }
+
+    @Test
+    void abandoned() {
+        assertFalse(gameState.isAbandoned());
+        int idx = gameState.addSnake();
+        gameState.created = Instant.now().minusSeconds(100);
+        assertFalse(gameState.isAbandoned());
+        int idx1 = gameState.addAISnake(new RandomAutopilot());
+        assertFalse(gameState.isAbandoned());
+        gameState.toBeRemoved.add(idx);
+        assertTrue(gameState.isAbandoned());
+    }
+
+    @Test
+    void abandonedAfterTime() {
+        assertFalse(gameState.isAbandoned());
+        gameState.created = Instant.now().minusSeconds(100);
+        assertTrue(gameState.isAbandoned());
     }
 
     @Test

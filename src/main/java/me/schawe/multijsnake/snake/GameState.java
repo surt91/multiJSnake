@@ -2,6 +2,7 @@ package me.schawe.multijsnake.snake;
 
 import me.schawe.multijsnake.snake.ai.Autopilot;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -18,6 +19,8 @@ public class GameState {
     Consumer<Snake> snakeDiesCallback;
     private Random random = new Random();
 
+    Instant created;
+
     public GameState(int width, int height) {
         id = gen_id();
         this.width = width;
@@ -29,6 +32,8 @@ public class GameState {
         paused = true;
         gameOver = false;
         this.snakeDiesCallback = x -> {};
+
+        created = Instant.now();
     }
 
     public GameState(int width, int height, long seed) {
@@ -375,6 +380,15 @@ public class GameState {
             snake.kill();
             snakeDiesCallback.accept(snake);
         }
+    }
+
+    // check whether this game was abandoned by all human players
+    public boolean isAbandoned() {
+        long numActivePlayers = snakes.values().stream()
+                .filter(snake -> snake.ai().isEmpty() && !toBeRemoved.contains(snake.idx))
+                .count();
+        // we do not want to abandon fresh games, before someone joined, so we give them a minute to join
+        return created.plusSeconds(60).isBefore(Instant.now()) && numActivePlayers == 0;
     }
 
     public void markForRemoval(int idx) {
