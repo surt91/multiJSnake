@@ -1,5 +1,6 @@
 package me.schawe.multijsnake.snake;
 
+import me.schawe.multijsnake.snake.ai.AutopilotFactory;
 import me.schawe.multijsnake.snake.ai.GreedyAutopilot;
 import me.schawe.multijsnake.snake.ai.RandomAutopilot;
 import org.junit.jupiter.api.BeforeEach;
@@ -244,6 +245,17 @@ class GameStateTest {
         int idx1 = gameState.addAISnake(new RandomAutopilot());
         int idx2 = gameState.addAISnake(new GreedyAutopilot());
         assertEquals(2, gameState.getSnakes().size());
+        gameState.setPause(false);
+        gameState.update();
+    }
+
+    @Test
+    void addAiFromYaml() {
+        var a = new AutopilotFactory();
+        for(String id : a.getAutopilots().keySet()) {
+            gameState.addAISnake(a.build(id));
+        }
+        assertEquals(a.getAutopilots().size(), gameState.getSnakes().size());
         gameState.setPause(false);
         gameState.update();
     }
