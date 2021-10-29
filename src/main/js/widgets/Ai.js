@@ -52,11 +52,15 @@ class Ai extends React.Component {
     step() {
         this.model_promise.then(model => {
             if(this.state.currentModel.input === "global") {
-                let action = model.predict(tf.tensor([this.state.game.trainingBitmap()]));
+                let state = tf.tensor([this.state.game.trainingBitmap()]);
+                let action = model.predict(state);
+                state.dispose();
                 action = action[0].argMax(1).arraySync()[0];
                 this.state.game.absoluteAction2Move(action);
             } else {
-                let action = model.predict(tf.tensor([this.state.game.trainingState()]));
+                let state = tf.tensor([this.state.game.trainingState()]);
+                let action = model.predict(state);
+                state.dispose();
                 action = action[0].argMax(1).arraySync()[0];
                 this.state.game.relativeAction2Move(action);
             }
