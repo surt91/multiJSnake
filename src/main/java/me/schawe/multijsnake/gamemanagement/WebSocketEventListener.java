@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.gamemanagement;
 
 import me.schawe.multijsnake.snake.GameState;
 import me.schawe.multijsnake.snake.SnakeId;
@@ -8,8 +8,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Component
 public class WebSocketEventListener {
-    GameStateMap gameStateMap;
-    WebSocketService webSocketService;
+    private final GameStateMap gameStateMap;
+    private final WebSocketService webSocketService;
 
     public WebSocketEventListener(GameStateMap gameStateMap, WebSocketService webSocketService) {
         this.gameStateMap = gameStateMap;

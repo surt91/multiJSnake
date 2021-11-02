@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.gamemanagement;
 
 import me.schawe.multijsnake.highscore.Highscore;
 import me.schawe.multijsnake.highscore.HighscoreRepository;

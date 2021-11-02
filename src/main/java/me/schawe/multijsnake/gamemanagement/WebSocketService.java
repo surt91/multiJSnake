@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.gamemanagement;
 
 import me.schawe.multijsnake.highscore.HighscoreRepository;
 import me.schawe.multijsnake.snake.GameState;
@@ -8,7 +8,7 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import static me.schawe.multijsnake.WebSocketConfiguration.MESSAGE_PREFIX;
+import static me.schawe.multijsnake.gamemanagement.WebSocketConfiguration.MESSAGE_PREFIX;
 
 @Component
 public class WebSocketService {
@@ -20,7 +20,7 @@ public class WebSocketService {
         this.repo = repo;
     }
 
-    void update(GameState gameState) {
+    public void update(GameState gameState) {
         this.websocket.convertAndSend(
                 MESSAGE_PREFIX + "/update/" + gameState.getId(), gameState);
     }

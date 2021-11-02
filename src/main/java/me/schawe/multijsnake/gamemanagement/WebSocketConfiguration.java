@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.gamemanagement;
 
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.stereotype.Component;

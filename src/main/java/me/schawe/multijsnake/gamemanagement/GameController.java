@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.gamemanagement;
 
 import me.schawe.multijsnake.snake.GameState;
 import me.schawe.multijsnake.snake.Move;
@@ -14,7 +14,7 @@ import java.util.List;
 public class GameController {
     private final GameStateMap map;
 
-    GameController(GameStateMap map, WebSocketService webSocketService) {
+    GameController(GameStateMap map) {
         this.map = map;
     }
 

@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.usermanagement;
 
 import me.schawe.multijsnake.highscore.Highscore;
 import me.schawe.multijsnake.highscore.HighscoreRepository;
@@ -12,8 +12,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user")
 public class UserInfoController {
-    final UserRepository userRepository;
-    final HighscoreRepository highscoreRepository;
+    private final UserRepository userRepository;
+    private final HighscoreRepository highscoreRepository;
 
     public UserInfoController(UserRepository userRepository, HighscoreRepository highscoreRepository) {
         this.userRepository = userRepository;
@@ -21,12 +21,12 @@ public class UserInfoController {
     }
 
     @GetMapping("/profile")
-    UserDetailsImpl profile(@AuthenticationPrincipal UserDetailsImpl user) {
+    public UserDetailsImpl profile(@AuthenticationPrincipal UserDetailsImpl user) {
         return user;
     }
 
     @GetMapping("/highscore")
-    List<Highscore> personalHighscores(@AuthenticationPrincipal UserDetailsImpl user) {
+    public List<Highscore> personalHighscores(@AuthenticationPrincipal UserDetailsImpl user) {
         System.out.println(highscoreRepository.findTop10ByPlayerNameOrderByScoreDesc(user.getUsername()).toString());
         return highscoreRepository.findTop10ByPlayerNameOrderByScoreDesc(user.getUsername());
     }

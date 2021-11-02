@@ -1,6 +1,8 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.frontend;
 
+import me.schawe.multijsnake.gamemanagement.InvalidMapException;
 import me.schawe.multijsnake.snake.InvalidMoveException;
+import me.schawe.multijsnake.usermanagement.ExceptionJson;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

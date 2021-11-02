@@ -1,4 +1,4 @@
-package me.schawe.multijsnake;
+package me.schawe.multijsnake.frontend;
 
 import me.schawe.multijsnake.usermanagement.AuthEntryPointJwt;
 import me.schawe.multijsnake.usermanagement.AuthTokenFilter;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
 
     WebSecurityConfig(
