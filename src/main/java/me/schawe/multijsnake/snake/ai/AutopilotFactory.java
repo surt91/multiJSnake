@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 
 public class AutopilotFactory {
-    Map<String, AutopilotDescription> autopilots;
+    // TODO: add a method to register new autopilot classes
+
+    private final Map<String, AutopilotDescription> autopilots;
 
     public AutopilotFactory() {
         autopilots = listAutopilots();
@@ -19,14 +21,14 @@ public class AutopilotFactory {
         AutopilotDescription desc = autopilots.get(id);
 
         Autopilot autopilot;
-        if(Objects.equals(desc.model_path, "greedy")) {
+        if(Objects.equals(desc.getModelPath(), "greedy")) {
             autopilot = new GreedyAutopilot();
-        } else if(Objects.equals(desc.model_path, "random")) {
+        } else if(Objects.equals(desc.getModelPath(), "random")) {
             autopilot = new RandomAutopilot();
-        } else if (desc.input.equals("local")) {
-            autopilot = new LocalDeepAutopilot(desc.model_path, desc.mode.equals("functional"));
-        } else if (desc.input.equals("global")) {
-            autopilot = new GlobalDeepAutopilot(desc.model_path, desc.mode.equals("functional"));
+        } else if (desc.getInput().equals("local")) {
+            autopilot = new LocalDeepAutopilot(desc.getModelPath(), desc.getMode().equals("functional"));
+        } else if (desc.getInput().equals("global")) {
+            autopilot = new GlobalDeepAutopilot(desc.getModelPath(), desc.getMode().equals("functional"));
         } else {
             // TODO: handle the unexpected input
             autopilot = new RandomAutopilot();

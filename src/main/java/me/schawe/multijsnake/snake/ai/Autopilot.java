@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// https://github.com/surt91/rsnake
 public interface Autopilot {
     String generateName();
     Move suggest(GameState gameState, Snake snake);
@@ -23,9 +22,9 @@ public interface Autopilot {
 
     default boolean isSafeMove(GameState gameState, Snake snake, Move move) {
         return !(
-                move.isOpposite(snake.headDirection)
-                || gameState.isOccupied(move.toCoord().add(snake.head))
-                || gameState.isWall(move.toCoord().add(snake.head))
+                move.isOpposite(snake.getHeadDirection())
+                || gameState.isOccupied(move.toCoord().add(snake.getHead()))
+                || gameState.isWall(move.toCoord().add(snake.getHead()))
         );
     }
 }

@@ -5,15 +5,15 @@ import me.schawe.multijsnake.snake.ai.Autopilot;
 import java.util.*;
 
 public class Snake {
-    public Coordinate head;
-    public Move headDirection;
-    public Move lastHeadDirection;
-    ArrayDeque<Coordinate> tail;
-    int length;
-    int idx;
+    private Coordinate head;
+    private Move headDirection;
+    private Move lastHeadDirection;
+    private ArrayDeque<Coordinate> tail;
+    private int length;
+    private final SnakeId id;
     private boolean dead;
-    String name;
-    private Optional<Autopilot> autopilotOptional;
+    private String name;
+    private final Optional<Autopilot> autopilotOptional;
 
     public Coordinate getHead() {
         return head;
@@ -35,8 +35,12 @@ public class Snake {
         return length;
     }
 
+    public SnakeId getId() {
+        return id;
+    }
+
     public int getIdx() {
-        return idx;
+        return id.getIdx();
     }
 
     public String getName() {
@@ -55,21 +59,36 @@ public class Snake {
         return new ArrayList<>(getTail());
     }
 
-    Snake(int idx, Coordinate start, Random random) {
-        Move dir = Move.random(random);
-        lastHeadDirection = dir;
-        headDirection = dir;
+    Snake(SnakeId id, Coordinate start, Move direction, Optional<Autopilot> autopilot) {
+        lastHeadDirection = direction;
+        headDirection = direction;
         head = start;
         tail = new ArrayDeque<>();
         length = 2;
-        this.idx = idx;
+        this.id = id;
         dead = false;
-        name = "Anon " + (idx + 1);
-        autopilotOptional = Optional.empty();
+        if(autopilot.isPresent()) {
+            name = autopilot.get().generateName();
+        } else {
+            name = "Anon " + (id.getIdx() + 1);
+        }
+        autopilotOptional = autopilot;
     }
 
-    Snake(int idx, Coordinate start){
-        this(idx, start, new Random());
+    Snake(SnakeId id, Coordinate start){
+        this(id, start, new Random());
+    }
+
+    Snake(SnakeId id, Coordinate start, Move dir){
+        this(id, start, dir, Optional.empty());
+    }
+
+    Snake(SnakeId id, Coordinate start, Random random){
+        this(id, start, Move.random(random), Optional.empty());
+    }
+
+    Snake(SnakeId id, Coordinate start, Random random, Autopilot autopilot){
+        this(id, start, Move.random(random), Optional.of(autopilot));
     }
 
     public void reset(Coordinate start) {
@@ -90,8 +109,35 @@ public class Snake {
         return autopilotOptional;
     }
 
-    public void setAutopilot(Autopilot autopilot) {
-        this.name = autopilot.generateName();
-        this.autopilotOptional = Optional.of(autopilot);
+    public void incrementLength() {
+        this.length += 1;
+    }
+
+    public void setHead(Coordinate head) {
+        this.head = head;
+    }
+
+    public void setHeadDirection(Move headDirection) {
+        this.headDirection = headDirection;
+    }
+
+    public void setLastHeadDirection(Move lastHeadDirection) {
+        this.lastHeadDirection = lastHeadDirection;
+    }
+
+    public void turnRelative(MoveRelative rmove) {
+        if(this.isDead()) {
+            return;
+        }
+
+        headDirection = rmove.toMove(this.getLastHeadDirection());
+    }
+
+    public void turnAbsolute(Move direction) {
+        if(this.isDead()) {
+            return;
+        }
+
+        headDirection = direction;
     }
 }

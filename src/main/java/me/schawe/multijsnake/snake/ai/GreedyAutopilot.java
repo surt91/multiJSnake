@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.Random;
 
 public class GreedyAutopilot implements Autopilot {
-    enum Strategy {
+    private enum Strategy {
         horizontal,
         vertical,
         diagonal;
@@ -57,22 +57,22 @@ public class GreedyAutopilot implements Autopilot {
     private Move shortestWay(GameState gameState, Snake snake) {
         switch (strategy) {
             case horizontal:
-                return horizontalDirection(snake.head.x, gameState.food.x)
+                return horizontalDirection(snake.getHead().getX(), gameState.getFood().getX())
                         .orElse(
-                                verticalDirection(snake.head.y, gameState.food.y)
-                                        .orElse(snake.headDirection)
+                                verticalDirection(snake.getHead().getY(), gameState.getFood().getY())
+                                        .orElse(snake.getHeadDirection())
                         );
             case vertical:
-                return verticalDirection(snake.head.y, gameState.food.y)
+                return verticalDirection(snake.getHead().getY(), gameState.getFood().getY())
                         .orElse(
-                                horizontalDirection(snake.head.x, gameState.food.x)
-                                        .orElse(snake.headDirection)
+                                horizontalDirection(snake.getHead().getX(), gameState.getFood().getX())
+                                        .orElse(snake.getHeadDirection())
                         );
             case diagonal:
-                if (Math.abs(snake.head.y - gameState.food.y) > Math.abs(snake.head.x - gameState.food.x)) {
-                    return verticalDirection(snake.head.y, gameState.food.y).orElse(snake.headDirection);
+                if (Math.abs(snake.getHead().getY() - gameState.getFood().getY()) > Math.abs(snake.getHead().getX() - gameState.getFood().getX())) {
+                    return verticalDirection(snake.getHead().getY(), gameState.getFood().getY()).orElse(snake.getHeadDirection());
                 } else {
-                    return horizontalDirection(snake.head.x, gameState.food.x).orElse(snake.headDirection);
+                    return horizontalDirection(snake.getHead().getX(), gameState.getFood().getX()).orElse(snake.getHeadDirection());
                 }
         }
         // this will not happen
@@ -87,7 +87,7 @@ public class GreedyAutopilot implements Autopilot {
         } else {
             List<Move> moves = possibleMoves(gameState, snake);
             if (moves.size() <= 0) {
-                return snake.headDirection;
+                return snake.getHeadDirection();
             }
             int r = random.nextInt(moves.size());
             return moves.get(r);

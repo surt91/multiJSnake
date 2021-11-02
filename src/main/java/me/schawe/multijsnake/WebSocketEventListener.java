@@ -26,8 +26,8 @@ public class WebSocketEventListener {
         }
 
         GameState gameState = gameStateMap.get(snakeId.getId());
-        gameState.kill(snakeId.getIdx());
-        gameState.markForRemoval(snakeId.getIdx());
+        gameState.kill(snakeId);
+        gameState.markForRemoval(snakeId);
         webSocketService.update(gameState);
     }
 }

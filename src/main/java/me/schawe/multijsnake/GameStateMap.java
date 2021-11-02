@@ -153,26 +153,26 @@ public class GameStateMap {
             newGameState(20, 20, id);
         }
 
-        int idx = get(id).addSnake();
+        SnakeId snakeId = get(id).addSnake();
 
-        putSession(sessionId, new SnakeId(id, idx));
+        putSession(sessionId, snakeId);
         GameState state = get(id);
 
         webSocketService.update(state);
         webSocketService.updateHighscore(state.getWidth()*state.getHeight());
         webSocketService.updateGlobalHighscore();
-        webSocketService.publishIdx(sessionId, idx);
+        webSocketService.publishIdx(sessionId, snakeId.getIdx());
     }
 
     public void move(String sessionId, Move move) {
         SnakeId snakeId = session2id(sessionId);
-        get(snakeId.getId()).turn(snakeId.getIdx(), move);
+        get(snakeId.getId()).turn(snakeId, move);
     }
 
     public void setName(String sessionId, String name) {
         SnakeId snakeId = session2id(sessionId);
         GameState state = get(snakeId.getId());
-        state.changeName(snakeId.getIdx(), name);
+        state.changeName(snakeId, name);
 
         webSocketService.update(state);
     }

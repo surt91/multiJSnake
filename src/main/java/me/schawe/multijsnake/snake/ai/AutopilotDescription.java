@@ -1,16 +1,16 @@
 package me.schawe.multijsnake.snake.ai;
 
 public class AutopilotDescription {
-    String id;
-    String model_path;
-    String label;
-    String description;
-    String input;
-    String mode;
+    private final String id;
+    private final String modelPath;
+    private final String label;
+    private final String description;
+    private final String input;
+    private final String mode;
 
-    AutopilotDescription(String id, String model_path, String input, String mode, String label, String description) {
+    AutopilotDescription(String id, String modelPath, String input, String mode, String label, String description) {
         this.id = id;
-        this.model_path = model_path;
+        this.modelPath = modelPath;
         this.input = input;
         this.mode = mode;
         this.label = label;
@@ -33,11 +33,23 @@ public class AutopilotDescription {
     public String toString() {
         return "AutopilotDescription{" +
                 "id='" + id + '\'' +
-                ", model_path='" + model_path + '\'' +
+                ", model_path='" + modelPath + '\'' +
                 ", label='" + label + '\'' +
                 ", description='" + description + '\'' +
                 ", input='" + input + '\'' +
                 ", mode='" + mode + '\'' +
                 '}';
+    }
+
+    public String getModelPath() {
+        return modelPath;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    public String getMode() {
+        return mode;
     }
 }

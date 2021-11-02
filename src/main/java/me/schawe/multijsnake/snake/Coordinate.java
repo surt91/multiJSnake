@@ -1,8 +1,8 @@
 package me.schawe.multijsnake.snake;
 
 public class Coordinate {
-    public int x;
-    public int y;
+    private final int x;
+    private final int y;
 
     public int getX() {
         return x;
@@ -19,11 +19,6 @@ public class Coordinate {
 
     public Coordinate copy() {
         return new Coordinate(x, y);
-    }
-
-    public void addAssign(Coordinate other){
-        this.x += other.x;
-        this.y += other.y;
     }
 
     public Coordinate add(Coordinate other){
