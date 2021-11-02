@@ -103,7 +103,7 @@ public class TrainingState {
             state[snake.getHead().getX()][snake.getHead().getY()][1] = 1;
         }
 
-        for(Snake s : gameState.getSnakes()) {
+        for(Snake s : gameState.getSnakeSet()) {
             int ctr = 1;
             for(Coordinate site : s.getTail()) {
                 state[site.getX()][site.getY()][2] = ctr;

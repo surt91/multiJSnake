@@ -251,7 +251,7 @@ class GameStateTest {
     void addAi() {
         SnakeId id1 = gameState.addAISnake(new RandomAutopilot());
         SnakeId id2 = gameState.addAISnake(new GreedyAutopilot());
-        assertEquals(2, gameState.getSnakes().size());
+        assertEquals(2, gameState.getSnakeSet().size());
         gameState.setPause(false);
         gameState.update();
     }
@@ -262,7 +262,7 @@ class GameStateTest {
         for(String id : a.getAutopilots().keySet()) {
             gameState.addAISnake(a.build(id));
         }
-        assertEquals(a.getAutopilots().size(), gameState.getSnakes().size());
+        assertEquals(a.getAutopilots().size(), gameState.getSnakeSet().size());
         gameState.setPause(false);
         gameState.update();
     }

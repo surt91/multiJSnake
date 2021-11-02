@@ -55,7 +55,7 @@ export function draw(ctx, state, options) {
         ctx.fillRect(x * scale, y * scale, scale, scale);
     }
 
-    state.snakes.forEach(snake => drawSnake(ctx, snake, options));
+    Object.values(state.snakes).forEach(snake => drawSnake(ctx, snake, options));
 
     if(blurred) {
         ctx.fillStyle = "#cccc22";

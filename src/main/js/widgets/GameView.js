@@ -36,7 +36,7 @@ export class GameView extends React.Component {
                 width: 20,
                 height: 20,
                 food: {x: -1, y: -1},
-                snakes: [],
+                snakes: {},
             },
             highscores: [],
             globalHighscores: [],
@@ -155,6 +155,10 @@ export class GameView extends React.Component {
         }
     }
 
+    nameFromGameState() {
+        return this.state.game && this.state.idx >= 0 && this.state.game.snakes[this.state.idx].name || "Anonymous";
+    }
+
     updateGameState(message) {
         const gameState = JSON.parse(message.body);
         this.setState({
@@ -190,8 +194,9 @@ export class GameView extends React.Component {
         if (playerName !== undefined && playerName !== null) {
             this.handleNameCommit(playerName)
         } else {
+            const playerName = this.nameFromGameState();
             this.setState({
-                playerName: this.state.game.snakes[this.state.idx].name
+                playerName: playerName
             });
         }
     }

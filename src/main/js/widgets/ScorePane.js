@@ -9,7 +9,7 @@ class ScorePane extends React.Component {
     }
 
     render() {
-        const scores = this.props.game.snakes.map(snake => {
+        const scores = Object.values(this.props.game.snakes).map(snake => {
             return {
                 idx: snake.idx,
                 playerName: snake.name,

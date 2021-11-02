@@ -27,6 +27,8 @@ public class GameState {
         this.id = id;
         this.width = width;
         this.height = height;
+        this.random = random;
+
         score = 0;
         snakes = new HashMap<>();
         toBeRemoved = new ArrayList<>();
@@ -34,7 +36,7 @@ public class GameState {
         paused = true;
         gameOver = false;
         this.snakeDiesCallback = x -> {};
-        this.random = random;
+
 
         created = Instant.now();
         monotonousSnakeCounter = 0;
@@ -76,8 +78,16 @@ public class GameState {
         return score;
     }
 
-    public List<Snake> getSnakes() {
-        return new ArrayList<>(snakes.values());
+    public Map<Integer, Snake> getSnakes() {
+        Map<Integer, Snake> out = new HashMap<>();
+        for(Map.Entry<SnakeId, Snake> entry : snakes.entrySet()) {
+            out.put(entry.getKey().idx, entry.getValue());
+        }
+        return out;
+    }
+
+    public Collection<Snake> getSnakeSet() {
+        return snakes.values();
     }
 
     public Snake getSnake(SnakeId snakeId) {
@@ -122,7 +132,7 @@ public class GameState {
     }
 
     public SnakeId addSnake(Coordinate coordinate, Move direction, Optional<Autopilot> autopilot) {
-        int idx = ++monotonousSnakeCounter;
+        int idx = monotonousSnakeCounter++;
         SnakeId snakeId = new SnakeId(this.id, idx);
         Snake snake = new Snake(snakeId, coordinate, direction, autopilot);
         snakes.put(snakeId, snake);

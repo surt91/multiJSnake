@@ -7,7 +7,7 @@ class JsGameState {
         this.width = w;
         this.height = h;
         this.food = {x: -1, y: -1};
-        this.snakes = [new JsSnake()];
+        this.snakes = {0: new JsSnake()};
 
         this.delay_ctr = 0;
 
@@ -17,7 +17,7 @@ class JsGameState {
     // TODO: do something better, a hashmap or bitmap, or something
     isOccupied(site) {
         let {x, y} = site;
-        return this.snakes.some(snake => snake.tail.some(site => site.x === x && site.y === y));
+        return Object.values(this.snakes).some(snake => snake.tail.some(site => site.x === x && site.y === y));
     }
 
     isWall(site) {
