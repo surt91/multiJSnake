@@ -35,12 +35,14 @@ public class WebSocketService {
                 MESSAGE_PREFIX + "/newGlobalHighscore", repo.findTop10ByOrderByScoreDesc());
     }
 
-    public void publishIdx(String sessionId, int idx) {
+    public void notifyJoined(PlayerInfo playerInfo) {
+        PlayerInfoForClient payload = new PlayerInfoForClient(playerInfo);
+        System.out.println("notify" + playerInfo);
         this.websocket.convertAndSendToUser(
-                sessionId,
-                "/queue/getIdx",
-                idx,
-                createHeaders(sessionId)
+                playerInfo.getSessionId(),
+                "/queue/joined",
+                payload,
+                createHeaders(playerInfo.getSessionId())
         );
     }
 

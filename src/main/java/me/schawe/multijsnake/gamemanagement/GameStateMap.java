@@ -12,43 +12,50 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class GameStateMap {
-    private final ConcurrentHashMap<String, GameState> gameStateMap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, SnakeId> sessionMap = new ConcurrentHashMap<>();
     private final WebSocketService webSocketService;
     private final HighscoreRepository highscoreRepository;
 
+    private final ConcurrentHashMap<String, GameState> gameStateMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<PlayerId, PlayerInfo> playerInfoMap = new ConcurrentHashMap<>();
+
     private final Map<String, AutopilotDescription> aiDescriptionMap;
+
+    private final Random random;
 
     GameStateMap(WebSocketService webSocketService, HighscoreRepository highscoreRepository) {
         this.webSocketService = webSocketService;
         this.highscoreRepository = highscoreRepository;
 
         this.aiDescriptionMap = aiDescriptions();
+
+        random = new Random();
     }
 
-    public GameState newGameState(int w, int h, long seed) {
-        GameState gameState = new GameState(w, h, seed);
-        return initGamestate(gameState);
+    private GameState newGame(int width, int height, long seed) {
+        GameState gameState = new GameState(width, height, seed);
+        return initGameState(gameState);
     }
 
-    public GameState newGameState(int w, int h, String id) {
-        GameState gameState = new GameState(w, h, id);
-        return initGamestate(gameState);
+    private GameState newGame(int width, int height, String id) {
+        GameState gameState = new GameState(width, height, id);
+        return initGameState(gameState);
     }
 
-    public GameState newGameState(int w, int h) {
-        GameState gameState = new GameState(w, h);
-        return initGamestate(gameState);
+    private GameState newGame(int width, int height) {
+        GameState gameState = new GameState(width, height);
+        return initGameState(gameState);
     }
 
-    private GameState initGamestate(GameState gameState) {
-        int size = gameState.getWidth()*gameState.getHeight();
+    private GameState initGameState(GameState gameState) {
+        int size = gameState.getWidth() * gameState.getHeight();
         gameState.setSnakeDiesCallback(x -> updateHighscore(x, size));
 
-        if(gameStateMap.containsKey(gameState.getId())) {
+        String gameId = gameState.getId();
+
+        if(gameStateMap.containsKey(gameId)) {
             throw new InvalidMapException("This id '" + gameState.getId() + "' already exists!");
         }
-        gameStateMap.put(gameState.getId(), gameState);
+        gameStateMap.put(gameId, gameState);
 
         return gameState;
     }
@@ -94,7 +101,7 @@ public class GameStateMap {
         webSocketService.updateGlobalHighscore();
     }
 
-    GameState get(String id) {
+    GameState idToGame(String id) {
         if(!gameStateMap.containsKey(id)) {
             throw new InvalidMapException(id);
         }
@@ -102,84 +109,89 @@ public class GameStateMap {
         return gameStateMap.get(id);
     }
 
-    SnakeId session2id(String sessionId) {
-        if(!sessionMap.containsKey(sessionId)) {
-            throw new InvalidMapException("");
-        }
-
-        return sessionMap.get(sessionId);
-    }
-
     void close(String id) {
         gameStateMap.remove(id);
     }
 
-    void put(String id, GameState state) {
-        gameStateMap.put(id, state);
+    private void registerPlayer(PlayerId playerId, PlayerInfo playerInfo) {
+        playerInfoMap.put(playerId, playerInfo);
     }
 
-    void putSession(String sessionId, SnakeId id) {
-        sessionMap.put(sessionId, id);
+    private SnakeId playerToSnake(PlayerId playerId) {
+        if(!playerInfoMap.containsKey(playerId)) {
+            throw new InvalidMapException("PlayerId: " + playerId.getId());
+        }
+
+        return playerInfoMap.get(playerId).getSnakeId();
     }
 
     public Set<String> allIds() {
         return gameStateMap.keySet();
     }
 
-    public void pause(String sessionId) {
-        SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.getId());
+    public void pause(PlayerId playerId) {
+        SnakeId snakeId = playerToSnake(playerId);
+        GameState state = idToGame(snakeId.getId());
         state.setPause(true);
         webSocketService.update(state);
     }
 
-    public void unpause(String sessionId) {
-        SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.getId());
+    public void unpause(PlayerId playerId) {
+        SnakeId snakeId = playerToSnake(playerId);
+        GameState state = idToGame(snakeId.getId());
         state.setPause(false);
         webSocketService.update(state);
     }
 
-    public void reset(String sessionId) {
-        SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.getId());
+    public void reset(PlayerId playerId) {
+        SnakeId snakeId = playerToSnake(playerId);
+        GameState state = idToGame(snakeId.getId());
         state.reset();
         webSocketService.update(state);
     }
 
-    public void join(String sessionId, String id) {
+    public PlayerId joinNewGame(String sessionId, String id, int width, int height) {
+        newGame(width, height, id);
+
+        return join(sessionId, id);
+    }
+
+    public PlayerId join(String sessionId, String id) {
         // if the id does not exist, make it exist
         if(!gameStateMap.containsKey(id)) {
-            newGameState(20, 20, id);
+            newGame(20, 20, id);
         }
 
-        SnakeId snakeId = get(id).addSnake();
-
-        putSession(sessionId, snakeId);
-        GameState state = get(id);
+        SnakeId snakeId = idToGame(id).addSnake();
+        PlayerId playerId = new PlayerId(IdGenerator.gen(random));
+        PlayerInfo playerInfo = new PlayerInfo(playerId, snakeId, sessionId);
+        registerPlayer(playerId, playerInfo);
+        GameState state = idToGame(id);
 
         webSocketService.update(state);
         webSocketService.updateHighscore(state.getWidth()*state.getHeight());
         webSocketService.updateGlobalHighscore();
-        webSocketService.publishIdx(sessionId, snakeId.getIdx());
+        webSocketService.notifyJoined(playerInfo);
+
+        return playerId;
     }
 
-    public void move(String sessionId, Move move) {
-        SnakeId snakeId = session2id(sessionId);
-        get(snakeId.getId()).turn(snakeId, move);
+    public void move(PlayerId playerId, Move move) {
+        SnakeId snakeId = playerToSnake(playerId);
+        idToGame(snakeId.getId()).turn(snakeId, move);
     }
 
-    public void setName(String sessionId, String name) {
-        SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.getId());
+    public void setName(PlayerId playerId, String name) {
+        SnakeId snakeId = playerToSnake(playerId);
+        GameState state = idToGame(snakeId.getId());
         state.changeName(snakeId, name);
 
         webSocketService.update(state);
     }
 
-    public void addAI(String sessionId, String key) {
-        SnakeId snakeId = session2id(sessionId);
-        GameState state = get(snakeId.getId());
+    public void addAI(PlayerId playerId, String key) {
+        SnakeId snakeId = playerToSnake(playerId);
+        GameState state = idToGame(snakeId.getId());
 
         Autopilot autopilot = new AutopilotFactory().build(key);
 
@@ -194,5 +206,9 @@ public class GameStateMap {
 
     public List<AutopilotDescription> listAi() {
         return new ArrayList<>(aiDescriptionMap.values());
+    }
+
+    public Optional<PlayerInfo> findPlayerBySession(String sessionId) {
+        return playerInfoMap.values().stream().filter(info -> info.getSessionId().equals(sessionId)).findFirst();
     }
 }

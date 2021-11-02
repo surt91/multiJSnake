@@ -5,6 +5,7 @@ import {
     Container,
     Grid,
 } from "@mui/material";
+import genId from "../GenId"
 import Canvas from "../visualization/canvas";
 import {draw} from "../visualization/canvasDraw";
 import PropTypes from "prop-types";
@@ -72,43 +73,24 @@ export class GameView extends React.Component {
         }
     }
 
-    newGame(w, h) {
+    newGame(width, height) {
         this.id = undefined;
-        this.init(w, h);
+        this.init(width, height);
     }
 
-    init(w, h) {
+    init(width, height) {
         // check if we are joining an existing game, or starting a new one
         // https://stackoverflow.com/a/901144
 
         if(this.id === undefined) {
-            fetch(`/api/init/${w}/${h}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }).then(response => response.json())
-                .then((x) => {
-                    this.id = x.id;
-                    this.join(this.id);
-                });
+            this.joinNewGame(width, height)
         } else {
             this.join(this.id);
         }
     }
 
-    join(id) {
-        if (id === undefined) {
-            // TODO: raise an error
-            return;
-        }
-
-        const url = window.location.origin + `?id=${id}`;
-
-        this.setState({
-            shareUrl: url,
-            id: id
-        });
+    joinNewGame(width, height) {
+        let id = genId(10);
 
         if(this.stompClient !== undefined) {
             // if we are already joined to a game, disconnect the existing
@@ -120,32 +102,85 @@ export class GameView extends React.Component {
             {route: '/topic/update/' + id, callback: this.updateGameState},
             {route: '/topic/newHighscore', callback: this.updateHighscore},
             {route: '/topic/newGlobalHighscore', callback: this.updateGlobalHighscore},
-            {route: '/user/queue/getIdx', callback: this.updateIdentity},
+            {route: '/user/queue/joined', callback: this.updateIdentity},
         ]);
 
         this.stompClient.bufferedPublish({
-            destination: '/app/join',
-            body: id
+            destination: `/app/joinNewGame/${id}/${width}/${height}`,
+            body: JSON.stringify({})
         });
+    }
+
+    join(id) {
+        if (id === undefined) {
+            // TODO: raise an error
+            return;
+        }
+
+        if(this.stompClient !== undefined) {
+            // if we are already joined to a game, disconnect the existing
+            // client before joining with a new one
+            this.stompClient.deactivate();
+        }
+
+        this.stompClient = registerStomp([
+            {route: '/topic/update/' + id, callback: this.updateGameState},
+            {route: '/topic/newHighscore', callback: this.updateHighscore},
+            {route: '/topic/newGlobalHighscore', callback: this.updateGlobalHighscore},
+            {route: '/user/queue/joined', callback: this.updateIdentity},
+        ]);
+
+        this.stompClient.bufferedPublish({
+            destination: `/app/join/${id}`,
+            body: JSON.stringify({})
+        });
+    }
+
+    updateIdentity(message) {
+        const playerInfo = JSON.parse(message.body);
+
+        this.id = playerInfo.gameId;
+        this.playerId = playerInfo.playerId;
+        console.log(message.body)
+        console.log(this.id)
+        console.log(this.playerId)
+
+        const url = window.location.origin + `?id=${this.id}`;
+        this.setState({
+            shareUrl: url,
+            idx: playerInfo.idx
+        });
+
+        // as soon as we know hwo we are, look if we have
+        // a saved name and notify the server in that case
+        let playerName = localStorage.getItem('playerName');
+        if (playerName !== undefined && playerName !== null) {
+            this.handleNameCommit(playerName)
+        } else {
+            const playerName = this.nameFromGameState();
+            this.setState({
+                playerName: playerName
+            });
+        }
     }
 
     move(dir) {
         this.stompClient.bufferedPublish({
-            destination: "/app/move",
+            destination: `/app/move/${this.playerId}`,
             body: JSON.stringify(dir)
         });
     }
 
     reset() {
         this.stompClient.bufferedPublish({
-            destination: "/app/reset"
+            destination: `/app/reset/${this.playerId}`
         });
     }
 
     unpause() {
         if(this.state.game.paused) {
             this.stompClient.bufferedPublish({
-                destination: "/app/unpause"
+                destination: `/app/unpause/${this.playerId}`
             });
         }
     }
@@ -153,7 +188,7 @@ export class GameView extends React.Component {
     pause() {
         if(!this.state.game.paused) {
             this.stompClient.bufferedPublish({
-                destination: "/app/pause"
+                destination: `/app/pause/${this.playerId}`
             });
         }
     }
@@ -195,23 +230,6 @@ export class GameView extends React.Component {
         this.setState({globalHighscores: highscores});
     }
 
-    updateIdentity(message) {
-        const ownIdx = message.body;
-        this.setState({idx: ownIdx});
-
-        // as soon as we know hwo we are, look if we have
-        // a saved name and notify the server in that case
-        let playerName = localStorage.getItem('playerName');
-        if (playerName !== undefined && playerName !== null) {
-            this.handleNameCommit(playerName)
-        } else {
-            const playerName = this.nameFromGameState();
-            this.setState({
-                playerName: playerName
-            });
-        }
-    }
-
     handleKeydown(e) {
         switch (e.code) {
             case "ArrowUp":
@@ -250,7 +268,7 @@ export class GameView extends React.Component {
     handleNameCommit(newName) {
         if(this.stompClient) {
             this.stompClient.bufferedPublish({
-                destination: "/app/setName",
+                destination: `/app/setName/${this.playerId}`,
                 body: newName
             });
         }
@@ -263,7 +281,7 @@ export class GameView extends React.Component {
     addAutopilot(obj) {
         let type = obj.id;
         this.stompClient.bufferedPublish({
-            destination: "/app/addAI",
+            destination: `/app/addAI/${this.playerId}`,
             body: type
         });
     }

@@ -16,4 +16,12 @@ public class SnakeId {
     public int getIdx() {
         return idx;
     }
+
+    @Override
+    public String toString() {
+        return "SnakeId{" +
+                "id='" + id + '\'' +
+                ", idx=" + idx +
+                '}';
+    }
 }
