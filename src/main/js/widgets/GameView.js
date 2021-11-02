@@ -1,6 +1,6 @@
 import React from "react";
 import {registerTouch} from "../registerTouch";
-import {registerStompPromise} from "../websocket-listener";
+import {registerStomp} from "../websocket-listener";
 import {
     Container,
     Grid,
@@ -110,40 +110,51 @@ export class GameView extends React.Component {
             id: id
         });
 
-        if(this.stompClientPromise !== undefined) {
+        if(this.stompClient !== undefined) {
             // if we are already joined to a game, disconnect the existing
             // client before joining with a new one
-            this.stompClientPromise.then(x => x.unsubscribeAll());
+            this.stompClient.deactivate();
         }
 
-        this.stompClientPromise = registerStompPromise([
+        this.stompClient = registerStomp([
             {route: '/topic/update/' + id, callback: this.updateGameState},
             {route: '/topic/newHighscore', callback: this.updateHighscore},
             {route: '/topic/newGlobalHighscore', callback: this.updateGlobalHighscore},
             {route: '/user/queue/getIdx', callback: this.updateIdentity},
-        ]).then(x => {
-            x.send("/app/join", {}, id);
-            return x;
+        ]);
+
+        this.stompClient.bufferedPublish({
+            destination: '/app/join',
+            body: id
         });
     }
 
     move(dir) {
-        this.stompClientPromise.then(x => x.send("/app/move", {}, JSON.stringify(dir)));
+        this.stompClient.bufferedPublish({
+            destination: "/app/move",
+            body: JSON.stringify(dir)
+        });
     }
 
     reset() {
-        this.stompClientPromise.then(x => x.send("/app/reset", {}, ""));
+        this.stompClient.bufferedPublish({
+            destination: "/app/reset"
+        });
     }
 
     unpause() {
         if(this.state.game.paused) {
-            this.stompClientPromise.then(x => x.send("/app/unpause", {}, ""));
+            this.stompClient.bufferedPublish({
+                destination: "/app/unpause"
+            });
         }
     }
 
     pause() {
         if(!this.state.game.paused) {
-            this.stompClientPromise.then(x => x.send("/app/pause", {}, ""));
+            this.stompClient.bufferedPublish({
+                destination: "/app/pause"
+            });
         }
     }
 
@@ -237,8 +248,11 @@ export class GameView extends React.Component {
     }
 
     handleNameCommit(newName) {
-        if(this.stompClientPromise) {
-            this.stompClientPromise.then(x => x.send("/app/setName", {}, newName));
+        if(this.stompClient) {
+            this.stompClient.bufferedPublish({
+                destination: "/app/setName",
+                body: newName
+            });
         }
         localStorage.setItem('playerName', newName);
         this.setState({
@@ -248,7 +262,10 @@ export class GameView extends React.Component {
 
     addAutopilot(obj) {
         let type = obj.id;
-        this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
+        this.stompClient.bufferedPublish({
+            destination: "/app/addAI",
+            body: type
+        });
     }
 
     render() {
