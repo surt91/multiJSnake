@@ -134,7 +134,7 @@ public class TrainingState {
                 // right
                 return lastHeadDirection.rRight();
             default:
-                throw new RuntimeException("invalid relative direction: " + action);
+                throw new InvalidMoveException("invalid relative direction: " + action);
         }
     }
 
@@ -153,7 +153,7 @@ public class TrainingState {
                 // west
                 return Move.left;
             default:
-                throw new RuntimeException("invalid absolute direction: " + action);
+                throw new InvalidMoveException("invalid absolute direction: " + action);
         }
     }
 }

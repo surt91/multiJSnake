@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class MultiJSnakeController {
+public class GameController {
     private final GameStateMap map;
 
-    MultiJSnakeController(GameStateMap map, WebSocketService webSocketService) {
+    GameController(GameStateMap map, WebSocketService webSocketService) {
         this.map = map;
     }
 

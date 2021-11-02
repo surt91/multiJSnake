@@ -16,6 +16,6 @@ public enum MoveRelative {
         }
 
         // this will not happen, since the switch is exhaustive
-        throw new InvalidMoveException();
+        throw new InvalidMoveException("this relative move is not possible");
     }
 }

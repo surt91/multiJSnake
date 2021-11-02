@@ -16,8 +16,10 @@ public class GameState {
     private boolean paused;
     private boolean gameOver;
     private final List<SnakeId> toBeRemoved;
+    // TODO: replace by event listener
     private Consumer<Snake> snakeDiesCallback;
-    private Random random = new Random();
+    private final Random random;
+    private int monotonousSnakeCounter;
 
     Instant created;
 
@@ -32,8 +34,10 @@ public class GameState {
         paused = true;
         gameOver = false;
         this.snakeDiesCallback = x -> {};
+        this.random = random;
 
         created = Instant.now();
+        monotonousSnakeCounter = 0;
 
         addFood();
     }
@@ -101,10 +105,6 @@ public class GameState {
         snakes.get(id).setName(name);
     }
 
-    public void reseed(long seed) {
-        random = new Random(seed);
-    }
-
     public SnakeId addSnake() {
         return addSnake(randomSite());
     }
@@ -114,17 +114,17 @@ public class GameState {
     }
 
     public SnakeId addSnake(Coordinate coordinate, Move direction) {
-        // FIXME this dows not work anymore if a player leaves!
-        int idx = snakes.size();
-        SnakeId snakeId = new SnakeId(this.id, idx);
-        snakes.put(snakeId, new Snake(snakeId, coordinate, direction));
-        return snakeId;
+        return addSnake(coordinate, direction, Optional.empty());
     }
 
     public SnakeId addAISnake(Autopilot autopilot) {
-        int idx = snakes.size();
+        return addSnake(randomSite(), Move.random(random), Optional.of(autopilot));
+    }
+
+    public SnakeId addSnake(Coordinate coordinate, Move direction, Optional<Autopilot> autopilot) {
+        int idx = ++monotonousSnakeCounter;
         SnakeId snakeId = new SnakeId(this.id, idx);
-        Snake snake = new Snake(snakeId, randomSite(), random, autopilot);
+        Snake snake = new Snake(snakeId, coordinate, direction, autopilot);
         snakes.put(snakeId, snake);
         return snakeId;
     }
@@ -173,7 +173,7 @@ public class GameState {
     }
 
     public void turn(SnakeId id, Move move) {
-        Snake snake = snakes.get(id);
+        Snake snake = getSnake(id);
         if(!snake.isDead()) {
             snake.setHeadDirection(
                     move.toNext(snake.getLastHeadDirection())
@@ -204,6 +204,7 @@ public class GameState {
         long numActivePlayers = snakes.values().stream()
                 .filter(snake -> snake.ai().isEmpty() && !toBeRemoved.contains(snake.getId()))
                 .count();
+
         // we do not want to abandon fresh games, before someone joined, so we give them a minute to join
         return created.plusSeconds(60).isBefore(Instant.now()) && numActivePlayers == 0;
     }
@@ -213,8 +214,8 @@ public class GameState {
     }
 
     public void reset() {
-        for(SnakeId key : toBeRemoved) {
-            snakes.remove(key);
+        for(SnakeId snakeId : toBeRemoved) {
+            snakes.remove(snakeId);
         }
         toBeRemoved.clear();
 
