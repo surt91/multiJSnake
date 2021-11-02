@@ -62,7 +62,6 @@ export class GameView extends React.Component {
 
         axios.get("/api/listAi")
             .then(response => {
-                console.log(response.data);
                 this.setState({aiOptions: response.data});
             });
     }
@@ -188,7 +187,6 @@ export class GameView extends React.Component {
         // as soon as we know hwo we are, look if we have
         // a saved name and notify the server in that case
         let playerName = localStorage.getItem('playerName');
-        console.log(playerName);
         if (playerName !== undefined && playerName !== null) {
             this.handleNameCommit(playerName)
         } else {
@@ -245,7 +243,6 @@ export class GameView extends React.Component {
 
     addAutopilot(obj) {
         let type = obj.id;
-        console.log("add " + type);
         this.stompClientPromise.then(x => x.send("/app/addAI", {}, type));
     }
 

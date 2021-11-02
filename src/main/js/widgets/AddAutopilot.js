@@ -10,7 +10,6 @@ class AddAutopilot extends React.Component {
     }
 
     setValue(newValue) {
-        console.log("chosen: "+newValue)
         this.setState({
             value: newValue
         })

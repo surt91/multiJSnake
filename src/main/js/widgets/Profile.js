@@ -19,8 +19,6 @@ class Profile extends React.Component {
     }
 
     getUserData() {
-        console.log("get user data");
-        console.log(authHeader());
         axios.get('/api/user/profile', { headers: authHeader() })
             .then(response => this.setState({user: response.data}))
             .catch(_ => this.setState({user: undefined}));

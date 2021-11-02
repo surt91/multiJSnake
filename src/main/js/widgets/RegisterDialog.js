@@ -35,7 +35,6 @@ const RegisterDialog = (props) => {
                     props.onSuccess(values);
                 })
                 .catch(errors => {
-                    console.log(errors);
                     if(errors.response.status === 400) {
                         formik.setErrors(errors.response.data);
                     }
