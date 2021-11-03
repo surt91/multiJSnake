@@ -21,8 +21,6 @@ public class GameState {
     private final Random random;
     private int monotonousSnakeCounter;
 
-    Instant created;
-
     public GameState(int width, int height, Random random, String id) {
         this.id = id;
         this.width = width;
@@ -37,8 +35,6 @@ public class GameState {
         gameOver = false;
         this.snakeDiesCallback = x -> {};
 
-
-        created = Instant.now();
         monotonousSnakeCounter = 0;
 
         addFood();
@@ -215,8 +211,8 @@ public class GameState {
                 .filter(snake -> snake.ai().isEmpty() && !toBeRemoved.contains(snake.getId()))
                 .count();
 
-        // we do not want to abandon fresh games, before someone joined, so we give them a minute to join
-        return created.plusSeconds(60).isBefore(Instant.now()) && numActivePlayers == 0;
+        // games can only be created by joining, so if there are no active players, it is abandoned
+        return numActivePlayers == 0;
     }
 
     public void markForRemoval(SnakeId id) {

@@ -86,20 +86,12 @@ class GameStateTest {
 
     @Test
     void abandoned() {
-        assertFalse(gameState.isAbandoned());
+        assertTrue(gameState.isAbandoned());
         SnakeId id = gameState.addSnake();
-        gameState.created = Instant.now().minusSeconds(100);
         assertFalse(gameState.isAbandoned());
         SnakeId id1 = gameState.addAISnake(new RandomAutopilot());
         assertFalse(gameState.isAbandoned());
         gameState.markForRemoval(id);
-        assertTrue(gameState.isAbandoned());
-    }
-
-    @Test
-    void abandonedAfterTime() {
-        assertFalse(gameState.isAbandoned());
-        gameState.created = Instant.now().minusSeconds(100);
         assertTrue(gameState.isAbandoned());
     }
 
