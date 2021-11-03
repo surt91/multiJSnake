@@ -36,8 +36,6 @@ public class GameState {
         this.snakeDiesCallback = x -> {};
 
         monotonousSnakeCounter = 0;
-
-        addFood();
     }
 
     public GameState(int width, int height, long seed) {
@@ -202,7 +200,7 @@ public class GameState {
 
     public void kill(SnakeId id) {
         Snake snake = getSnake(id);
-        // killing snakes twice does lead to double highscores
+        // killing snakes twice would lead to double highscores
         if (!snake.isDead()) {
             snake.kill();
             snakeDiesCallback.accept(snake);

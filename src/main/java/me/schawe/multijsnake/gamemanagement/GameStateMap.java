@@ -1,9 +1,8 @@
 package me.schawe.multijsnake.gamemanagement;
 
-import me.schawe.multijsnake.highscore.Highscore;
-import me.schawe.multijsnake.highscore.HighscoreRepository;
 import me.schawe.multijsnake.snake.*;
 import me.schawe.multijsnake.snake.ai.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class GameStateMap {
     private final WebSocketService webSocketService;
-    private final HighscoreRepository highscoreRepository;
+    ApplicationEventPublisher applicationEventPublisher;
 
     private final ConcurrentHashMap<String, GameState> gameStateMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerId, PlayerInfo> playerInfoMap = new ConcurrentHashMap<>();
@@ -22,18 +21,14 @@ public class GameStateMap {
 
     private final Random random;
 
-    GameStateMap(WebSocketService webSocketService, HighscoreRepository highscoreRepository) {
+
+    GameStateMap(WebSocketService webSocketService, ApplicationEventPublisher applicationEventPublisher) {
         this.webSocketService = webSocketService;
-        this.highscoreRepository = highscoreRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
 
         this.aiDescriptionMap = aiDescriptions();
 
         random = new Random();
-    }
-
-    private GameState newGame(int width, int height, long seed) {
-        GameState gameState = new GameState(width, height, seed);
-        return initGameState(gameState);
     }
 
     private GameState newGame(int width, int height, String id) {
@@ -41,14 +36,9 @@ public class GameStateMap {
         return initGameState(gameState);
     }
 
-    private GameState newGame(int width, int height) {
-        GameState gameState = new GameState(width, height);
-        return initGameState(gameState);
-    }
-
     private GameState initGameState(GameState gameState) {
         int size = gameState.getWidth() * gameState.getHeight();
-        gameState.setSnakeDiesCallback(x -> updateHighscore(x, size));
+        gameState.setSnakeDiesCallback(x -> snakeDied(x, size));
 
         String gameId = gameState.getId();
 
@@ -85,20 +75,13 @@ public class GameStateMap {
         }
     }
 
-    private void updateHighscore(Snake snake, int size) {
-        var score = snake.getLength();
-
-        // do not save highscore for AI snakes
-        // also do not save very low scores
-        if (snake.ai().isPresent() || score < 5) {
-            return;
-        }
-
-        Date date = new Date();
-        Highscore highscore = new Highscore(score, snake.getName(), size, date);
-        highscoreRepository.save(highscore);
-        webSocketService.updateHighscore(size);
-        webSocketService.updateGlobalHighscore();
+    // TODO: this event should be thrown by `GameState`, but it is currently not part of the DI mechanism
+    // TODO: I would need to declare `GameState` a Component/Bean with Prototype scope
+    // TODO: and in turn can not instantiate myself (in tests, and especially in Python)
+    // TODO: Therefore, I have to refactor the `GameState` and also this class to implement this properly
+    private void snakeDied(Snake snake, int size) {
+        SnakeDiesEvent snakeDiesEvent = new SnakeDiesEvent(this, snake, size);
+        applicationEventPublisher.publishEvent(snakeDiesEvent);
     }
 
     GameState idToGame(String id) {

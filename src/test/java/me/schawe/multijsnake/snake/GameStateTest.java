@@ -6,7 +6,6 @@ import me.schawe.multijsnake.snake.ai.RandomAutopilot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 
