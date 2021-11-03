@@ -1,5 +1,6 @@
 import sys
 from abc import ABC, abstractmethod
+import random
 
 import jpype
 import jpype.imports
@@ -7,7 +8,7 @@ from jpype.types import *
 
 # Launch the JVM
 jpype.startJVM(classpath=['../../../target/classes'])
-from me.schawe.multijsnake.snake import GameState
+from me.schawe.multijsnake.snake import GameState, TrainingState
 
 
 class Snake(ABC):
@@ -25,28 +26,48 @@ class Snake(ABC):
 
     def __init__(self, w=10, h=10, num=1):
         self.gameState = GameState(w, h)
+        self.trainingState = TrainingState(self.gameState)
+        self.num_max = num
         self.num = num
 
         self.gameState.setPause(False)
-        self.idx = self.gameState.addSnake()
-        self.snake = self.gameState.getSnakes()[self.idx]
+        self.snakeId = self.gameState.addSnake()
+        self.snake = self.gameState.getSnake(self.snakeId)
         self.state = []
 
-        self.already_dead = [False for _ in range(num)]
+        self.already_dead = {self.snakeId: False}
 
         self.others = []
         for _ in range(num - 1):
-            idx = self.gameState.addSnake()
-            self.others.append(idx)
+            snakeId = self.gameState.addSnake()
+            self.others.append(snakeId)
+            self.already_dead[snakeId] = False
 
-    def seed(self, seed):
-        self.gameState.reseed(seed)
-        self.reset()
+    def resize_random(self, mini, maxi):
+        w = random.randint(mini, maxi)
+        h = random.randint(mini, maxi)
+
+        self.gameState = GameState(w, h)
+        self.trainingState = TrainingState(self.gameState)
+        self.num = random.randint(1, self.num_max)
+
+        self.gameState.setPause(False)
+        self.snakeId = self.gameState.addSnake()
+        self.snake = self.gameState.getSnake(self.snakeId)
+        self.state = []
+
+        self.already_dead = {self.snakeId: False}
+
+        self.others = []
+        for _ in range(self.num - 1):
+            snakeId = self.gameState.addSnake()
+            self.others.append(snakeId)
+            self.already_dead[snakeId] = False
 
     def reset(self):
         self.gameState.reset()
         self.gameState.setPause(False)
-        self.already_dead = [False for _ in range(self.num)]
+        self.already_dead = {i: False for i in self.already_dead.keys()}
 
         return self.get_state()
 
@@ -78,17 +99,17 @@ class Snake(ABC):
             [scale * food.getX(), scale * food.getY(), scale, scale]
         )
 
-        for s in self.gameState.getSnakes():
+        for s in self.gameState.getSnakeSet():
             pygame.draw.rect(
                 screen,
-                [140, 230, 140] if s.getIdx() == self.idx else [230, 140, 140],
+                [140, 230, 140] if s.getId() == self.snakeId else [230, 140, 140],
                 [scale * s.getHead().getX(), scale * s.getHead().getY(), scale, scale]
             )
 
             for i in s.getTailAsList():
                 pygame.draw.rect(
                     screen,
-                    [80, 230, 80]if s.getIdx() == self.idx else [230, 80, 80],
+                    [80, 230, 80]if s.getId() == self.snakeId else [230, 80, 80],
                     [scale * i.getX(), scale * i.getY(), scale, scale]
                 )
 
@@ -103,9 +124,9 @@ class Snake(ABC):
 
         done = False
         reward = 0
-        if self.snake.isDead() and not self.already_dead[0]:
+        if self.snake.isDead() and not self.already_dead[self.snakeId]:
             reward = -1
-            self.already_dead[0] = True
+            self.already_dead[self.snakeId] = True
         elif self.gameState.isEating(self.snake):
             reward = 1
 
@@ -114,47 +135,50 @@ class Snake(ABC):
 
         return state, reward, done
 
-    def get_reward(self, idx):
+    def get_reward(self, snakeId):
         reward = 0
-        if self.gameState.getSnakes()[idx].isDead() and not self.already_dead[idx]:
+        if self.gameState.getSnake(snakeId).isDead() and not self.already_dead[snakeId]:
             reward = -1
-            self.already_dead[idx] = True
-        elif self.gameState.isEating(self.gameState.getSnakes()[idx]):
+            self.already_dead[snakeId] = True
+        elif self.gameState.isEating(self.gameState.getSnake(snakeId)):
             reward = 1
         return reward
 
-    def is_dead(self, idx):
-        return self.already_dead[idx]
+    def is_dead(self, snakeId):
+        return self.already_dead[snakeId]
 
     def max_reward(self):
         return 150
 
 
 class LocalSnake(Snake):
-    def get_state(self, idx=None):
-        if idx is None:
-            idx = self.idx
-        return self.gameState.trainingState(idx)
+    def get_state(self, snakeId=None):
+        if snakeId is None:
+            snakeId = self.snakeId
+        return self.trainingState.vector(snakeId)
 
     def state_size(self):
         return len(self.get_state())
 
-    def do_action(self, action, idx=None):
-        if idx is None:
-            idx = self.idx
-        self.gameState.turnRelative(idx, action)
+    def do_action(self, action, snakeId=None):
+        if snakeId is None:
+            snakeId = self.snakeId
+        snake = self.gameState.getSnake(snakeId)
+        move = self.trainingState.relativeAction2Move(action, snake.getLastHeadDirection())
+        self.gameState.turn(snakeId, move)
 
 
 class GlobalSnake(Snake):
-    def get_state(self, idx=None):
-        if idx is None:
-            idx = self.idx
-        return self.gameState.trainingBitmap(idx)
+    def get_state(self, snakeId=None):
+        if snakeId is None:
+            snakeId = self.snakeId
+        return self.trainingState.bitmap(snakeId)
 
     def state_size(self):
         return (self.gameState.getWidth(), self.gameState.getHeight(), 3)
 
-    def do_action(self, action, idx=None):
-        if idx is None:
-            idx = self.idx
-        self.gameState.turnAbsolute(idx, action)
+    def do_action(self, action, snakeId=None):
+        if snakeId is None:
+            snakeId = self.snakeId
+        move = self.trainingState.absoluteAction2Move(action)
+        self.gameState.turn(snakeId, move)

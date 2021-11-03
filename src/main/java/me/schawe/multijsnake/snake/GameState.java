@@ -1,8 +1,8 @@
 package me.schawe.multijsnake.snake;
 
+import me.schawe.multijsnake.gamemanagement.InvalidMapException;
 import me.schawe.multijsnake.snake.ai.Autopilot;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -77,7 +77,7 @@ public class GameState {
     public Map<Integer, Snake> getSnakes() {
         Map<Integer, Snake> out = new HashMap<>();
         for(Map.Entry<SnakeId, Snake> entry : snakes.entrySet()) {
-            out.put(entry.getKey().idx, entry.getValue());
+            out.put(entry.getKey().getIdx(), entry.getValue());
         }
         return out;
     }
@@ -87,7 +87,10 @@ public class GameState {
     }
 
     public Snake getSnake(SnakeId snakeId) {
-        assert snakeId.id.equals(id);
+        if (!snakeId.getId().equals(id)) {
+            throw new InvalidMapException("snake " + snakeId + " does not live in GameState " + snakeId.getId());
+        }
+
         return snakes.get(snakeId);
     }
 
@@ -178,6 +181,7 @@ public class GameState {
         food = coordinate;
     }
 
+    // TODO: call turn method on snake?
     public void turn(SnakeId id, Move move) {
         Snake snake = getSnake(id);
         if(!snake.isDead()) {
