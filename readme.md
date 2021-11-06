@@ -10,6 +10,8 @@ It also offers a mode to watch different neural net based autopilots at
 [multijsnake.herokuapp.com/ai](https://multijsnake.herokuapp.com/ai),
 which are executed in your browser.
 
+![A neural net trained on 50000 games](img/snake.gif)
+
 ## Setup
 
 You need Java 11 with Maven for the backend and `npm` to build the frontend. With these prerequisites the server can 
