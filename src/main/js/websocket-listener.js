@@ -2,8 +2,15 @@ import {Client} from "@stomp/stompjs";
 
 // https://stomp-js.github.io/guide/stompjs/using-stompjs-v5.html
 export const registerStomp = (subscriptions) => {
+    let websocketProtocol;
+    if(location.protocol === 'https:') {
+        websocketProtocol = "wss";
+    } else {
+        websocketProtocol = "ws";
+    }
+
     const client = new Client({
-        brokerURL: 'ws://' + window.location.host + '/dynamic',
+        brokerURL: websocketProtocol + '://' + window.location.host + '/dynamic',
         debug: function (str) {
             console.log(str);
         },
