@@ -6,6 +6,8 @@ Snake played on a server -- communication happens mostly via Websockets.
 Play it on [multijsnake.herokuapp.com](https://multijsnake.herokuapp.com/).
 Either alone, with friends (via an invite link) or against computer players.
 
+![Multiple snakes playing against each other](img/multisnake.gif)
+
 It also offers a mode to watch different neural net based autopilots at
 [multijsnake.herokuapp.com/ai](https://multijsnake.herokuapp.com/ai),
 which are executed in your browser.
