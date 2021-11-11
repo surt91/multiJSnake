@@ -1,5 +1,6 @@
 package me.schawe.multijsnake.gamemanagement;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -12,10 +13,13 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 
     static final String MESSAGE_PREFIX = "/topic";
 
+    @Value("${me.schawe.url}")
+    private String hostingUrl;
+
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/dynamic");
-        registry.addEndpoint("/dynamic").withSockJS();
+        registry.addEndpoint("/dynamic").setAllowedOrigins(hostingUrl);
+        registry.addEndpoint("/dynamic").setAllowedOrigins(hostingUrl).withSockJS();
     }
 
     @Override
