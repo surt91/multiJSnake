@@ -1,6 +1,6 @@
 import React from "react";
 import {registerTouch} from "../registerTouch";
-import {registerStomp} from "../websocket-listener";
+import {registerStomp, WebsocketMessage} from "../websockets/websocket-listener";
 import {
     Container,
     Grid,
@@ -8,14 +8,42 @@ import {
 import genId from "../GenId"
 import Canvas from "../visualization/canvas";
 import {draw} from "../visualization/canvasDraw";
-import PropTypes from "prop-types";
 import axios from "axios";
 import PlayerPane from "./PlayerPane";
 import ScorePane from "./ScorePane";
+import {Direction} from "../SnakeLogic/JsSnake";
+import JsGameState from "../SnakeLogic/JsGameState";
+import {AiOption} from "./Ai";
+import {User} from "./Profile";
+import {Score} from "./Scores";
+import BufferedStompClient from "../websockets/BufferedStompClient";
 
-export class GameView extends React.Component {
+type Props = {
+    currentUser?: User
+}
 
-    constructor(props) {
+type State = {
+    aiOptions: AiOption[],
+    game: JsGameState,
+    idx: number,
+    shareUrl: string,
+    playerName: string,
+
+    scale: number,
+    bgColor: string,
+    foodColor: string,
+    blurred: boolean
+
+    highscores: Score[],
+    globalHighscores: Score[],
+}
+
+export class GameView extends React.Component<Props, State> {
+    private id?: string;
+    private stompClient?: BufferedStompClient;
+    private playerId?: string;
+
+    constructor(props: Props) {
         super(props);
 
         const urlSearchParams = new URLSearchParams(window.location.search);
@@ -33,12 +61,7 @@ export class GameView extends React.Component {
             scale: 20,
             foodColor: "#cc2200",
             bgColor: "#000",
-            game: {
-                width: 20,
-                height: 20,
-                food: {x: -1, y: -1},
-                snakes: {},
-            },
+            game: new JsGameState(20, 20), // TODO: replace by a base class without functions
             highscores: [],
             globalHighscores: [],
             idx: -1,
@@ -59,7 +82,7 @@ export class GameView extends React.Component {
 
     componentDidMount() {
         this.init(this.state.game.width, this.state.game.height);
-        registerTouch(dir => this.move(dir), _ => this.unpause());
+        registerTouch((dir: Direction) => this.move(dir), () => this.unpause());
 
         axios.get("/api/listAi")
             .then(response => {
@@ -67,18 +90,18 @@ export class GameView extends React.Component {
             });
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps: Props, prevState: State) {
         if (this.props.currentUser && prevProps.currentUser !== this.props.currentUser) {
             this.handleNameCommit(this.props.currentUser.username)
         }
     }
 
-    newGame(width, height) {
+    newGame(width: number, height: number) {
         this.id = undefined;
         this.init(width, height);
     }
 
-    init(width, height) {
+    init(width: number, height: number) {
         // check if we are joining an existing game, or starting a new one
         // https://stackoverflow.com/a/901144
 
@@ -89,7 +112,7 @@ export class GameView extends React.Component {
         }
     }
 
-    joinNewGame(width, height) {
+    joinNewGame(width: number, height: number) {
         let id = genId(10);
 
         if(this.stompClient !== undefined) {
@@ -111,7 +134,7 @@ export class GameView extends React.Component {
         });
     }
 
-    join(id) {
+    join(id?: string) {
         if (id === undefined) {
             // TODO: raise an error
             return;
@@ -136,7 +159,7 @@ export class GameView extends React.Component {
         });
     }
 
-    updateIdentity(message) {
+    updateIdentity(message: WebsocketMessage) {
         const playerInfo = JSON.parse(message.body);
 
         this.id = playerInfo.gameId;
@@ -164,22 +187,22 @@ export class GameView extends React.Component {
         }
     }
 
-    move(dir) {
-        this.stompClient.bufferedPublish({
+    move(dir: Direction) {
+        this.stompClient && this.stompClient.bufferedPublish({
             destination: `/app/move/${this.playerId}`,
             body: JSON.stringify(dir)
         });
     }
 
     reset() {
-        this.stompClient.bufferedPublish({
+        this.stompClient && this.stompClient.bufferedPublish({
             destination: `/app/reset/${this.playerId}`
         });
     }
 
     unpause() {
         if(this.state.game.paused) {
-            this.stompClient.bufferedPublish({
+            this.stompClient && this.stompClient.bufferedPublish({
                 destination: `/app/unpause/${this.playerId}`
             });
         }
@@ -187,7 +210,7 @@ export class GameView extends React.Component {
 
     pause() {
         if(!this.state.game.paused) {
-            this.stompClient.bufferedPublish({
+            this.stompClient && this.stompClient.bufferedPublish({
                 destination: `/app/pause/${this.playerId}`
             });
         }
@@ -205,14 +228,14 @@ export class GameView extends React.Component {
         return this.state.game && this.state.idx >= 0 && this.state.game.snakes[this.state.idx].name || "Anonymous";
     }
 
-    updateGameState(message) {
+    updateGameState(message: WebsocketMessage) {
         const gameState = JSON.parse(message.body);
         this.setState({
             game: gameState
         });
     }
 
-    updateHighscore(message) {
+    updateHighscore(message: WebsocketMessage) {
         if(message === undefined) {
             return;
         }
@@ -221,7 +244,7 @@ export class GameView extends React.Component {
         this.setState({highscores: highscores});
     }
 
-    updateGlobalHighscore(message) {
+    updateGlobalHighscore(message: WebsocketMessage) {
         if(message === undefined) {
             return;
         }
@@ -230,7 +253,7 @@ export class GameView extends React.Component {
         this.setState({globalHighscores: highscores});
     }
 
-    handleKeydown(e) {
+    handleKeydown(e: KeyboardEvent) {
         switch (e.code) {
             case "ArrowUp":
             case "KeyW":
@@ -261,11 +284,11 @@ export class GameView extends React.Component {
         }
     }
 
-    handleNameChange(newName) {
+    handleNameChange(newName: string) {
         this.setState({playerName: newName});
     }
 
-    handleNameCommit(newName) {
+    handleNameCommit(newName: string) {
         if(this.stompClient) {
             this.stompClient.bufferedPublish({
                 destination: `/app/setName/${this.playerId}`,
@@ -278,9 +301,9 @@ export class GameView extends React.Component {
         });
     }
 
-    addAutopilot(obj) {
+    addAutopilot(obj: AiOption) {
         let type = obj.id;
-        this.stompClient.bufferedPublish({
+        this.stompClient && this.stompClient.bufferedPublish({
             destination: `/app/addAI/${this.playerId}`,
             body: type
         });
@@ -303,7 +326,7 @@ export class GameView extends React.Component {
                             width={this.state.game.width * this.state.scale}
                             height={this.state.game.height * this.state.scale}
                             tabIndex={-1}
-                            onKeyDown={e => this.handleKeydown(e)}
+                            onKeyDown={(e: KeyboardEvent) => this.handleKeydown(e)}
                             focused={b => this.setState({blurred: !b})}
                             sx={{ mx: "auto" }}
                         />
@@ -320,8 +343,8 @@ export class GameView extends React.Component {
                             newGame={(w, h) => this.newGame(w, h)}
                             addAutopilot={name => this.addAutopilot(name)}
                             aiOptions={this.state.aiOptions}
-                            togglePause={_ => this.togglePause()}
-                            reset={_ => this.reset()}
+                            togglePause={() => this.togglePause()}
+                            reset={() => this.reset()}
                         />
                     </Grid>
                     <Grid item xs={12} lg={3}>
@@ -336,10 +359,5 @@ export class GameView extends React.Component {
         )
     }
 }
-
-GameView.propTypes = {
-    currentUser: PropTypes.object
-}
-
 
 

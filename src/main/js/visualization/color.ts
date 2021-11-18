@@ -1,12 +1,13 @@
 
 // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
-function hsv_to_rgb(h, s, v) {
+function hsv_to_rgb(h: number, s: number, v: number) {
     const h_i = Math.floor(h*6);
     const f = h*6 - h_i;
     const p = v * (1 - s);
     const q = v * (1 - f*s);
     const t = v * (1 - (1 - f) * s);
     let r, g, b;
+
     if(h_i===0) {
         [r, g, b] = [v, t, p];
     } else if(h_i===1) {
@@ -19,21 +20,23 @@ function hsv_to_rgb(h, s, v) {
         [r, g, b] = [t, p, v];
     } else if(h_i===5) {
         [r, g, b] = [v, p, q];
+    } else {
+        throw "unreachable";
     }
 
-    function componentToHex(c) {
+    function componentToHex(c: number) {
         const hex = c.toString(16);
         return hex.length === 1 ? "0" + hex : hex;
     }
 
-    function rgbToHex(r, g, b) {
+    function rgbToHex(r: number, g: number, b: number) {
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
 
     return rgbToHex(Math.floor(r*256), Math.floor(g*256), Math.floor(b*256));
 }
 
-function hue_from_idx(n) {
+function hue_from_idx(n: number) {
     const GOLDEN_RATIO_CONJUGATE = 0.618033988749895
     const HUE = 0.3;
 
@@ -43,12 +46,12 @@ function hue_from_idx(n) {
     return h;
 }
 
-export function idx2color(n) {
+export function idx2color(n: number ) {
     const h = hue_from_idx(n);
     return hsv_to_rgb(h, 0.5, 0.95);
 }
 
-export function desaturized_idx2color(n) {
+export function desaturized_idx2color(n: number) {
     const h = hue_from_idx(n);
     return hsv_to_rgb(h, 0.25, 0.75);
 }

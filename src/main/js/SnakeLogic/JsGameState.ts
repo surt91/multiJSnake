@@ -1,13 +1,30 @@
-import JsSnake from "./JsSnake";
+import JsSnake, {Coordinate, Direction} from "./JsSnake";
+
+export interface SnakeMap {
+    [propName: number]: JsSnake;
+}
 
 /// implementation of the same logic as on the server side (but only for a single snake
 /// this is useful to let it run at a higher framerate client-side (currently for demoing the autopilot)
 class JsGameState {
-    constructor(w, h) {
-        this.width = w;
-        this.height = h;
+    public readonly width: number;
+    public readonly height: number;
+    public food: { x: number; y: number } | null;
+    public readonly snakes: SnakeMap;
+
+    // properties not needed for this class but present in the server response
+    public paused: boolean;
+    public gameOver: boolean;
+
+    private delay_ctr: number;
+
+    constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
         this.food = {x: -1, y: -1};
-        this.snakes = {0: new JsSnake()};
+        this.snakes = {0: new JsSnake({x: 0, y: 0})};
+        this.paused = false;
+        this.gameOver = false;
 
         this.delay_ctr = 0;
 
@@ -15,22 +32,26 @@ class JsGameState {
     }
 
     // TODO: do something better, a hashmap or bitmap, or something
-    isOccupied(site) {
-        let {x, y} = site;
-        return Object.values(this.snakes).some(snake => snake.tail.some(site => site.x === x && site.y === y));
+    isOccupied(site: Coordinate) {
+        const {x, y} = site;
+        return Object.values(this.snakes).some(
+            snake => snake.tail.some(
+                (site: Coordinate) => site.x === x && site.y === y
+            )
+        );
     }
 
-    isWall(site) {
-        let {x, y} = site;
+    isWall(site: Coordinate) {
+        const {x, y} = site;
         return x < 0 || x >= this.width || y < 0 || y >= this.height;
     }
 
-    isEating(snake) {
+    isEating(snake: JsSnake) {
         return this.food && snake.head.x === this.food.x && snake.head.y === this.food.y;
     }
 
     checkPerfectGame() {
-        let occupied_fields = this.snakes[0].length + 1;  // +1 for the head
+        const occupied_fields = this.snakes[0].length + 1;  // +1 for the head
         return occupied_fields === this.width * this.height - 1; // -1 to place new food
     }
 
@@ -99,11 +120,11 @@ class JsGameState {
     /// 0/1: its left
     /// 0/1: its right
     trainingState() {
-        let snake = this.snakes[0];
+        const snake = this.snakes[0];
         let state = [];
 
-        let rad = this.angle(snake.head, snake.headDirection, this.food);
-        let eps = 1e-6;
+        const rad = this.food === null ? 0 : this.angle(snake.head, snake.headDirection, this.food);
+        const eps = 1e-6;
 
         // is food in front?
         if (Math.abs(rad) < Math.PI / 2 - eps) {
@@ -166,16 +187,16 @@ class JsGameState {
         return state;
     }
 
-    danger(site) {
+    danger(site: Coordinate) {
         if(this.isOccupied(site) || this.isWall(site))
             return 1;
         return 0;
     }
 
-    angle(subject, direction, object) {
+    angle(subject: Coordinate, direction: Direction, object: Coordinate) {
         let rad;
-        let dx = object.x - subject.x;
-        let dy = object.y - subject.y;
+        const dx = object.x - subject.x;
+        const dy = object.y - subject.y;
 
         // apply coordinate rotation, such that the snake always looks to the right
         // from the point of view of the atan
@@ -198,8 +219,8 @@ class JsGameState {
         return rad;
     }
 
-    relativeAction2Move(action) {
-        let snake = this.snakes[0];
+    relativeAction2Move(action: number) {
+        const snake = this.snakes[0];
         switch(action) {
             case 0:
                 // left
@@ -215,8 +236,8 @@ class JsGameState {
         }
     }
 
-    absoluteAction2Move(action) {
-        let snake = this.snakes[0];
+    absoluteAction2Move(action: number) {
+        const snake = this.snakes[0];
         switch (action) {
             case 0:
                 // north
@@ -237,7 +258,7 @@ class JsGameState {
         }
     }
 
-    next_site(site, direction) {
+    next_site(site: Coordinate, direction: Direction) {
         switch (direction) {
             case "up":
                 // north
@@ -254,7 +275,7 @@ class JsGameState {
         }
     }
 
-    rLeft(direction) {
+    rLeft(direction: Direction) {
         switch(direction) {
             case "up":
                 return "left";
@@ -267,7 +288,7 @@ class JsGameState {
         }
     }
 
-    rRight(direction) {
+    rRight(direction: Direction) {
         switch(direction) {
             case "up":
                 return "right";
@@ -280,7 +301,7 @@ class JsGameState {
         }
     }
 
-    back(direction) {
+    back(direction: Direction) {
         switch(direction) {
             case "up":
                 return "down";
@@ -297,12 +318,18 @@ class JsGameState {
         this.snakes[0].length = 2;
         this.snakes[0].dead = false;
         this.snakes[0].tail = [];
-        this.snakes[0].head = this.randomSite();
+
+        const newHead = this.randomSite();
+        if(newHead === null) {
+            throw "perfect game during reset is impossible"
+        }
+
+        this.snakes[0].head =  newHead;
         this.add_food();
     }
 
     update() {
-        let snake = this.snakes[0];
+        const snake = this.snakes[0];
         if(!snake.dead && !this.checkPerfectGame()) {
 
             let next = this.next_site(snake.head, snake.headDirection);

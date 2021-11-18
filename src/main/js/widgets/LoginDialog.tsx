@@ -1,58 +1,61 @@
 import * as yup from "yup";
 import {useFormik} from "formik";
 import {Stack, TextField} from "@mui/material";
-import PropTypes from "prop-types";
 import React from "react";
-import SimpleFormDialog from "./SimpleFormDialog";
+import SimpleFormDialog, {ButtonProps} from "./SimpleFormDialog";
 
-const RegisterDialog = (props) => {
+type Value = {
+    username: string,
+    password: string,
+}
 
-    const validationSchemaRegister = yup.object({
-        email: yup
-            .string('Enter your email')
-            .email('Enter a valid email')
-            .required('Email is required'),
+type Props = {
+    authService: any,
+    onSuccess: (value: Value) => void,
+    buttonText: string,
+    button: ButtonProps
+}
+
+const LoginDialog = (props: Props) => {
+
+    const validationSchemaLogin = yup.object({
         username: yup
+            // @ts-ignore
             .string('Enter your username')
-            .min(3, 'Username should be of minimum 3 characters length')
             .required('Email is required'),
         password: yup
+            // @ts-ignore
             .string('Enter your password')
-            .min(8, 'Password should be of minimum 8 characters length')
             .required('Password is required'),
     });
 
     const formik = useFormik({
         initialValues: {
             username: '',
-            email: '',
             password: '',
         },
-        validationSchema: validationSchemaRegister,
+        validationSchema: validationSchemaLogin,
         onSubmit: (values) => {
-            props.authService.register(values.username, values.email, values.password)
-                .then(_response => {
+            props.authService.login(values.username, values.password)
+                .then((_response: any) => {
                     props.onSuccess(values);
                 })
-                .catch(errors => {
+                .catch((errors: any) => {
                     if(errors.response.status === 400) {
                         formik.setErrors(errors.response.data);
+                    }
+                    // user does not exists, the password is wrong or it is not authorized to login (banned, ...)
+                    if(errors.response.status === 401) {
+                        formik.setErrors({
+                            "username": "The user does not exist ...",
+                            "password": "... or the password is wrong"
+                        });
                     }
                 });
         }
     });
 
     const fields = <Stack spacing={2}>
-        <TextField
-            fullWidth
-            id="email"
-            name="email"
-            label="Email"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
-        />
         <TextField
             fullWidth
             id="username"
@@ -86,11 +89,4 @@ const RegisterDialog = (props) => {
     )
 }
 
-RegisterDialog.propTypes = {
-    authService: PropTypes.any,
-    onSuccess: PropTypes.func,
-    buttonText: PropTypes.string,
-    button: PropTypes.object
-}
-
-export default RegisterDialog
+export default LoginDialog

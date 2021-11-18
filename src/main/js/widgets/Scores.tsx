@@ -1,13 +1,22 @@
 import React from "react";
 import {Paper, Table, TableBody, TableCell, TableContainer, TableRow} from "@mui/material";
-import PropTypes from "prop-types";
 import ColorViewer from "./ColorViewer";
 
-class Scores extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+export type Score = {
+    idx: number,
+    playerName: string,
+    score: number,
+    color: string
+}
 
+type Props = {
+    scores: Score[],
+    title: string
+}
+
+type State = {}
+
+class Scores extends React.Component<Props, State> {
     render() {
         const fields = this.props.scores.map((score, index) =>
             <TableRow key={score.playerName + index.toString()}>
@@ -36,11 +45,6 @@ class Scores extends React.Component {
             </>
         )
     }
-}
-
-Scores.propTypes = {
-    scores: PropTypes.array,
-    title: PropTypes.string
 }
 
 export default Scores

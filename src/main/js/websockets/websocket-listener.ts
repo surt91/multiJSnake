@@ -1,7 +1,16 @@
-import {Client} from "@stomp/stompjs";
+import BufferedStompClient from "./BufferedStompClient";
+
+type Subscription = {
+    route: string,
+    callback: (message: WebsocketMessage) => void
+}
+
+export type WebsocketMessage = {
+    body: string
+}
 
 // https://stomp-js.github.io/guide/stompjs/using-stompjs-v5.html
-export const registerStomp = (subscriptions) => {
+export const registerStomp = (subscriptions: Subscription[]) => {
     let websocketProtocol;
     if(location.protocol === 'https:') {
         websocketProtocol = "wss";
@@ -9,14 +18,13 @@ export const registerStomp = (subscriptions) => {
         websocketProtocol = "ws";
     }
 
-    const client = new Client({
+    const client = new BufferedStompClient({
         brokerURL: websocketProtocol + '://' + window.location.host + '/dynamic',
-        debug: function (str) {
+        debug: function (str: string) {
             console.log(str);
         },
         reconnectDelay: 300,
     });
-    client.buffer = []
 
     client.onConnect = _frame => {
         subscriptions.map(subscription =>
@@ -31,20 +39,6 @@ export const registerStomp = (subscriptions) => {
     };
 
     client.activate();
-
-    client.bufferedPublish = msg => {
-        if(!client.connected) {
-            client.buffer.push(msg);
-        } else {
-            client.publish(msg);
-        }
-    }
-
-    client.sendBuffer = () => {
-        for(let msg of client.buffer) {
-            client.publish(msg);
-        }
-    }
 
     return client;
 }

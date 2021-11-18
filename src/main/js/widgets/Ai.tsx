@@ -3,19 +3,45 @@ import Canvas from "../visualization/canvas";
 import {draw} from "../visualization/canvasDraw";
 import {Container, Grid, Stack} from "@mui/material";
 import * as tf from "@tensorflow/tfjs";
+// @ts-ignore
 import jsYaml from "js-yaml";
 
 import JsGameState from "../SnakeLogic/JsGameState";
 import AddAutopilot from "./AddAutopilot";
+// @ts-ignore
 import rawAiOptions from "../../resources/models/strategies.yaml"
+import FieldSizeSelector from "./FieldSizeSelector";
+import {LayersModel} from "@tensorflow/tfjs";
 
-class Ai extends React.Component {
+export type AiOption = {
+    id: string,
+    label: string,
+    description: string,
+    model_path_js: string,
+    input: string,
+    mode: string
+}
 
-    constructor(props) {
+type Props = {};
+type State = {
+    scale: number,
+    bgColor: string,
+    foodColor: string,
+    game: JsGameState,
+    currentModel: AiOption,
+    blurred: boolean
+};
+
+class Ai extends React.Component<Props, State> {
+    private readonly aiJsOptions: AiOption[];
+    private model_promise: Promise<LayersModel> | null;
+    private refresh?: number;
+
+    constructor(props: Props) {
         super(props);
 
         const aiJsOptionsAll = jsYaml.load(rawAiOptions);
-        const aiJsOptions = aiJsOptionsAll.filter(obj => "model_path_js" in obj);
+        const aiJsOptions = aiJsOptionsAll.filter((obj: AiOption) => "model_path_js" in obj);
 
         this.aiJsOptions = aiJsOptions;
 
@@ -24,7 +50,8 @@ class Ai extends React.Component {
             foodColor: "#cc2200",
             bgColor: "#000",
             game: new JsGameState(10, 10),
-            currentModel: aiJsOptions[aiJsOptions.length - 1]
+            currentModel: aiJsOptions[aiJsOptions.length - 1],
+            blurred: false
         };
 
         this.model_promise = null;
@@ -32,36 +59,38 @@ class Ai extends React.Component {
 
     componentDidMount() {
         this.setAi(this.state.currentModel)
-        this.refresh = setInterval(_ => this.step(), 30);
+        this.refresh = window.setInterval(() => this.step(), 30);
     }
 
     componentWillUnmount() {
-        clearInterval(this.refresh);
+        this.refresh && window.clearInterval(this.refresh);
     }
 
-    newGame(width, height) {
+    newGame(width: number, height: number) {
         const game = new JsGameState(width, height);
         this.setState({game: game});
     }
 
-    setAi(obj) {
+    setAi(obj: AiOption) {
         this.setState({currentModel: obj});
         this.model_promise = tf.loadLayersModel(obj.model_path_js);
     }
 
     step() {
-        this.model_promise.then(model => {
+        this.model_promise && this.model_promise.then(model => {
             if(this.state.currentModel.input === "global") {
-                let state = tf.tensor([this.state.game.trainingBitmap()]);
-                let action = model.predict(state);
+                const state = tf.tensor([this.state.game.trainingBitmap()]);
+                const out = model.predict(state);
                 state.dispose();
-                action = action[0].argMax(1).arraySync()[0];
+                // @ts-ignore
+                const action = out[0].argMax(1).arraySync()[0];
                 this.state.game.absoluteAction2Move(action);
             } else {
-                let state = tf.tensor([this.state.game.trainingState()]);
-                let action = model.predict(state);
+                const state = tf.tensor([this.state.game.trainingState()]);
+                const out = model.predict(state);
                 state.dispose();
-                action = action[0].argMax(1).arraySync()[0];
+                // @ts-ignore
+                const action = out[0].argMax(1).arraySync()[0];
                 this.state.game.relativeAction2Move(action);
             }
             this.state.game.update();
@@ -91,15 +120,22 @@ class Ai extends React.Component {
                         />
                     </Grid>
                     <Grid item xs={12} lg={6}>
-                        <AddAutopilot
-                            onCommit={id => this.setAi(id)}
-                            onChange={id => this.setAi(id)}
-                            aiOptions={this.aiJsOptions}
-                            submitText={"Change AI"}
-                            width={500}
-                        defaultValue={this.state.currentModel}
-                            commitMode={false}
-                        />
+                        <Stack spacing={2}>
+                            <AddAutopilot
+                                onCommit={id => this.setAi(id)}
+                                onChange={id => this.setAi(id)}
+                                aiOptions={this.aiJsOptions}
+                                submitText={"Change AI"}
+                                width={500}
+                                defaultValue={this.state.currentModel}
+                                commitMode={false}
+                            />
+                            <FieldSizeSelector
+                                onCommit={(width: number, height: number) => this.newGame(width, height)}
+                                gameWidth={this.state.game.width}
+                                gameHeight={this.state.game.height}
+                            />
+                        </Stack>
                     </Grid>
                 </Grid>
             </Container>

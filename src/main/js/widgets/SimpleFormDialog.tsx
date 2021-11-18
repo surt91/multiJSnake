@@ -6,10 +6,25 @@ import {
     DialogTitle,
 } from "@mui/material";
 import React from "react";
-import PropTypes from "prop-types";
 
-class SimpleFormDialog extends React.Component {
-    constructor(props) {
+export type ButtonProps = {
+    color?: "inherit",
+    startIcon?: JSX.Element
+}
+
+type Props = {
+    formik: any,
+    buttonText: string,
+    fields: JSX.Element,
+    button: ButtonProps
+}
+
+type State = {
+    open: boolean
+}
+
+class SimpleFormDialog extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {open: false};
     }
@@ -26,17 +41,17 @@ class SimpleFormDialog extends React.Component {
     render() {
         return (
             <>
-                <Button {...this.props.button} onClick={e => this.handleClickOpen(e)}>
+                <Button {...this.props.button} onClick={() => this.handleClickOpen()}>
                     {this.props.buttonText}
                 </Button>
-                <Dialog open={this.state.open} onClose={e => this.handleClose(e)}>
+                <Dialog open={this.state.open} onClose={() => this.handleClose()}>
                     <DialogTitle>{this.props.buttonText}</DialogTitle>
                     <form onSubmit={this.props.formik.handleSubmit}>
                         <DialogContent>
                             {this.props.fields}
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={e => this.handleClose(e)}>Cancel</Button>
+                            <Button onClick={() => this.handleClose()}>Cancel</Button>
                             <Button type="submit">Submit</Button>
                         </DialogActions>
                     </form>
@@ -45,12 +60,5 @@ class SimpleFormDialog extends React.Component {
         );
     }
 }
-
-SimpleFormDialog.propTypes = {
-    formik: PropTypes.object,
-    open: PropTypes.bool,
-    buttonText: PropTypes.string,
-    fields: PropTypes.object
-};
 
 export default SimpleFormDialog

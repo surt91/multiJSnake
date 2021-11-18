@@ -1,15 +1,31 @@
 import React from "react";
 import {Autocomplete, Box, Button, Stack, TextField} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import PropTypes from "prop-types";
+import {AiOption} from "./Ai";
 
-class AddAutopilot extends React.Component {
-    constructor(props) {
+type Props = {
+    onCommit: (value: AiOption) => void,
+    onChange?: (value: AiOption) => void,
+    aiOptions: AiOption[]
+    width?: number,
+    defaultValue?: AiOption,
+    commitMode: boolean,
+    submitText?: string
+}
+
+type State = {
+    value: AiOption | null
+}
+
+class AddAutopilot extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
-        this.state = {value: this.props.defaultValue || null};
+        this.state = {
+            value: this.props.defaultValue || null  // if this was undefined, the input would be uncontrolled
+        };
     }
 
-    setValue(newValue) {
+    setValue(newValue: AiOption) {
         this.setState({
             value: newValue
         })
@@ -26,7 +42,7 @@ class AddAutopilot extends React.Component {
                     value={this.state.value}
                     renderInput={(params) => <TextField {...params} label="AI Strategy" />}
                     onChange={(e, newValue) => {
-                        this.setValue(newValue);
+                        newValue && this.setValue(newValue);
                         this.props.onChange && newValue && this.props.onChange(newValue)
                     }}
                 />
@@ -47,11 +63,6 @@ class AddAutopilot extends React.Component {
             </Stack>
         );
     }
-}
-
-AddAutopilot.propTypes = {
-    onCommit: PropTypes.func,
-    aiOptions: PropTypes.array
 }
 
 export default AddAutopilot

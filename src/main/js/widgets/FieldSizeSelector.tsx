@@ -2,26 +2,38 @@
 import React from "react";
 import {Button, Stack, TextField} from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
-import PropTypes from "prop-types";
 
-class FieldSizeSelector extends React.Component {
-    constructor(props) {
+type Props = {
+    onCommit: (width: number, height: number) => void,
+    gameWidth: number,
+    gameHeight: number
+}
+
+type State = {
+    width: number,
+    height: number
+}
+
+class FieldSizeSelector extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
 
         this.state = {
             width: this.props.gameWidth,
             height: this.props.gameHeight
         }
-
-        this.onChange = this.onChange.bind(this);
     }
 
-    onChange(e) {
-        const name = e.target.name;
-        const value = e.target.value;
+    setWidth(width: number) {
         this.setState({
-            [name]: value
-        });
+            width: width,
+        })
+    }
+
+    setHeight(height: number) {
+        this.setState({
+            height: height,
+        })
     }
 
     render() {
@@ -32,14 +44,14 @@ class FieldSizeSelector extends React.Component {
                     label="width"
                     name="width"
                     value={this.state.width}
-                    onChange={this.onChange}
+                    onChange={e => this.setWidth(parseInt(e.target.value))}
                 />
                 <TextField
                     type="number"
                     label="height"
                     name="height"
                     value={this.state.height}
-                    onChange={this.onChange}
+                    onChange={e => this.setHeight(parseInt(e.target.value))}
                 />
                 <Button
                     aria-label="done"
@@ -52,12 +64,6 @@ class FieldSizeSelector extends React.Component {
             </Stack>
         );
     }
-}
-
-FieldSizeSelector.propTypes = {
-    onCommit: PropTypes.func,
-    gameWidth: PropTypes.number,
-    gameHeight: PropTypes.number
 }
 
 export default FieldSizeSelector

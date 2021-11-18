@@ -1,9 +1,17 @@
 import React from "react";
 import {Box, TextField, Tooltip} from "@mui/material";
-import PropTypes from "prop-types";
 
-class ShareLink extends React.Component {
-    constructor(props) {
+type Props = {
+    link: string
+}
+
+type State = {
+    tooltip: string
+}
+
+
+class ShareLink extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
 
         this.state = {
@@ -33,10 +41,6 @@ class ShareLink extends React.Component {
             </Box>
         );
     }
-}
-
-ShareLink.propTypes = {
-    link: PropTypes.string
 }
 
 export default ShareLink

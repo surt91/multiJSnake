@@ -1,6 +1,15 @@
 import {desaturized_idx2color, idx2color} from "./color";
+import JsSnake from "../SnakeLogic/JsSnake";
+import JsGameState from "../SnakeLogic/JsGameState";
 
-function drawSnake(ctx, snake, options) {
+type VisualizationOptions = {
+    scale: number,
+    bgColor: string,
+    foodColor: string,
+    blurred: boolean
+}
+
+function drawSnake(ctx: CanvasRenderingContext2D, snake: JsSnake, options: VisualizationOptions) {
     const {scale} = options;
     const thickness = 0.8;
     let color;
@@ -36,7 +45,7 @@ function drawSnake(ctx, snake, options) {
     ctx.stroke();
 }
 
-export function draw(ctx, state, options) {
+export function draw(ctx: CanvasRenderingContext2D, state: JsGameState, options: VisualizationOptions) {
     if(state === undefined) {
         return;
     }
@@ -83,20 +92,4 @@ export function draw(ctx, state, options) {
         ctx.font = "15px Arial";
         ctx.fillText("Press 'R' to restart the game", width * scale / 2, height * scale / 4 * 3 + 25);
     }
-}
-
-function drawError(text) {
-    //console.log("draw error!", text);
-    //console.log(W, H);
-
-    ctx.fillStyle = BG_COLOR;
-    ctx.fillRect(0, 0, W*SCALE, H*SCALE);
-
-    ctx.fillStyle = "#aaaaaa";
-    ctx.font = "16px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText(text, W*SCALE/2, H*SCALE/2);
-
-    //let textnode = document.createTextNode(`Error: ${text}`);
-    //document.getElementById("score").appendChild(textnode);
 }

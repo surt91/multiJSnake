@@ -1,8 +1,10 @@
 // steering using touch gestures
-let xDown = null;
-let yDown = null;
+import {Direction} from "./SnakeLogic/JsSnake";
 
-export function registerTouch(move, unpause) {
+let xDown: number | null = null;
+let yDown: number | null = null;
+
+export function registerTouch(move: (dir: Direction) => void, unpause: () => void) {
     document.ontouchstart = function (evt) {
         xDown = evt.touches[0].clientX;
         yDown = evt.touches[0].clientY;
@@ -13,13 +15,17 @@ export function registerTouch(move, unpause) {
             return;
         }
 
-        let xUp = evt.touches[0].clientX;
-        let yUp = evt.touches[0].clientY;
+        const xUp = evt.touches[0].clientX;
+        const yUp = evt.touches[0].clientY;
 
         // only handle the event, if the swipe started or ended in the canvas
         // FIXME: this is an ugly hardcoded id
-        let c = document.getElementById("snakeCanvas");
-        let r = c.getBoundingClientRect();
+        const c = document.getElementById("snakeCanvas");
+        if(c === null) {
+            return;
+        }
+
+        const r = c.getBoundingClientRect();
         if (
             xUp - r.left > 0
             && yUp - r.top > 0
@@ -35,8 +41,8 @@ export function registerTouch(move, unpause) {
             return;
         }
 
-        let xDiff = xDown - xUp;
-        let yDiff = yDown - yUp;
+        const xDiff = xDown - xUp;
+        const yDiff = yDown - yUp;
 
         // which component is longer
         if (Math.abs(xDiff) > Math.abs(yDiff)) {

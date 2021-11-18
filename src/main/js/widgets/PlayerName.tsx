@@ -3,12 +3,24 @@ import {IconButton, Stack, TextField} from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import RevertIcon from "@mui/icons-material/NotInterestedOutlined";
 import EditIcon from "@mui/icons-material/Edit";
-import PropTypes from "prop-types";
 import ColorViewer from "./ColorViewer";
 
+type Props = {
+    loggedIn: boolean,
+    name: string,
+    color: string,
+    onChange: (value: string) => void
+    onCommit: (value: string) => void
+}
+
+type State = {
+    editMode: boolean,
+    previous: string
+}
+
 // TODO: rewrite with formik
-class PlayerName extends React.Component {
-    constructor(props) {
+class PlayerName extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
 
         this.state = {
@@ -85,13 +97,6 @@ class PlayerName extends React.Component {
             </Stack>
         );
     }
-}
-
-PlayerName.propTypes = {
-    loggedIn: PropTypes.bool,
-    name: PropTypes.string,
-    color: PropTypes.string,
-    onChange: PropTypes.func
 }
 
 export default PlayerName

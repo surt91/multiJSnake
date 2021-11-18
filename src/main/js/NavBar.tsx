@@ -19,10 +19,20 @@ import axios from "axios";
 import authHeader from "./auth/authHeader";
 import LoginDialog from "./widgets/LoginDialog";
 import RegisterDialog from "./widgets/RegisterDialog";
+import {User} from "./widgets/Profile";
+
+type Props = {
+    currentUser?: User,
+    onUserChange: () => void,
+    section: string
+}
+type State = {}
 
 // TODO: this navbar also handles logic for expiring logins... that is not very clean
-export class NavBar extends React.Component {
-    constructor(props) {
+export class NavBar extends React.Component<Props, State> {
+    private interval?: number;
+
+    constructor(props: Props) {
         super(props);
 
         this.state = {path: "/"};
@@ -34,7 +44,8 @@ export class NavBar extends React.Component {
     // if not we log out
     testJwt() {
         if (AuthService.getCurrentUser()) {
-            axios.get('/api/user/profile', { headers: authHeader() })
+            const header = authHeader();
+            header && axios.get('/api/user/profile', { headers: header })
                 .then(/* token is valid, we do not have to do anything */)
                 .catch(_ => {AuthService.logout(); this.props.onUserChange()});
         }
@@ -42,12 +53,12 @@ export class NavBar extends React.Component {
 
     // also test every hour (the JWT are only good for a limited amount of time
     componentDidMount() {
-        this.interval = setInterval(() => this.testJwt(), 60*60*1000);
+        this.interval = window.setInterval(() => this.testJwt(), 60*60*1000);
         this.setState({path: location.pathname})
     }
 
     componentWillUnmount() {
-        clearInterval(this.interval);
+        window.clearInterval(this.interval);
     }
 
     render() {

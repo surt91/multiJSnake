@@ -1,12 +1,13 @@
 import React from "react";
 import {Box} from "@mui/material";
-import PropTypes from "prop-types";
 
-class ColorViewer extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+type Props = {
+    color: string
+}
 
+type State = {}
+
+class ColorViewer extends React.Component<Props, State> {
     render() {
         return (
             <Box sx={{
@@ -16,10 +17,6 @@ class ColorViewer extends React.Component {
             }}/>
         );
     }
-}
-
-ColorViewer.propTypes = {
-    color: PropTypes.string
 }
 
 export default ColorViewer

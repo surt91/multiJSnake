@@ -5,13 +5,14 @@ import axios from "axios";
 const API_URL = "/api/auth/";
 
 class AuthService {
-    login(username, password) {
+    login(username: string, password: string) {
         return axios
             .post(API_URL + "login", {
                 username,
                 password
             })
             .then(response => {
+                // @ts-ignore
                 if (response.data.accessToken) {
                     localStorage.setItem("user", JSON.stringify(response.data));
                 }
@@ -24,7 +25,7 @@ class AuthService {
         localStorage.removeItem("user");
     }
 
-    register(username, email, password) {
+    register(username: string, email: string, password: string) {
         return axios.post(API_URL + "register", {
             username,
             email,
@@ -35,7 +36,8 @@ class AuthService {
     }
 
     getCurrentUser() {
-        return JSON.parse(localStorage.getItem('user'));
+        const savedUser = localStorage.getItem('user')
+        return savedUser && JSON.parse(savedUser);
     }
 }
 

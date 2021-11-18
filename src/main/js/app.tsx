@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
 import {GameView} from "./widgets/GameView";
-import Profile from "./widgets/Profile";
+import Profile, {User} from "./widgets/Profile";
 import Ai from "./widgets/Ai";
 import {NavBar} from "./NavBar";
 import AuthService from "./auth/AuthService";
@@ -13,8 +13,14 @@ if (location.protocol !== 'https:' && location.hostname !== "localhost") {
     location.replace(`https:${location.href.substring(location.protocol.length)}`);
 }
 
-class App extends React.Component {
-    constructor(props) {
+type Props = {};
+
+type State = {
+    currentUser?: User
+};
+
+class App extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {currentUser: undefined};
     }
@@ -32,7 +38,7 @@ class App extends React.Component {
             <BrowserRouter>
                 <NavBar
                     section={"MultiJSnake"}
-                    onUserChange={_ => this.updateCurrentUser()}
+                    onUserChange={() => this.updateCurrentUser()}
                     currentUser={this.state.currentUser}
                 />
                 <Switch>

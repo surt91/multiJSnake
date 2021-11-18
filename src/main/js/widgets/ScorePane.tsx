@@ -1,10 +1,19 @@
 import React from "react";
 import {idx2color} from "../visualization/color";
 import {Grid, Paper} from "@mui/material";
-import Scores from "./Scores";
+import Scores, {Score} from "./Scores";
+import JsGameState from "../SnakeLogic/JsGameState";
 
-class ScorePane extends React.Component {
-    constructor(props) {
+type Props = {
+    game: JsGameState,
+    highscores: Score[],
+    globalHighscores: Score[]
+}
+
+type State = {}
+
+class ScorePane extends React.Component<Props, State> {
+    constructor(props: Props) {
         super(props);
     }
 
