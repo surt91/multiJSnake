@@ -130,11 +130,6 @@ class Ai extends React.Component<Props, State> {
                                 defaultValue={this.state.currentModel}
                                 commitMode={false}
                             />
-                            <FieldSizeSelector
-                                onCommit={(width: number, height: number) => this.newGame(width, height)}
-                                gameWidth={this.state.game.width}
-                                gameHeight={this.state.game.height}
-                            />
                         </Stack>
                     </Grid>
                 </Grid>
