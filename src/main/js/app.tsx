@@ -42,12 +42,14 @@ class App extends React.Component<Props, State> {
                     currentUser={this.state.currentUser}
                 />
                 <Switch>
+                    {/*@skip-for-static-start*/}
                     <Route exact path={["/", "/game"]}>
                         <GameView
                             currentUser={this.state.currentUser}
                         />
                     </Route>
                     <Route exact path={["/profile"]} component={Profile} />
+                    {/*@skip-for-static-end*/}
                     <Route exact path={["/ai"]} component={Ai} />
                 </Switch>
             </BrowserRouter>

@@ -70,6 +70,7 @@ export class NavBar extends React.Component<Props, State> {
                             {this.props.section}
                         </Typography>
 
+                        {/*@skip-for-static-start*/}
                         <NavLink to="/" className={"navlink"}>
                             <Button color="inherit" startIcon={<SportsEsportsIcon />}>
                                 Game
@@ -89,6 +90,7 @@ export class NavBar extends React.Component<Props, State> {
                                 AI
                             </Button>
                         </NavLink>
+                        {/*@skip-for-static-end*/}
 
                         <Button
                             color="inherit"
@@ -98,6 +100,7 @@ export class NavBar extends React.Component<Props, State> {
                             GitHub
                         </Button>
 
+                        {/*@skip-for-static-start*/}
                         {this.props.currentUser &&
                         <Button color="inherit" startIcon={<LogoutIcon />} onClick={_ => {
                             AuthService.logout();
@@ -123,6 +126,7 @@ export class NavBar extends React.Component<Props, State> {
                             onSuccess={_ => this.props.onUserChange()}
                         />
                         }
+                        {/*@skip-for-static-end*/}
                     </Toolbar>
                 </AppBar>
             </Box>

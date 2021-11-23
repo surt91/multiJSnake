@@ -39,3 +39,4 @@ cypress/snapshots/actual/
 cypress/snapshots/base/*-16*.png
 __pycache__/
 *~
+tmp/
