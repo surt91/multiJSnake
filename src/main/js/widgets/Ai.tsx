@@ -1,7 +1,7 @@
 import React from "react";
 import Canvas from "../visualization/canvas";
 import {draw} from "../visualization/canvasDraw";
-import {Container, Grid, Stack} from "@mui/material";
+import {Container, Grid, Stack, Box, Typography} from "@mui/material";
 import * as tf from "@tensorflow/tfjs";
 // @ts-ignore
 import jsYaml from "js-yaml";
@@ -12,6 +12,7 @@ import AddAutopilot from "./AddAutopilot";
 import rawAiOptions from "../../resources/models/strategies.yaml"
 import FieldSizeSelector from "./FieldSizeSelector";
 import {LayersModel} from "@tensorflow/tfjs";
+import { stat } from "fs";
 
 export type AiOption = {
     id: string,
@@ -29,7 +30,8 @@ type State = {
     foodColor: string,
     game: JsGameState,
     currentModel: AiOption,
-    blurred: boolean
+    blurred: boolean,
+    scores: number[]
 };
 
 class Ai extends React.Component<Props, State> {
@@ -49,9 +51,10 @@ class Ai extends React.Component<Props, State> {
             scale: 20,
             foodColor: "#cc2200",
             bgColor: "#000",
-            game: new JsGameState(10, 10),
+            game: new JsGameState(10, 10, (score) => this.appendScore(score)),
             currentModel: aiJsOptions[aiJsOptions.length - 1],
-            blurred: false
+            blurred: false,
+            scores: []
         };
 
         this.model_promise = null;
@@ -67,13 +70,17 @@ class Ai extends React.Component<Props, State> {
     }
 
     newGame(width: number, height: number) {
-        const game = new JsGameState(width, height);
+        const game = new JsGameState(width, height, (score) => this.appendScore(score));
         this.setState({game: game});
     }
 
     setAi(obj: AiOption) {
         this.setState({currentModel: obj});
         this.model_promise = tf.loadLayersModel(obj.model_path_js);
+    }
+
+    appendScore(score: number) {
+        this.setState(state => ({scores: [...state.scores, score]}));
     }
 
     step() {
@@ -107,6 +114,8 @@ class Ai extends React.Component<Props, State> {
             blurred: this.state.blurred
         }
 
+        const scoreElements = this.state.scores.map((score, idx) => <li key={idx}>{score}</li>)
+
         return (
             <Container maxWidth="lg">
                 <Grid container spacing={4} pt={4} justifyContent="space-around" alignItems="flex-start">
@@ -130,6 +139,14 @@ class Ai extends React.Component<Props, State> {
                                 defaultValue={this.state.currentModel}
                                 commitMode={false}
                             />
+                            <Box>
+                                <Typography variant="h6">
+                                    Last Scores
+                                </Typography>
+                                <ul>
+                                    {scoreElements}
+                                </ul>
+                            </Box>
                         </Stack>
                     </Grid>
                 </Grid>

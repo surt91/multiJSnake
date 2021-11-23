@@ -16,9 +16,10 @@ class JsGameState {
     public paused: boolean;
     public gameOver: boolean;
 
+    private gameOverCallback?: (score: number) => void;
     private delay_ctr: number;
 
-    constructor(width: number, height: number) {
+    constructor(width: number, height: number, gameOverCallback?: (score: number) => void) {
         this.width = width;
         this.height = height;
         this.food = {x: -1, y: -1};
@@ -26,6 +27,7 @@ class JsGameState {
         this.paused = false;
         this.gameOver = false;
 
+        this.gameOverCallback = gameOverCallback;
         this.delay_ctr = 0;
 
         this.reset();
@@ -354,6 +356,8 @@ class JsGameState {
         } else {
             this.delay_ctr += 1;
             if(this.delay_ctr >= 30) {
+                const score = this.checkPerfectGame() ? this.width*this.height : snake.tail.length;
+                this.gameOverCallback && this.gameOverCallback(score);
                 this.reset();
                 this.delay_ctr = 0;
             }
