@@ -66,6 +66,7 @@ class Ai extends React.Component<Props, State> {
 
     componentWillUnmount() {
         this.refresh && window.clearInterval(this.refresh);
+        this.freeModel();
     }
 
     newGame(width: number, height: number) {
@@ -73,8 +74,14 @@ class Ai extends React.Component<Props, State> {
         this.setState({game: game});
     }
 
+    freeModel(){
+        this.model_promise && this.model_promise.then(model => model.layers.forEach(l => l.dispose()));
+    };
+
     setAi(obj: AiOption) {
         this.setState({currentModel: obj});
+        // if there is an old model, dispose it first
+        this.freeModel();
         this.model_promise = tf.loadLayersModel(obj.model_path_js);
     }
 
