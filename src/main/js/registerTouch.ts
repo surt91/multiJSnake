@@ -66,5 +66,10 @@ export function registerTouch(move: (dir: Direction) => void, unpause: () => voi
     };
 }
 
+export function unregisterTouch() {
+    document.ontouchmove = undefined;
+    document.ontouchstart = undefined;
+}
+
 
 

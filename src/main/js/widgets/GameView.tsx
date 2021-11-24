@@ -1,5 +1,5 @@
 import React from "react";
-import {registerTouch} from "../registerTouch";
+import {registerTouch, unregisterTouch} from "../registerTouch";
 import {registerStomp, WebsocketMessage} from "../websockets/websocket-listener";
 import {
     Container,
@@ -88,6 +88,11 @@ export class GameView extends React.Component<Props, State> {
             .then(response => {
                 this.setState({aiOptions: response.data});
             });
+    }
+
+    componentWillUnmount() {
+        unregisterTouch();
+        this.stompClient && this.stompClient.deactivate();
     }
 
     componentDidUpdate(prevProps: Props, prevState: State) {
