@@ -12,7 +12,6 @@ import AddAutopilot from "./AddAutopilot";
 import rawAiOptions from "../../resources/models/strategies.yaml"
 import FieldSizeSelector from "./FieldSizeSelector";
 import {LayersModel} from "@tensorflow/tfjs";
-import { stat } from "fs";
 
 export type AiOption = {
     id: string,
@@ -85,21 +84,23 @@ class Ai extends React.Component<Props, State> {
 
     step() {
         this.model_promise && this.model_promise.then(model => {
+            tf.engine().startScope()
+
             if(this.state.currentModel.input === "global") {
                 const state = tf.tensor([this.state.game.trainingBitmap()]);
                 const out = model.predict(state);
-                state.dispose();
                 // @ts-ignore
                 const action = out[0].argMax(1).arraySync()[0];
                 this.state.game.absoluteAction2Move(action);
             } else {
                 const state = tf.tensor([this.state.game.trainingState()]);
                 const out = model.predict(state);
-                state.dispose();
                 // @ts-ignore
                 const action = out[0].argMax(1).arraySync()[0];
                 this.state.game.relativeAction2Move(action);
             }
+            tf.engine().endScope();
+
             this.state.game.update();
 
             this.setState({game: this.state.game});
