@@ -106,11 +106,17 @@ class Snake(ABC):
                 [scale * s.getHead().getX(), scale * s.getHead().getY(), scale, scale]
             )
 
-            for i in s.getTailAsList():
-                pygame.draw.rect(
+            points = [(scale * s.getHead().getX() + scale/2, scale * s.getHead().getY() + scale/2)]
+            for i in reversed(s.getTailAsList()):
+                points.append((scale * i.getX() + scale/2, scale * i.getY() + scale/2))
+
+            if points:
+                pygame.draw.lines(
                     screen,
-                    [80, 230, 80]if s.getId() == self.snakeId else [230, 80, 80],
-                    [scale * i.getX(), scale * i.getY(), scale, scale]
+                    [80, 230, 80] if s.getId() == self.snakeId else [230, 80, 80],
+                    False,
+                    points,
+                    scale*0.8
                 )
 
         pygame.display.update()
