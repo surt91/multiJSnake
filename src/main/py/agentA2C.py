@@ -44,7 +44,7 @@ class AgentA2C:
 
         self.model.compile(
             loss=[self.actor_loss, keras.losses.Huber()],
-            optimizer=keras.optimizers.Adam(learning_rate)
+            optimizer=keras.optimizers.Adam(learning_rate, clipnorm=1.)
         )
 
         self.model.summary()
@@ -177,11 +177,13 @@ class AgentA2C:
 
             # Log details
             self.episode_count += 1
+            print(episode_reward, end=", ", flush=True)
             if self.episode_count % 10 == 0:
                 template = "running reward: {:.2f} at episode {}"
+                print("")
                 print(template.format(np.mean(running_reward), self.episode_count))
 
-            if self.episode_count < 1000 and self.episode_count % 100 == 0 or self.episode_count % 1000 == 0:
+            if self.episode_count % 100 == 0:
                 self.model.save(f"{self.basename}_e{self.episode_count}.keras")
 
             if np.mean(running_reward) > self.env.max_reward():  # Condition to consider the task solved
