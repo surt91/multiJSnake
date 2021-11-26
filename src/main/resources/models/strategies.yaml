@@ -115,6 +115,20 @@
         of the current state, i.e., how many points the snakes will be able to collect in the future.
         The model was trained on 50000 games."
     model_path_java: models/global/func/convAC_50000.keras
-    model_path_js: models/snakeConvA2C_e50000/model.json
+    model_path_js: models/convAC_50000/model.json
+    input: global
+    mode: functional
+
+-   id: conv_ac_75000
+    label: Global Actor-Critic (n=75000)
+    description: "A deep convolutional neural network, which takes the whole field as input.
+        The field is split in three layers: the tail, the head and the food.
+        The model uses the Advantage Actor-Critic (A2C) approach. The neural network
+        branches in the last layer: One branch is the actor, it suggests the next step to
+        take (up, down, left, right). The other branch is the critic, it estimates the quality
+        of the current state, i.e., how many points the snakes will be able to collect in the future.
+        The model was trained on 75000 games."
+    model_path_java: models/global/func/convAC_75000.keras
+    model_path_js: models/convAC_75000/model.json
     input: global
     mode: functional
