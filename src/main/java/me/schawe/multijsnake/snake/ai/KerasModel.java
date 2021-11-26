@@ -23,7 +23,7 @@ public abstract class KerasModel implements Autopilot {
                 modelFunctional = KerasModelImport.importKerasModelAndWeights(savedModel, false);
                 modelSequential = null;
             } catch (Exception e) {
-                throw new AutopilotException("failed loading a functional keras model");
+                throw new AutopilotException("failed loading a functional keras model: '" + pathToModel + "'");
             }
         } else {
             try {
@@ -31,7 +31,7 @@ public abstract class KerasModel implements Autopilot {
                 modelSequential = KerasModelImport.importKerasSequentialModelAndWeights(savedModel, false);
                 modelFunctional = null;
             } catch (Exception e) {
-                throw new AutopilotException("failed loading a sequential keras model");
+                throw new AutopilotException("failed loading a sequential keras model: '" + pathToModel + "'");
             }
         }
     }
