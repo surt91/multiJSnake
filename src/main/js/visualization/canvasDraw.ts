@@ -2,11 +2,18 @@ import {desaturized_idx2color, idx2color} from "./color";
 import JsSnake from "../SnakeLogic/JsSnake";
 import JsGameState from "../SnakeLogic/JsGameState";
 
-type VisualizationOptions = {
+export type VisualizationOptions = {
     scale: number,
     bgColor: string,
     foodColor: string,
     blurred: boolean
+}
+
+export const defaultVisualizationOptions: VisualizationOptions = {
+    scale: 20,
+    foodColor: "#cc2200",
+    bgColor: "#000",
+    blurred: false,
 }
 
 function drawSnake(ctx: CanvasRenderingContext2D, snake: JsSnake, options: VisualizationOptions) {

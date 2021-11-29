@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import authHeader from "../auth/authHeader";
 import axios from "axios";
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
@@ -20,40 +20,27 @@ type Props = {
     title: string
 }
 
-type State = {
-    user?: User,
-    highscores: Score[]
-}
-
 // https://medium.com/@pdx.lucasm/canvas-with-react-js-32e133c05258
-class Profile extends React.Component<Props, State> {
+export default function Profile(props: Props) {
 
-    constructor(props: Props) {
-        super(props);
+    const [highscores, setHighscores] = useState<Score[]>([]);
+    const [user, setUser] = useState<User|undefined>(undefined);
 
-        this.state = {
-            highscores: [],
-            user: undefined
-        };
+    useEffect(() => getUserData(), []);
+
+    function getUserFailed() {
+        setUser(undefined)
     }
 
-    componentDidMount() {
-        this.getUserData();
-    }
-
-    getUserFailed() {
-        this.setState({user: undefined})
-    }
-
-    getUserData() {
+    function getUserData() {
         const header = authHeader();
         if(header === null) {
-            return this.getUserFailed();
+            return getUserFailed();
         }
 
         axios.get('/api/user/profile', { headers: header })
-            .then(response => this.setState({user: response.data}))
-            .catch(_ => this.getUserFailed());
+            .then(response => setUser(response.data))
+            .catch(_ => getUserFailed());
 
         axios.get('/api/user/highscore', { headers: header })
             .then((response: any) =>
@@ -64,37 +51,33 @@ class Profile extends React.Component<Props, State> {
                         <TableCell>{h.fieldSize}</TableCell>
                     </TableRow>
             ))
-            .then(element => this.setState({highscores: element}))
-            .catch(_ => this.getUserFailed());
+            .then(element => setHighscores(element))
+            .catch(_ => getUserFailed());
     }
 
-    render() {
-        return (
-            <>
-                {this.state.user ? <>
-                    <p>Hi {this.state.user.username}!</p>
-                    <p>Your email is '{this.state.user.email}'</p>
-                    <p>Your Highscores</p>
-                    <TableContainer component={Paper}>
-                        <Table aria-label={this.props.title} id="highscores">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Score</TableCell>
-                                    <TableCell>Date</TableCell>
-                                    <TableCell>Field Size</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {this.state.highscores}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </> :
-                    <p>Your are not logged in!</p>
-                }
-            </>
-        )
-    }
+    return (
+        <>
+            {user ? <>
+                <p>Hi {user.username}!</p>
+                <p>Your email is '{user.email}'</p>
+                <p>Your Highscores</p>
+                <TableContainer component={Paper}>
+                    <Table aria-label={props.title} id="highscores">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Score</TableCell>
+                                <TableCell>Date</TableCell>
+                                <TableCell>Field Size</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {highscores}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </> :
+                <p>Your are not logged in!</p>
+            }
+        </>
+    )
 }
-
-export default Profile

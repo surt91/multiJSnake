@@ -28,67 +28,57 @@ type Props = {
 
 }
 
-type State = {}
-
-class PlayerPane extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-    }
-
-    render() {
-        return(
-            <Grid container
-                  spacing={2}
-                  pb={2}
-                  direction={'column'}
-                  justifyContent="space-around"
-                  alignItems="baseline"
-                  component={Paper}
-            >
-                <Grid item xs={12}>
-                    <Stack direction={"row"} spacing={2}>
-                        <Button variant="outlined" onClick={_ => this.props.togglePause()}>
-                            {this.props.game.paused ? "Unpause" : "Pause"}
-                        </Button>
-                        <Button variant="outlined" onClick={_ => this.props.reset()}>
-                            Restart
-                        </Button>
-                    </Stack>
-                </Grid>
-
-                <Grid item xs={12}>
-                    <ShareLink
-                        link={this.props.shareUrl}
-                    />
-                </Grid>
-
-                <Grid item xs={12}>
-                    {this.props.idx >= 0 &&
-                    <PlayerName
-                        name={this.props.playerName}
-                        color={idx2color(this.props.idx)}
-                        onCommit={this.props.handleNameCommit}
-                        onChange={this.props.handleNameChange}
-                        loggedIn={Boolean(this.props.currentUser)}
-                    />}
-                </Grid>
-                <Grid item xs={12}>
-                    <FieldSizeSelector
-                        onCommit={(width, height) => this.props.newGame(width, height)}
-                        gameWidth={this.props.game.width}
-                        gameHeight={this.props.game.height}
-                    />
-                </Grid>
-                <Grid item xs={12}>
-                    <AddAutopilot
-                        onCommit={type => this.props.addAutopilot(type)}
-                        aiOptions={this.props.aiOptions}
-                        commitMode={true}
-                    />
-                </Grid>
+export default function PlayerPane(props: Props) {
+    return(
+        <Grid container
+              spacing={2}
+              pb={2}
+              direction={'column'}
+              justifyContent="space-around"
+              alignItems="baseline"
+              component={Paper}
+        >
+            <Grid item xs={12}>
+                <Stack direction={"row"} spacing={2}>
+                    <Button variant="outlined" onClick={_ => props.togglePause()}>
+                        {props.game.paused ? "Unpause" : "Pause"}
+                    </Button>
+                    <Button variant="outlined" onClick={_ => props.reset()}>
+                        Restart
+                    </Button>
+                </Stack>
             </Grid>
-        )
-    }
-}
 
-export default PlayerPane
+            <Grid item xs={12}>
+                <ShareLink
+                    link={props.shareUrl}
+                />
+            </Grid>
+
+            <Grid item xs={12}>
+                {props.idx >= 0 &&
+                <PlayerName
+                    name={props.playerName}
+                    color={idx2color(props.idx)}
+                    onCommit={props.handleNameCommit}
+                    onChange={props.handleNameChange}
+                    loggedIn={Boolean(props.currentUser)}
+                />}
+            </Grid>
+            <Grid item xs={12}>
+                <FieldSizeSelector
+                    onCommit={(width, height) => props.newGame(width, height)}
+                    gameWidth={props.game.width}
+                    gameHeight={props.game.height}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <AddAutopilot
+                    onCommit={type => props.addAutopilot(type)}
+                    aiOptions={props.aiOptions}
+                    commitMode={true}
+                />
+            </Grid>
+        </Grid>
+    )
+}

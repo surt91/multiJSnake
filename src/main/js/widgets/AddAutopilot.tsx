@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {Autocomplete, Box, Button, Stack, TextField} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import {AiOption} from "./Ai";
@@ -13,56 +13,38 @@ type Props = {
     submitText?: string
 }
 
-type State = {
-    value: AiOption | null
+export default function AddAutopilot(props: Props) {
+    const [value, setValue] = useState(props.defaultValue || null) // if this was undefined, the input would be uncontrolled
+
+    return (
+        <Stack spacing={2}>
+            <Autocomplete
+                disablePortal
+                id={"aiChooser"}
+                options={props.aiOptions}
+                sx={{ width: props.width || 250 }}
+                value={value}
+                renderInput={(params) => <TextField {...params} label="AI Strategy" />}
+                onChange={(e, newValue) => {
+                    newValue && setValue(newValue);
+                    props.onChange && newValue && props.onChange(newValue)
+                }}
+            />
+            <Box sx={{ width: props.width || 250 }}>
+                {value && value.description}
+            </Box>
+            {props.commitMode &&
+            <Button
+                aria-label="done"
+                disabled={value === null}
+                onClick={_ => value && props.onCommit(value)}
+                variant="outlined"
+            >
+                {props.submitText || "Add Autopilot"}
+                <AddIcon/>
+            </Button>
+            }
+        </Stack>
+    );
+
 }
-
-class AddAutopilot extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            value: this.props.defaultValue || null  // if this was undefined, the input would be uncontrolled
-        };
-    }
-
-    setValue(newValue: AiOption) {
-        this.setState({
-            value: newValue
-        })
-    }
-
-    render() {
-        return (
-            <Stack spacing={2}>
-                <Autocomplete
-                    disablePortal
-                    id={"aiChooser"}
-                    options={this.props.aiOptions}
-                    sx={{ width: this.props.width || 250 }}
-                    value={this.state.value}
-                    renderInput={(params) => <TextField {...params} label="AI Strategy" />}
-                    onChange={(e, newValue) => {
-                        newValue && this.setValue(newValue);
-                        this.props.onChange && newValue && this.props.onChange(newValue)
-                    }}
-                />
-                <Box sx={{ width: this.props.width || 250 }}>
-                    {this.state.value && this.state.value.description}
-                </Box>
-                {this.props.commitMode &&
-                <Button
-                    aria-label="done"
-                    disabled={this.state.value === null}
-                    onClick={_ => this.state.value && this.props.onCommit(this.state.value)}
-                    variant="outlined"
-                >
-                    {this.props.submitText || "Add Autopilot"}
-                    <AddIcon/>
-                </Button>
-                }
-            </Stack>
-        );
-    }
-}
-
-export default AddAutopilot

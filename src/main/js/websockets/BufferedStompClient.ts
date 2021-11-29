@@ -3,7 +3,7 @@ import {StompConfig} from "@stomp/stompjs/src/stomp-config";
 import {IPublishParams} from "@stomp/stompjs/src/types";
 
 export default class BufferedStompClient extends Client {
-    private buffer: IPublishParams[];
+    private readonly buffer: IPublishParams[];
 
     constructor(config: StompConfig) {
         super(config);

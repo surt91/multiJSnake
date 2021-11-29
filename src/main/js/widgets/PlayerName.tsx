@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {IconButton, Stack, TextField} from "@mui/material";
 import DoneIcon from "@mui/icons-material/Done";
 import RevertIcon from "@mui/icons-material/NotInterestedOutlined";
@@ -13,90 +13,69 @@ type Props = {
     onCommit: (value: string) => void
 }
 
-type State = {
-    editMode: boolean,
-    previous: string
-}
+export default function PlayerName(props: Props) {
 
-// TODO: rewrite with formik
-class PlayerName extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
+    const [editMode, setEditMode] = useState(false);
+    const [previous, setPrevious] = useState(props.name);
 
-        this.state = {
-            editMode: false,
-            previous: props.name
-        }
-
-        this.onToggleEditMode = this.onToggleEditMode.bind(this);
-        this.onRevert = this.onRevert.bind(this);
-        this.onAccept = this.onAccept.bind(this);
+    function onToggleEditMode() {
+        setEditMode(!editMode);
+        setPrevious(props.name);
     }
 
-    onToggleEditMode() {
-        this.setState((state, props) => ({
-            editMode: !state.editMode,
-            previous: props.name
-        }));
-    };
+    function onRevert() {
+        props.onChange(previous);
+        onToggleEditMode();
+    }
 
-    onRevert() {
-        this.props.onChange(this.state.previous);
-        this.onToggleEditMode();
-    };
+    function onAccept() {
+        props.onCommit(props.name);
+        onToggleEditMode();
+    }
 
-    onAccept() {
-        this.props.onCommit(this.props.name);
-        this.onToggleEditMode();
-    };
+    return(
+        <Stack spacing={2}>
+            <h4>You are:</h4>
+            <Stack spacing={2} direction={"row"} alignItems={"center"}>
+                <ColorViewer color={props.color}/>
+                <div id={"playerNameView"}>
+                    {editMode ? (
+                        <TextField
+                            value={props.name}
+                            name="name"
+                            label="Player Name"
+                            onChange={e => props.onChange(e.target.value)}
+                        />
+                    ) : (
+                        props.name
+                    )}
+                </div>
 
-    render() {
-        return(
-            <Stack spacing={2}>
-                <h4>You are:</h4>
-                <Stack spacing={2} direction={"row"} alignItems={"center"}>
-                    <ColorViewer color={this.props.color}/>
-                    <div id={"playerNameView"}>
-                        {this.state.editMode ? (
-                            <TextField
-                                value={this.props.name}
-                                name="name"
-                                label="Player Name"
-                                onChange={e => this.props.onChange(e.target.value)}
-                            />
-                        ) : (
-                            this.props.name
-                        )}
-                    </div>
-
-                    {!this.props.loggedIn && this.state.editMode &&
-                    <IconButton
-                        aria-label="done"
-                        onClick={this.onAccept}
-                    >
-                        <DoneIcon/>
-                    </IconButton>
-                    }
-                    {!this.props.loggedIn && this.state.editMode &&
-                    <IconButton
-                        aria-label="revert"
-                        onClick={this.onRevert}
-                    >
-                        <RevertIcon/>
-                    </IconButton>
-                    }
-                    {!this.props.loggedIn && !this.state.editMode &&
-                    <IconButton
-                        aria-label="edit"
-                        onClick={this.onToggleEditMode}
-                    >
-                        <EditIcon/>
-                    </IconButton>
-                    }
-                </Stack>
+                {!props.loggedIn && editMode &&
+                <IconButton
+                    aria-label="done"
+                    onClick={onAccept}
+                >
+                    <DoneIcon/>
+                </IconButton>
+                }
+                {!props.loggedIn && editMode &&
+                <IconButton
+                    aria-label="revert"
+                    onClick={onRevert}
+                >
+                    <RevertIcon/>
+                </IconButton>
+                }
+                {!props.loggedIn && !editMode &&
+                <IconButton
+                    aria-label="edit"
+                    onClick={onToggleEditMode}
+                >
+                    <EditIcon/>
+                </IconButton>
+                }
             </Stack>
-        );
-    }
+        </Stack>
+    );
 }
-
-export default PlayerName

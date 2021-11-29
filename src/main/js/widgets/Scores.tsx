@@ -14,37 +14,31 @@ type Props = {
     title: string
 }
 
-type State = {}
+export default function Scores(props: Props) {
+    const fields = props.scores.map((score, index) =>
+        <TableRow key={score.playerName + index.toString()}>
+            <TableCell>
+                <ColorViewer color={score.color}/>
+            </TableCell>
+            <TableCell>
+                {score.playerName}
+            </TableCell>
+            <TableCell>
+                {score.score}
+            </TableCell>
+        </TableRow>
+    );
 
-class Scores extends React.Component<Props, State> {
-    render() {
-        const fields = this.props.scores.map((score, index) =>
-            <TableRow key={score.playerName + index.toString()}>
-                <TableCell>
-                    <ColorViewer color={score.color}/>
-                </TableCell>
-                <TableCell>
-                    {score.playerName}
-                </TableCell>
-                <TableCell>
-                    {score.score}
-                </TableCell>
-            </TableRow>
-        );
-
-        return (
-            <>
-                <h2>{this.props.title}</h2>
-                <TableContainer component={Paper}>
-                    <Table aria-label={this.props.title} id="currentScores">
-                        <TableBody>
-                            {fields}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </>
-        )
-    }
+    return (
+        <>
+            <h2>{props.title}</h2>
+            <TableContainer component={Paper}>
+                <Table aria-label={props.title} id="currentScores">
+                    <TableBody>
+                        {fields}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </>
+    )
 }
-
-export default Scores

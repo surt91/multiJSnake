@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import genId from "../GenId"
 import Canvas from "../visualization/canvas";
-import {draw} from "../visualization/canvasDraw";
+import {defaultVisualizationOptions, draw, VisualizationOptions} from "../visualization/canvasDraw";
 import axios from "axios";
 import PlayerPane from "./PlayerPane";
 import ScorePane from "./ScorePane";
@@ -29,10 +29,7 @@ type State = {
     shareUrl: string,
     playerName: string,
 
-    scale: number,
-    bgColor: string,
-    foodColor: string,
-    blurred: boolean
+    visOpts: VisualizationOptions,
 
     highscores: Score[],
     globalHighscores: Score[],
@@ -58,14 +55,11 @@ export class GameView extends React.Component<Props, State> {
         }
 
         this.state = {
-            scale: 20,
-            foodColor: "#cc2200",
-            bgColor: "#000",
+            visOpts: defaultVisualizationOptions,
             game: new JsGameState(20, 20), // TODO: replace by a base class without functions
             highscores: [],
             globalHighscores: [],
             idx: -1,
-            blurred: false,
             playerName: "",
             shareUrl: "",
             aiOptions: []
@@ -315,24 +309,17 @@ export class GameView extends React.Component<Props, State> {
     }
 
     render() {
-        const options = {
-            scale: this.state.scale,
-            bgColor: this.state.bgColor,
-            foodColor: this.state.foodColor,
-            blurred: this.state.blurred
-        }
-
         return (
             <Container maxWidth="lg">
                 <Grid container spacing={4} pt={4} justifyContent="space-around" alignItems="flex-start">
                     <Grid item xs={12} lg={6}>
                         <Canvas
-                            draw={ctx => draw(ctx, this.state.game, options)}
-                            width={this.state.game.width * this.state.scale}
-                            height={this.state.game.height * this.state.scale}
+                            draw={ctx => draw(ctx, this.state.game, this.state.visOpts)}
+                            width={this.state.game.width * this.state.visOpts.scale}
+                            height={this.state.game.height * this.state.visOpts.scale}
                             tabIndex={-1}
                             onKeyDown={(e: KeyboardEvent) => this.handleKeydown(e)}
-                            focused={b => this.setState({blurred: !b})}
+                            focused={b => this.setState({visOpts: {...this.state.visOpts, blurred: !b}})}
                             sx={{ mx: "auto" }}
                         />
                     </Grid>

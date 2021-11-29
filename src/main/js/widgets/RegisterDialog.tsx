@@ -3,6 +3,7 @@ import {useFormik} from "formik";
 import {Stack, TextField} from "@mui/material";
 import React from "react";
 import SimpleFormDialog, {ButtonProps} from "./SimpleFormDialog";
+import AuthService from "../auth/AuthService";
 
 type Value = {
     username: string,
@@ -11,13 +12,13 @@ type Value = {
 }
 
 type Props = {
-    authService: any,
+    authService: typeof AuthService,
     onSuccess: (value: Value) => void,
     buttonText: string,
     button: ButtonProps
 }
 
-const RegisterDialog = (props: Props) => {
+export default function RegisterDialog(props: Props) {
 
     const validationSchemaRegister = yup.object({
         email: yup
@@ -100,5 +101,3 @@ const RegisterDialog = (props: Props) => {
         />
     )
 }
-
-export default RegisterDialog

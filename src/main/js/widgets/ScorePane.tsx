@@ -10,56 +10,47 @@ type Props = {
     globalHighscores: Score[]
 }
 
-type State = {}
+export default function ScorePane(props: Props) {
 
-class ScorePane extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-    }
+    const scores = Object.values(props.game.snakes).map(snake => {
+        return {
+            idx: snake.idx,
+            playerName: snake.name,
+            score: snake.length,
+            color: idx2color(snake.idx)
+        }
+    })
 
-    render() {
-        const scores = Object.values(this.props.game.snakes).map(snake => {
-            return {
-                idx: snake.idx,
-                playerName: snake.name,
-                score: snake.length,
-                color: idx2color(snake.idx)
-            }
-        })
-
-        return(
-            <Grid container
-                  spacing={2}
-                  pb={2}
-                  direction={'column'}
-                  justifyContent="space-around"
-                  alignItems="baseline"
-                  component={Paper}
-            >
-                <Grid item>
-                    <Scores
-                        key="Scores"
-                        title="Scores"
-                        scores={scores}
-                    />
-                </Grid>
-                <Grid item>
-                    <Scores
-                        key="highscoresSize"
-                        title={`Highscores for ${this.props.game.width} x ${this.props.game.height}`}
-                        scores={this.props.highscores}
-                    />
-                </Grid>
-                <Grid item>
-                    <Scores
-                        key="Highscores"
-                        title="Highscores"
-                        scores={this.props.globalHighscores}
-                    />
-                </Grid>
+    return(
+        <Grid container
+              spacing={2}
+              pb={2}
+              direction={'column'}
+              justifyContent="space-around"
+              alignItems="baseline"
+              component={Paper}
+        >
+            <Grid item>
+                <Scores
+                    key="Scores"
+                    title="Scores"
+                    scores={scores}
+                />
             </Grid>
-        );
-    }
+            <Grid item>
+                <Scores
+                    key="highscoresSize"
+                    title={`Highscores for ${props.game.width} x ${props.game.height}`}
+                    scores={props.highscores}
+                />
+            </Grid>
+            <Grid item>
+                <Scores
+                    key="Highscores"
+                    title="Highscores"
+                    scores={props.globalHighscores}
+                />
+            </Grid>
+        </Grid>
+    );
 }
-
-export default ScorePane

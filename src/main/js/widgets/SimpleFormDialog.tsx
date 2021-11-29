@@ -5,7 +5,7 @@ import {
     DialogContent,
     DialogTitle,
 } from "@mui/material";
-import React from "react";
+import React, {useState} from "react";
 
 export type ButtonProps = {
     color?: "inherit",
@@ -19,46 +19,36 @@ type Props = {
     button: ButtonProps
 }
 
-type State = {
-    open: boolean
-}
+export default function SimpleFormDialog(props: Props) {
 
-class SimpleFormDialog extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {open: false};
+    const [open, setOpen] = useState(false);
+
+    function handleClickOpen() {
+        setOpen(true);
     }
 
-    handleClickOpen() {
-        this.setState({open: true});
-    };
-
-    handleClose() {
-        this.setState({open: false});
-        this.props.formik.resetForm();
-    };
-
-    render() {
-        return (
-            <>
-                <Button {...this.props.button} onClick={() => this.handleClickOpen()}>
-                    {this.props.buttonText}
-                </Button>
-                <Dialog open={this.state.open} onClose={() => this.handleClose()}>
-                    <DialogTitle>{this.props.buttonText}</DialogTitle>
-                    <form onSubmit={this.props.formik.handleSubmit}>
-                        <DialogContent>
-                            {this.props.fields}
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={() => this.handleClose()}>Cancel</Button>
-                            <Button type="submit">Submit</Button>
-                        </DialogActions>
-                    </form>
-                </Dialog>
-            </>
-        );
+    function handleClose() {
+        setOpen(false);
+        props.formik.resetForm();
     }
-}
 
-export default SimpleFormDialog
+    return (
+        <>
+            <Button {...props.button} onClick={() => handleClickOpen()}>
+                {props.buttonText}
+            </Button>
+            <Dialog open={open} onClose={() => handleClose()}>
+                <DialogTitle>{props.buttonText}</DialogTitle>
+                <form onSubmit={props.formik.handleSubmit}>
+                    <DialogContent>
+                        {props.fields}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => handleClose()}>Cancel</Button>
+                        <Button type="submit">Submit</Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+        </>
+    );
+}

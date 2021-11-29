@@ -1,5 +1,5 @@
 module.exports = {
-    entry: './src/main/js/app.tsx',
+    entry: './src/main/js/App.tsx',
     cache: true,
     output: {
         path: __dirname,
