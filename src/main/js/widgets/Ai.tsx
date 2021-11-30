@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from "react";
+import React, {memo, useEffect, useState} from "react";
 import Canvas from "../visualization/canvas";
 import {defaultVisualizationOptions, draw} from "../visualization/canvasDraw";
 import {Container, Grid, Stack} from "@mui/material";
-import * as tf from "@tensorflow/tfjs";
 // @ts-ignore
 import jsYaml from "js-yaml";
 // @ts-ignore
@@ -10,6 +9,9 @@ import rawAiOptions from "../../resources/models/strategies.yaml"
 import JsGameState from "../SnakeLogic/JsGameState";
 import AddAutopilot from "./AddAutopilot";
 // import FieldSizeSelector from "./FieldSizeSelector";
+// import tensorflow dynamically (in a separate chuck thanks to webpack), since it is large and only needed for one route
+const {tensor, loadLayersModel, engine} = await import("@tensorflow/tfjs");
+// this one is just for the type and is hopefully dead-code-eliminated from the bundle
 import {LayersModel} from "@tensorflow/tfjs";
 
 export type AiOption = {
@@ -21,7 +23,7 @@ export type AiOption = {
     mode: string
 }
 
-export default function Ai() {
+function Ai() {
     const aiJsOptionsAll = jsYaml.load(rawAiOptions);
     const aiJsOptions: AiOption[] = aiJsOptionsAll.filter((obj: AiOption) => "model_path_js" in obj);
 
@@ -54,7 +56,7 @@ export default function Ai() {
         setModelOption(obj);
         // if there is an old model, dispose it first
         freeModel();
-        model_promise = tf.loadLayersModel(obj.model_path_js);
+        model_promise = loadLayersModel(obj.model_path_js);
     }
 
     function gameOver(score: number) {
@@ -63,22 +65,22 @@ export default function Ai() {
 
     function step() {
         model_promise && model_promise.then(model => {
-            tf.engine().startScope()
+            engine().startScope()
 
             if(modelOption.input === "global") {
-                const state = tf.tensor([game.trainingBitmap()]);
+                const state = tensor([game.trainingBitmap()]);
                 const out = model.predict(state);
                 // @ts-ignore
                 const action = out[0].argMax(1).arraySync()[0];
                 game.absoluteAction2Move(action);
             } else {
-                const state = tf.tensor([game.trainingState()]);
+                const state = tensor([game.trainingState()]);
                 const out = model.predict(state);
                 // @ts-ignore
                 const action = out[0].argMax(1).arraySync()[0];
                 game.relativeAction2Move(action);
             }
-            tf.engine().endScope();
+            engine().endScope();
 
             game.update();
 
@@ -114,5 +116,6 @@ export default function Ai() {
             </Grid>
         </Container>
     )
-
 }
+
+export default memo(Ai)
