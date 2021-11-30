@@ -51,12 +51,9 @@ export default function Ai() {
 
         const refresh = window.setInterval(() => step(), 30);
 
-        console.log("set interval")
-
         draw(getContext(), game, visOpts)
 
         return () => {
-            console.log("free interval")
             window.clearInterval(refresh);
         };
     })
