@@ -101,7 +101,10 @@ describe('Canvas Test', () => {
 
                 cy.log(`Found a ${diffPercent.toFixed(2)}% pixel difference`);
 
-                expect(diffPercent).to.be.above(10);
+                // if more than 2 pixels change (and this should be a 10x10 grid), we can be sure to not have
+                // accidentially made screenshots during initialization, where head and food are places, but that
+                // something is actually moving
+                expect(diffPercent).to.be.above(2);
             });
         });
     })
