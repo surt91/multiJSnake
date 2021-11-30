@@ -5,8 +5,9 @@ module.exports = {
     entry: './src/main/js/App.tsx',
     cache: true,
     output: {
-        path: __dirname,
-        filename: './src/main/resources/static/built/bundle.js'
+        path: __dirname + "/src/main/resources/static/built",
+        filename: './bundle.js',
+        publicPath: '/built/',
     },
     module: {
         rules: [
