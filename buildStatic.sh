@@ -11,12 +11,13 @@ mkdir tmp/resources/
 cp -r src/main/resources/{models,static} tmp/resources/
 
 # patch the main component
-cd tmp
+cd tmp || exit 1
 
 sed -i 's/MultiJSnake/aiSnake/g' js/App.tsx
 sed -i 's|"/ai"|"/ai", "/"|g' js/App.tsx
 sed -i 's|./src/main/js/App.tsx|./js/App.tsx|g' webpack.config.js
-sed -i 's|./src/main/resources/static/built/bundle.js|./resources/static/built/bundle.js|g' webpack.config.js
+sed -i 's|path: __dirname + "/src/main/resources/static/built"|path: __dirname + "/resources/static/built"|g' webpack.config.js
+
 
 python3 << EOF
 def snip(filename):
