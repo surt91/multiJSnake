@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
-import {GameView} from "./widgets/GameView";
+import GameView from "./widgets/GameView";
 import Profile, {User} from "./widgets/Profile";
 import Ai from "./widgets/Ai";
 import NavBar from "./NavBar";

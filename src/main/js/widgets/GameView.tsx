@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {registerTouch, unregisterTouch} from "../registerTouch";
 import {registerStomp, WebsocketMessage} from "../websockets/websocket-listener";
 import {
@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import genId from "../GenId"
 import Canvas from "../visualization/canvas";
-import {defaultVisualizationOptions, draw, VisualizationOptions} from "../visualization/canvasDraw";
+import {defaultVisualizationOptions, draw} from "../visualization/canvasDraw";
 import axios from "axios";
 import PlayerPane from "./PlayerPane";
 import ScorePane from "./ScorePane";
@@ -22,334 +22,323 @@ type Props = {
     currentUser?: User
 }
 
-type State = {
-    aiOptions: AiOption[],
-    game: JsGameState,
-    idx: number,
-    shareUrl: string,
-    playerName: string,
+type StompSpec = {
+    type: "new",
+    id: string,
+    width: number,
+    height: number
+} | {
+    type: "existing",
+    id: string
+} | undefined;
 
-    visOpts: VisualizationOptions,
+export default function GameView(props: Props) {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
+    let id: string|undefined = params["id"];
 
-    highscores: Score[],
-    globalHighscores: Score[],
-}
+    const {currentUser} = props;
 
-export class GameView extends React.Component<Props, State> {
-    private id?: string;
-    private stompClient?: BufferedStompClient;
-    private playerId?: string;
-
-    constructor(props: Props) {
-        super(props);
-
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        const params = Object.fromEntries(urlSearchParams.entries());
-        this.id = params["id"];
-
-        if (this.id) {
-            // also remove the query string with the id, without reloading
-            // https://stackoverflow.com/a/19279428
-            const withoutQuery = window.location.protocol + "//" + window.location.host + window.location.pathname;
-            window.history.pushState({path: withoutQuery}, '', withoutQuery);
-        }
-
-        this.state = {
-            visOpts: defaultVisualizationOptions,
-            game: new JsGameState(20, 20), // TODO: replace by a base class without functions
-            highscores: [],
-            globalHighscores: [],
-            idx: -1,
-            playerName: "",
-            shareUrl: "",
-            aiOptions: []
-        };
-
-        this.updateGameState = this.updateGameState.bind(this);
-        this.updateHighscore = this.updateHighscore.bind(this);
-        this.updateGlobalHighscore = this.updateGlobalHighscore.bind(this);
-        this.updateIdentity = this.updateIdentity.bind(this);
-        this.handleKeydown = this.handleKeydown.bind(this);
-        this.handleNameChange = this.handleNameChange.bind(this);
-        this.handleNameCommit = this.handleNameCommit.bind(this);
+    if (id) {
+        // also remove the query string with the id, without reloading
+        // https://stackoverflow.com/a/19279428
+        const withoutQuery = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.pushState({path: withoutQuery}, '', withoutQuery);
     }
 
-    componentDidMount() {
-        this.init(this.state.game.width, this.state.game.height);
-        registerTouch((dir: Direction) => this.move(dir), () => this.unpause());
+    const [visOpts, setVisOpts] = useState(defaultVisualizationOptions);
+    const [game, setGame] = useState<JsGameState>(new JsGameState(20, 20))// TODO: replace by a base class without functions
+    const [highscores, setHighscores] = useState<Score[]>([]);
+    const [globalHighscores, setGlobalHighscores] = useState<Score[]>([]);
+    const [idx, setIdx] = useState(-1);
+    const [playerName, setPlayerName] = useState("");
+    const [shareUrl, setShareUrl] = useState("");
+    const [aiOptions, setAiOptions] = useState([]);
+
+    const [stompSpec, setStompSpec] = useState<StompSpec>(undefined);
+    const [stompClient, setStompClient] = useState<BufferedStompClient|undefined>(undefined);
+    const [playerId, setPlayerId] = useState<string|undefined>(undefined);
+
+    useEffect(() => {
+        init(game.width, game.height);
+        registerTouch((dir: Direction) => move(dir), () => unpause());
 
         axios.get("/api/listAi")
             .then(response => {
-                this.setState({aiOptions: response.data});
+                setAiOptions(response.data);
             });
-    }
 
-    componentWillUnmount() {
-        unregisterTouch();
-        this.stompClient && this.stompClient.deactivate();
-    }
-
-    componentDidUpdate(prevProps: Props, prevState: State) {
-        if (this.props.currentUser && prevProps.currentUser !== this.props.currentUser) {
-            this.handleNameCommit(this.props.currentUser.username)
+        return () => {
+            unregisterTouch();
         }
-    }
+    }, []);
 
-    newGame(width: number, height: number) {
-        this.id = undefined;
-        this.init(width, height);
-    }
-
-    init(width: number, height: number) {
-        // check if we are joining an existing game, or starting a new one
-        // https://stackoverflow.com/a/901144
-
-        if(this.id === undefined) {
-            this.joinNewGame(width, height)
-        } else {
-            this.join(this.id);
+    useEffect(() => {
+        if(currentUser) {
+            setPlayerName(currentUser.username);
         }
-    }
+    }, [currentUser]);
 
-    joinNewGame(width: number, height: number) {
-        let id = genId(10);
-
-        if(this.stompClient !== undefined) {
-            // if we are already joined to a game, disconnect the existing
-            // client before joining with a new one
-            this.stompClient.deactivate();
-        }
-
-        this.stompClient = registerStomp([
-            {route: '/topic/update/' + id, callback: this.updateGameState},
-            {route: '/topic/newHighscore', callback: this.updateHighscore},
-            {route: '/topic/newGlobalHighscore', callback: this.updateGlobalHighscore},
-            {route: '/user/queue/joined', callback: this.updateIdentity},
-        ]);
-
-        this.stompClient.bufferedPublish({
-            destination: `/app/joinNewGame/${id}/${width}/${height}`,
-            body: JSON.stringify({})
-        });
-    }
-
-    join(id?: string) {
-        if (id === undefined) {
-            // TODO: raise an error
+    useEffect(() => {
+        if(stompClient === undefined || playerId === undefined || !playerName) {
             return;
         }
 
-        if(this.stompClient !== undefined) {
-            // if we are already joined to a game, disconnect the existing
-            // client before joining with a new one
-            this.stompClient.deactivate();
+        stompClient.bufferedPublish({
+            destination: `/app/setName/${playerId}`,
+            body: playerName
+        });
+
+        localStorage.setItem('playerName', playerName);
+    }, [playerName, stompClient, playerId]);
+
+    useEffect(() => {
+        if(stompSpec === undefined) {
+            return;
         }
 
-        this.stompClient = registerStomp([
-            {route: '/topic/update/' + id, callback: this.updateGameState},
-            {route: '/topic/newHighscore', callback: this.updateHighscore},
-            {route: '/topic/newGlobalHighscore', callback: this.updateGlobalHighscore},
-            {route: '/user/queue/joined', callback: this.updateIdentity},
+        const sc = registerStomp([
+            {route: '/topic/update/' + stompSpec.id, callback: updateGameState},
+            {route: '/topic/newHighscore', callback: updateHighscore},
+            {route: '/topic/newGlobalHighscore', callback: updateGlobalHighscore},
+            {route: '/user/queue/joined', callback: updateIdentity},
         ]);
 
-        this.stompClient.bufferedPublish({
-            destination: `/app/join/${id}`,
+        const dest = stompSpec.type === "new"
+            ? `/app/joinNewGame/${stompSpec.id}/${stompSpec.width}/${stompSpec.height}`
+            : `/app/join/${stompSpec.id}`;
+
+        sc.bufferedPublish({
+            destination: dest,
             body: JSON.stringify({})
+        });
+
+        setStompClient(sc);
+
+        return(() => {
+            sc.deactivate();
+            setStompClient(undefined);
+            setPlayerId(undefined);
+        });
+    }, [stompSpec])
+
+    function newGame(width: number, height: number) {
+        id = undefined;
+        init(width, height);
+    }
+
+    function init(width: number, height: number) {
+        // check if we are joining an existing game, or starting a new one
+        // https://stackoverflow.com/a/901144
+
+        if(id === undefined) {
+            joinNewGame(width, height)
+        } else {
+            join(id);
+        }
+    }
+
+    function joinNewGame(width: number, height: number) {
+        let id = genId(10);
+        setStompSpec({
+            id: id,
+            type: "new",
+            width: width,
+            height: height
         });
     }
 
-    updateIdentity(message: WebsocketMessage) {
-        const playerInfo = JSON.parse(message.body);
-
-        this.id = playerInfo.gameId;
-        this.playerId = playerInfo.playerId;
-        console.log(message.body)
-        console.log(this.id)
-        console.log(this.playerId)
-
-        const url = window.location.origin + `?id=${this.id}`;
-        this.setState({
-            shareUrl: url,
-            idx: playerInfo.idx
+    function join(id: string) {
+        setStompSpec({
+            id: id,
+            type: "existing"
         });
+    }
+
+    function updateIdentity(message: WebsocketMessage) {
+        const playerInfo: PlayerInfo = JSON.parse(message.body);
+
+        id = playerInfo.gameId;
+        setPlayerId(playerInfo.playerId);
+        console.log(message.body)
+        console.log(id)
+        console.log(playerId)
+
+        const url = window.location.origin + `?id=${id}`;
+        setShareUrl(url);
+        setIdx(playerInfo.idx);
 
         // as soon as we know hwo we are, look if we have
         // a saved name and notify the server in that case
-        let playerName = localStorage.getItem('playerName');
-        if (playerName !== undefined && playerName !== null) {
-            this.handleNameCommit(playerName)
+        let name = localStorage.getItem('playerName');
+        if (name) {
+            setPlayerName(name);
         } else {
-            const playerName = this.nameFromGameState();
-            this.setState({
-                playerName: playerName
-            });
+            setPlayerName(playerInfo.name); // default name assigned by the server
         }
     }
 
-    move(dir: Direction) {
-        this.stompClient && this.stompClient.bufferedPublish({
-            destination: `/app/move/${this.playerId}`,
+    function move(dir: Direction) {
+        if(stompClient === undefined || playerId === undefined) {
+            throw "Server not ready yet";
+        }
+
+        stompClient.bufferedPublish({
+            destination: `/app/move/${playerId}`,
             body: JSON.stringify(dir)
         });
     }
 
-    reset() {
-        this.stompClient && this.stompClient.bufferedPublish({
-            destination: `/app/reset/${this.playerId}`
+    function reset() {
+        if(stompClient === undefined || playerId === undefined) {
+            throw "Server not ready yet";
+        }
+
+        stompClient.bufferedPublish({
+            destination: `/app/reset/${playerId}`
         });
     }
 
-    unpause() {
-        if(this.state.game.paused) {
-            this.stompClient && this.stompClient.bufferedPublish({
-                destination: `/app/unpause/${this.playerId}`
+    function unpause() {
+        if(game.paused) {
+            if(stompClient === undefined || playerId === undefined) {
+                throw "Server not ready yet";
+            }
+
+            stompClient.bufferedPublish({
+                destination: `/app/unpause/${playerId}`
             });
         }
     }
 
-    pause() {
-        if(!this.state.game.paused) {
-            this.stompClient && this.stompClient.bufferedPublish({
-                destination: `/app/pause/${this.playerId}`
+    function pause() {
+        if(!game.paused) {
+            if(stompClient === undefined || playerId === undefined) {
+                throw "Server not ready yet";
+            }
+
+            stompClient.bufferedPublish({
+                destination: `/app/pause/${playerId}`
             });
         }
     }
 
-    togglePause() {
-        if(this.state.game.paused) {
-            this.unpause();
+    function togglePause() {
+        if(game.paused) {
+            unpause();
         } else {
-            this.pause();
+            pause();
         }
     }
 
-    nameFromGameState() {
-        return this.state.game && this.state.idx >= 0 && this.state.game.snakes[this.state.idx].name || "Anonymous";
+    function updateGameState(message: WebsocketMessage) {
+        const gameState: JsGameState = JSON.parse(message.body);
+        setGame(gameState);
     }
 
-    updateGameState(message: WebsocketMessage) {
-        const gameState = JSON.parse(message.body);
-        this.setState({
-            game: gameState
-        });
-    }
-
-    updateHighscore(message: WebsocketMessage) {
+    function updateHighscore(message: WebsocketMessage) {
         if(message === undefined) {
             return;
         }
 
-        const highscores = JSON.parse(message.body);
-        this.setState({highscores: highscores});
+        const highscores: Score[] = JSON.parse(message.body);
+        setHighscores(highscores);
     }
 
-    updateGlobalHighscore(message: WebsocketMessage) {
+    function updateGlobalHighscore(message: WebsocketMessage) {
         if(message === undefined) {
             return;
         }
 
-        const highscores = JSON.parse(message.body);
-        this.setState({globalHighscores: highscores});
+        const highscores: Score[] = JSON.parse(message.body);
+        setGlobalHighscores(highscores);
     }
 
-    handleKeydown(e: KeyboardEvent) {
+    function handleKeydown(e: KeyboardEvent) {
         switch (e.code) {
             case "ArrowUp":
             case "KeyW":
-                this.move("up");
-                this.unpause();
+                move("up");
+                unpause();
                 break;
             case "ArrowDown":
             case "KeyS":
-                this.move("down");
-                this.unpause();
+                move("down");
+                unpause();
                 break;
             case "ArrowLeft":
             case "KeyA":
-                this.move("left");
-                this.unpause();
+                move("left");
+                unpause();
                 break;
             case "ArrowRight":
             case "KeyD":
-                this.move("right");
-                this.unpause();
+                move("right");
+                unpause();
                 break;
             case "KeyP":
-                this.togglePause();
+                togglePause();
                 break;
             case "KeyR":
-                this.reset();
+                reset();
                 break;
         }
     }
 
-    handleNameChange(newName: string) {
-        this.setState({playerName: newName});
+    function handleNameCommit(newName: string) {
+        setPlayerName(newName);
     }
 
-    handleNameCommit(newName: string) {
-        if(this.stompClient) {
-            this.stompClient.bufferedPublish({
-                destination: `/app/setName/${this.playerId}`,
-                body: newName
-            });
-        }
-        localStorage.setItem('playerName', newName);
-        this.setState({
-            playerName: newName
-        });
-    }
-
-    addAutopilot(obj: AiOption) {
+    function addAutopilot(obj: AiOption) {
         let type = obj.id;
-        this.stompClient && this.stompClient.bufferedPublish({
-            destination: `/app/addAI/${this.playerId}`,
+
+        if(stompClient === undefined || playerId === undefined) {
+            throw "Server not ready yet";
+        }
+
+        stompClient.bufferedPublish({
+            destination: `/app/addAI/${playerId}`,
             body: type
         });
     }
 
-    render() {
-        return (
-            <Container maxWidth="lg">
-                <Grid container spacing={4} pt={4} justifyContent="space-around" alignItems="flex-start">
-                    <Grid item xs={12} lg={6}>
-                        <Canvas
-                            draw={ctx => draw(ctx, this.state.game, this.state.visOpts)}
-                            width={this.state.game.width * this.state.visOpts.scale}
-                            height={this.state.game.height * this.state.visOpts.scale}
-                            tabIndex={-1}
-                            onKeyDown={(e: KeyboardEvent) => this.handleKeydown(e)}
-                            focused={b => this.setState({visOpts: {...this.state.visOpts, blurred: !b}})}
-                            sx={{ mx: "auto" }}
-                        />
-                    </Grid>
-                    <Grid item xs={12} lg={3}>
-                        <PlayerPane
-                            game={this.state.game}
-                            shareUrl={this.state.shareUrl}
-                            idx={this.state.idx}
-                            playerName={this.state.playerName}
-                            currentUser={this.props.currentUser}
-                            handleNameCommit={s => this.handleNameCommit(s)}
-                            handleNameChange={s => this.handleNameChange(s)}
-                            newGame={(w, h) => this.newGame(w, h)}
-                            addAutopilot={name => this.addAutopilot(name)}
-                            aiOptions={this.state.aiOptions}
-                            togglePause={() => this.togglePause()}
-                            reset={() => this.reset()}
-                        />
-                    </Grid>
-                    <Grid item xs={12} lg={3}>
-                        <ScorePane
-                            game={this.state.game}
-                            highscores={this.state.highscores}
-                            globalHighscores={this.state.globalHighscores}
-                        />
-                    </Grid>
+    return (
+        <Container maxWidth="lg">
+            <Grid container spacing={4} pt={4} justifyContent="space-around" alignItems="flex-start">
+                <Grid item xs={12} lg={6}>
+                    <Canvas
+                        draw={ctx => draw(ctx, game, visOpts)}
+                        width={game.width * visOpts.scale}
+                        height={game.height * visOpts.scale}
+                        tabIndex={-1}
+                        onKeyDown={(e: KeyboardEvent) => handleKeydown(e)}
+                        focused={b => setVisOpts({...visOpts, blurred: !b})}
+                        sx={{ mx: "auto" }}
+                    />
                 </Grid>
-            </Container>
-        )
-    }
+                <Grid item xs={12} lg={3}>
+                    <PlayerPane
+                        game={game}
+                        shareUrl={shareUrl}
+                        idx={idx}
+                        playerName={playerName}
+                        currentUser={props.currentUser}
+                        handleNameCommit={s => handleNameCommit(s)}
+                        newGame={(w, h) => newGame(w, h)}
+                        addAutopilot={name => addAutopilot(name)}
+                        aiOptions={aiOptions}
+                        togglePause={() => togglePause()}
+                        reset={() => reset()}
+                    />
+                </Grid>
+                <Grid item xs={12} lg={3}>
+                    <ScorePane
+                        game={game}
+                        highscores={highscores}
+                        globalHighscores={globalHighscores}
+                    />
+                </Grid>
+            </Grid>
+        </Container>
+    )
 }
-
-

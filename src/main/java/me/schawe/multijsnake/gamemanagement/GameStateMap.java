@@ -146,8 +146,9 @@ public class GameStateMap {
         }
 
         SnakeId snakeId = idToGame(id).addSnake();
+        String name = idToGame(id).getSnake(snakeId).getName();
         PlayerId playerId = new PlayerId(IdGenerator.gen(random));
-        PlayerInfo playerInfo = new PlayerInfo(playerId, snakeId, sessionId);
+        PlayerInfo playerInfo = new PlayerInfo(playerId, snakeId, sessionId, name);
         registerPlayer(playerId, playerInfo);
         GameState state = idToGame(id);
 

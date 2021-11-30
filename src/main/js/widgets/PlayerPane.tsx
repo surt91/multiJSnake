@@ -18,7 +18,6 @@ type Props = {
 
     idx: number,
     playerName: string,
-    handleNameChange: (name: string) => void,
     handleNameCommit: (name: string) => void,
 
     addAutopilot: (type: AiOption) => void,
@@ -61,7 +60,6 @@ export default function PlayerPane(props: Props) {
                     name={props.playerName}
                     color={idx2color(props.idx)}
                     onCommit={props.handleNameCommit}
-                    onChange={props.handleNameChange}
                     loggedIn={Boolean(props.currentUser)}
                 />}
             </Grid>

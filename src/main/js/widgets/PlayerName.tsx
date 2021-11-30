@@ -9,7 +9,6 @@ type Props = {
     loggedIn: boolean,
     name: string,
     color: string,
-    onChange: (value: string) => void
     onCommit: (value: string) => void
 }
 
@@ -17,6 +16,7 @@ export default function PlayerName(props: Props) {
 
     const [editMode, setEditMode] = useState(false);
     const [previous, setPrevious] = useState(props.name);
+    const [name, setName] = useState(props.name);
 
     function onToggleEditMode() {
         setEditMode(!editMode);
@@ -24,12 +24,12 @@ export default function PlayerName(props: Props) {
     }
 
     function onRevert() {
-        props.onChange(previous);
+        setName(previous);
         onToggleEditMode();
     }
 
     function onAccept() {
-        props.onCommit(props.name);
+        props.onCommit(name);
         onToggleEditMode();
     }
 
@@ -41,10 +41,10 @@ export default function PlayerName(props: Props) {
                 <div id={"playerNameView"}>
                     {editMode ? (
                         <TextField
-                            value={props.name}
+                            value={name}
                             name="name"
                             label="Player Name"
-                            onChange={e => props.onChange(e.target.value)}
+                            onChange={e => setName(e.target.value)}
                         />
                     ) : (
                         props.name
