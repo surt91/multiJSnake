@@ -119,7 +119,7 @@ export default function Ai() {
                             onChange={id => setAi(id)}
                             aiOptions={aiJsOptions}
                             submitText={"Change AI"}
-                            width={500}
+                            width={"100%"}
                             defaultValue={modelOption}
                             commitMode={false}
                         />

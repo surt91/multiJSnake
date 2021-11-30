@@ -7,7 +7,7 @@ type Props = {
     onCommit: (value: AiOption) => void,
     onChange?: (value: AiOption) => void,
     aiOptions: AiOption[]
-    width?: number,
+    width?: number | string,
     defaultValue?: AiOption,
     commitMode: boolean,
     submitText?: string
@@ -24,15 +24,13 @@ function AddAutopilot(props: Props) {
                 options={props.aiOptions}
                 sx={{ width: props.width || 250 }}
                 value={value}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => <TextField {...params} label="AI Strategy" />}
                 onChange={(e, newValue) => {
                     newValue && setValue(newValue);
                     props.onChange && newValue && props.onChange(newValue)
                 }}
             />
-            <Box sx={{ width: props.width || 250 }}>
-                {value && value.description}
-            </Box>
             {props.commitMode &&
             <Button
                 aria-label="done"
@@ -44,6 +42,9 @@ function AddAutopilot(props: Props) {
                 <AddIcon/>
             </Button>
             }
+            <Box sx={{ width: props.width || 250 }}>
+                {value && value.description}
+            </Box>
         </Stack>
     );
 }
