@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useRef} from "react";
 
 type Props = {
     width: number,
@@ -11,34 +11,24 @@ type Props = {
     onKeyDown?: (e: KeyboardEvent) => void
 };
 
-type State = {}
-
 // https://medium.com/@pdx.lucasm/canvas-with-react-js-32e133c05258
-class Canvas extends React.Component<Props, State> {
-    private readonly canvasRef: React.RefObject<HTMLCanvasElement>;
+export default function Canvas(props: Props) {
+    const canvasRef = useRef<HTMLCanvasElement|null>(null);
 
-    constructor(props: Props) {
-        super(props);
+    const {draw, focused, ...passthrough} = props;
 
-        this.canvasRef = React.createRef();
-    }
-
-    componentDidMount() {
-        const canvas = this.canvasRef.current;
+    useEffect(() => {
+        const canvas = canvasRef.current;
 
         if(canvas === null) {
             throw "Canvas failed to construct";
         }
 
-        // prevent scrolling so that we can use touch events of navigation
-        canvas.style.cssText = "touch-action: none;";
-        this.context = canvas.getContext('2d');
-        this.props.draw(this.context);
         canvas.focus();
-    }
+    }, []);
 
-    componentDidUpdate(prevProps: Props, prevState: State) {
-        const canvas = this.canvasRef.current;
+    useEffect(() => {
+        const canvas = canvasRef.current;
 
         if(canvas === null) {
             throw "Canvas failed to construct";
@@ -50,23 +40,18 @@ class Canvas extends React.Component<Props, State> {
             throw "Failed to get the Context of the constructed canvas";
         }
 
-        this.props.draw(context);
-    }
+        draw(context);
+    });
 
-    render() {
-        let {draw, focused, ...passthrough} = this.props;
-        return (
-            // @ts-ignore
-            <canvas
-                ref={this.canvasRef}
-                {...passthrough}
-                id={"snakeCanvas"}
-                tabIndex={-1}
-                onBlur={_ => focused(false)}
-                onFocus={_ => focused(true)}
-            />
-        )
-    }
+    return (
+        // @ts-ignore
+        <canvas
+            ref={canvasRef}
+            {...passthrough}
+            id={"snakeCanvas"}
+            tabIndex={-1}
+            onBlur={_ => focused(false)}
+            onFocus={_ => focused(true)}
+        />
+    )
 }
-
-export default Canvas

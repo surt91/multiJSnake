@@ -61,4 +61,48 @@ describe('Canvas Test', () => {
         cy.wait(200);
         cy.get('canvas').compareSnapshot('canvas-ai-step', 0.0);
     })
+
+    it("is ai moving", {
+        defaultCommandTimeout: 20000
+    }, () => {
+        cy.visit('/ai');
+
+        cy.get('canvas').screenshot('zeroth');
+        cy.wait(2000);
+        cy.get('canvas').screenshot('first');
+        cy.wait(200);
+        cy.get('canvas').screenshot('second');
+
+        // https://gambini.me/en/blog/comparing-website-screenshots-with-cypress-and-pixelmatch
+        // PNGJS lets me load the picture from disk
+        const PNG = require('pngjs').PNG;
+        // pixelmatch library will handle comparison
+        const pixelmatch = require('pixelmatch');
+
+
+        cy.readFile(
+            './cypress/snapshots/actual/canvas.js/first.png', 'base64'
+        ).then(first => {
+            cy.readFile(
+                './cypress/snapshots/actual/canvas.js/second.png', 'base64'
+            ).then(second => {
+                // load both pictures
+                const img1 = PNG.sync.read(Buffer.from(first, 'base64'));
+                const img2 = PNG.sync.read(Buffer.from(second, 'base64'));
+
+                const { width, height } = img1;
+                const diff = new PNG({ width, height });
+
+                // calling pixelmatch return how many pixels are different
+                const numDiffPixels = pixelmatch(img1.data, img2.data, diff.data, width, height);
+
+                // calculating a percent diff
+                const diffPercent = (numDiffPixels / (width * height) * 100);
+
+                cy.log(`Found a ${diffPercent.toFixed(2)}% pixel difference`);
+
+                expect(diffPercent).to.be.above(10);
+            });
+        });
+    })
 })

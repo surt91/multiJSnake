@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {memo, useState} from "react";
 import {Autocomplete, Box, Button, Stack, TextField} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import {AiOption} from "./Ai";
@@ -13,7 +13,7 @@ type Props = {
     submitText?: string
 }
 
-export default function AddAutopilot(props: Props) {
+function AddAutopilot(props: Props) {
     const [value, setValue] = useState(props.defaultValue || null) // if this was undefined, the input would be uncontrolled
 
     return (
@@ -46,5 +46,6 @@ export default function AddAutopilot(props: Props) {
             }
         </Stack>
     );
-
 }
+
+export default memo(AddAutopilot);
