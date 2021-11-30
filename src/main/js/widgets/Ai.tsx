@@ -22,79 +22,93 @@ export type AiOption = {
     mode: string
 }
 
+type Model = {
+    options: AiOption
+    model: LayersModel|undefined
+}
+
 export default function Ai() {
+    // load all models from the yaml ...
     const aiJsOptionsAll = jsYaml.load(rawAiOptions);
+    // ... but only offer those, which have a model in the correct format
     const aiJsOptions: AiOption[] = aiJsOptionsAll.filter((obj: AiOption) => "model_path_js" in obj);
 
     const visOpts = defaultVisualizationOptions;
 
-    const [game, setGame] = useState(new JsGameState(10, 10, (score) => gameOver(score)))
-    const [modelOption, setModelOption] = useState(aiJsOptions[aiJsOptions.length - 1]);
+    // game is a mutable object, it will mutate itself and will not trigger re-rendering
+    const [game, _] = useState(new JsGameState(10, 10, (score) => gameOver(score)));
+    const [model, setModel] = useState<Model>({
+        options: aiJsOptions[aiJsOptions.length - 1],
+        model: undefined
+    });
     const canvasRef = useRef<HTMLCanvasElement|null>(null);
 
-    let model_promise: Promise<LayersModel> | null = null;
-
     useEffect(() => {
-        setAi(modelOption);
+        // if we do not have a model, we don't need to try to step
+        if(model.model === undefined) {
+            return
+        }
+
         const refresh = window.setInterval(() => step(), 30);
 
-        const canvas = canvasRef.current;
-        if(canvas === null) {
-            throw "Canvas failed to construct";
-        }
-        const contextTest = canvas.getContext('2d');
-        if(contextTest === null) {
-            throw "Failed to get the Context of the constructed canvas";
-        }
-        const context: CanvasRenderingContext2D = contextTest;
+        console.log("set interval")
 
-        function step() {
-            model_promise && model_promise.then(model => {
-                engine().startScope()
-
-                if(modelOption.input === "global") {
-                    const state = tensor([game.trainingBitmap()]);
-                    const out = model.predict(state);
-                    // @ts-ignore
-                    const action = out[0].argMax(1).arraySync()[0];
-                    game.absoluteAction2Move(action);
-                } else {
-                    const state = tensor([game.trainingState()]);
-                    const out = model.predict(state);
-                    // @ts-ignore
-                    const action = out[0].argMax(1).arraySync()[0];
-                    game.relativeAction2Move(action);
-                }
-                engine().endScope();
-
-                game.update();
-
-                setGame(game);
-
-                draw(context, game, visOpts)
-            });
-        }
+        draw(getContext(), game, visOpts)
 
         return () => {
+            console.log("free interval")
             window.clearInterval(refresh);
-            freeModel();
         };
     })
+
+    useEffect(() => {
+        loadLayersModel(model.options.model_path_js).then(m => setModel(prevState => {
+            // if there is an old model, dispose it first
+            prevState.model && prevState.model.layers.forEach(l => l.dispose());
+            return {options: model.options, model: m};
+        }));
+    }, [model.options])
 
     // function newGame(width: number, height: number) {
     //     const game = new JsGameState(width, height, (score) => gameOver(score));
     //     setGame(game);
     // }
 
-    function freeModel(){
-        model_promise && model_promise.then(model => model.layers.forEach(l => l.dispose()));
+    function step() {
+        if(model.model === undefined) {
+            return
+        }
+
+        engine().startScope()
+        if(model.options.input === "global") {
+            const state = tensor([game.trainingBitmap()]);
+            const out = model.model.predict(state);
+            // @ts-ignore
+            const action = out[0].argMax(1).arraySync()[0];
+            game.absoluteAction2Move(action);
+        } else {
+            const state = tensor([game.trainingState()]);
+            const out = model.model.predict(state);
+            // @ts-ignore
+            const action = out[0].argMax(1).arraySync()[0];
+            game.relativeAction2Move(action);
+        }
+        engine().endScope();
+
+        game.update();
+        draw(getContext(), game, visOpts)
     }
 
-    function setAi(obj: AiOption) {
-        setModelOption(obj);
-        // if there is an old model, dispose it first
-        freeModel();
-        model_promise = loadLayersModel(obj.model_path_js);
+    function getContext(): CanvasRenderingContext2D {
+        const canvas = canvasRef.current;
+        if(canvas === null) {
+            throw "Canvas failed to construct";
+        }
+        const context = canvas.getContext('2d');
+        if(context === null) {
+            throw "Failed to get the Context of the constructed canvas";
+        }
+        return context;
     }
 
     function gameOver(score: number) {
@@ -115,12 +129,12 @@ export default function Ai() {
                 <Grid item xs={12} lg={6}>
                     <Stack spacing={2}>
                         <AddAutopilot
-                            onCommit={id => setAi(id)}
-                            onChange={id => setAi(id)}
+                            onCommit={obj => setModel({options: obj, model: undefined})}
+                            onChange={obj => setModel({options: obj, model: undefined})}
                             aiOptions={aiJsOptions}
                             submitText={"Change AI"}
                             width={"100%"}
-                            defaultValue={modelOption}
+                            defaultValue={model.options}
                             commitMode={false}
                         />
                     </Stack>

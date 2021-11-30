@@ -1,3 +1,39 @@
+async function ensureChange(name1, name2) {
+    // https://gambini.me/en/blog/comparing-website-screenshots-with-cypress-and-pixelmatch
+    // PNGJS lets me load the picture from disk
+    const PNG = require('pngjs').PNG;
+    // pixelmatch library will handle comparison
+    const pixelmatch = require('pixelmatch');
+
+    cy.readFile(
+        './cypress/snapshots/actual/canvas.js/' + name1 + '.png', 'base64'
+    ).then(first =>
+        cy.readFile(
+            './cypress/snapshots/actual/canvas.js/' + name2 + '.png', 'base64'
+        ).then(second => {
+            // load both pictures
+            const img1 = PNG.sync.read(Buffer.from(first, 'base64'));
+            const img2 = PNG.sync.read(Buffer.from(second, 'base64'));
+
+            const {width, height} = img1;
+            const diff = new PNG({width, height});
+
+            // calling pixelmatch return how many pixels are different
+            const numDiffPixels = pixelmatch(img1.data, img2.data, diff.data, width, height);
+
+            // calculating a percent diff
+            const diffPercent = (numDiffPixels / (width * height) * 100);
+
+            cy.log(`Found a ${diffPercent.toFixed(2)}% pixel difference`);
+
+            // if more than 2 pixels change (and this should be a 10x10 grid), we can be sure to not have
+            // accidentially made screenshots during initialization, where head and food are places, but that
+            // something is actually moving
+            expect(diffPercent).to.be.above(2);
+        })
+    );
+}
+
 describe('Canvas Test', () => {
     it("visual test of the canvas", () => {
         cy.visit('/');
@@ -70,42 +106,19 @@ describe('Canvas Test', () => {
         cy.get('canvas').screenshot('zeroth');
         cy.wait(2000);
         cy.get('canvas').screenshot('first');
-        cy.wait(200);
+        cy.wait(1000);
         cy.get('canvas').screenshot('second');
 
-        // https://gambini.me/en/blog/comparing-website-screenshots-with-cypress-and-pixelmatch
-        // PNGJS lets me load the picture from disk
-        const PNG = require('pngjs').PNG;
-        // pixelmatch library will handle comparison
-        const pixelmatch = require('pixelmatch');
+        ensureChange("first", "second");
 
+        cy.get("#aiChooser").click();
+        cy.contains("Actor-Critic (n=100)").click();
+        cy.get('canvas').screenshot('zeroth2');
+        cy.wait(2000);
+        cy.get('canvas').screenshot('third');
+        cy.wait(1000);
+        cy.get('canvas').screenshot('fourth');
 
-        cy.readFile(
-            './cypress/snapshots/actual/canvas.js/first.png', 'base64'
-        ).then(first => {
-            cy.readFile(
-                './cypress/snapshots/actual/canvas.js/second.png', 'base64'
-            ).then(second => {
-                // load both pictures
-                const img1 = PNG.sync.read(Buffer.from(first, 'base64'));
-                const img2 = PNG.sync.read(Buffer.from(second, 'base64'));
-
-                const { width, height } = img1;
-                const diff = new PNG({ width, height });
-
-                // calling pixelmatch return how many pixels are different
-                const numDiffPixels = pixelmatch(img1.data, img2.data, diff.data, width, height);
-
-                // calculating a percent diff
-                const diffPercent = (numDiffPixels / (width * height) * 100);
-
-                cy.log(`Found a ${diffPercent.toFixed(2)}% pixel difference`);
-
-                // if more than 2 pixels change (and this should be a 10x10 grid), we can be sure to not have
-                // accidentially made screenshots during initialization, where head and food are places, but that
-                // something is actually moving
-                expect(diffPercent).to.be.above(2);
-            });
-        });
+        ensureChange("third", "fourth");
     })
 })
