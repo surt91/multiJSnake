@@ -180,7 +180,8 @@ export default function GameView(props: Props) {
 
     function move(dir: Direction) {
         if(stompClient === undefined || playerId === undefined) {
-            throw "Server not ready yet";
+            console.warn("Server not ready yet, ignoring this input");
+            return
         }
 
         stompClient.bufferedPublish({
@@ -191,7 +192,8 @@ export default function GameView(props: Props) {
 
     function reset() {
         if(stompClient === undefined || playerId === undefined) {
-            throw "Server not ready yet";
+            console.warn("Server not ready yet, ignoring this input");
+            return
         }
 
         stompClient.bufferedPublish({
@@ -202,7 +204,8 @@ export default function GameView(props: Props) {
     function unpause() {
         if(game.paused) {
             if(stompClient === undefined || playerId === undefined) {
-                throw "Server not ready yet";
+                console.warn("Server not ready yet, ignoring this input");
+                return
             }
 
             stompClient.bufferedPublish({
@@ -214,7 +217,8 @@ export default function GameView(props: Props) {
     function pause() {
         if(!game.paused) {
             if(stompClient === undefined || playerId === undefined) {
-                throw "Server not ready yet";
+                console.warn("Server not ready yet, ignoring this input");
+                return
             }
 
             stompClient.bufferedPublish({
@@ -293,7 +297,8 @@ export default function GameView(props: Props) {
         let type = obj.id;
 
         if(stompClient === undefined || playerId === undefined) {
-            throw "Server not ready yet";
+            console.warn("Server not ready yet, ignoring this input");
+            return
         }
 
         stompClient.bufferedPublish({
