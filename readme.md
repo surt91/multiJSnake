@@ -1,4 +1,4 @@
-# MultiJSnake
+# MultiJSnake :snake::snake::snake:
 
 [![Tests](https://github.com/surt91/multiJSnake/actions/workflows/maven.yml/badge.svg)](https://github.com/surt91/multiJSnake/actions/workflows/maven.yml)
 
@@ -13,7 +13,7 @@ It also offers a static stand-alone mode to watch different neural net based aut
 
 ![A neural net trained on 50000 games](img/snake.gif)
 
-## Setup
+## :gear: Setup 
 
 You just need Java 11 to be installed on your system, other dependencies (Maven, NPM, ...)
 will be fetched by the build script. So just run
@@ -24,7 +24,7 @@ will be fetched by the build script. So just run
 
 And the server will be compiled and started on `http://localhost:8080`.
 
-## Training an autopilot
+## :robot: Training an autopilot
 
 You can train a neural net to play the game with the scripts in [`src/main/py`](/tree/main/src/main/py).
 As prerequisites there must be Python 3.6+ available and the dependencies from `requirements.txt` need
@@ -42,7 +42,7 @@ python3 strippedModelFile.keras
 tensorflowjs_converter --input_format=keras strippedModelFile.keras tfjs_model
 ```
 
-## Tests
+## :test_tube: Tests
 
 There are unit tests of the backend and end-to-end tests using cypress. You can run them via
 
@@ -51,7 +51,7 @@ There are unit tests of the backend and end-to-end tests using cypress. You can 
 npm run cy
 ```
 
-## Deployment
+## :hammer_and_wrench: Deployment
 
 Here are some options of how to deploy this server.
 
