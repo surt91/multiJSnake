@@ -1,18 +1,25 @@
 package me.schawe.multijsnake.gamemanagement;
 
+import me.schawe.multijsnake.gamemanagement.exceptions.InvalidMapException;
+import me.schawe.multijsnake.gamemanagement.player.PlayerId;
+import me.schawe.multijsnake.gamemanagement.player.PlayerInfo;
+import me.schawe.multijsnake.gamemanagement.websocket.WebSocketService;
 import me.schawe.multijsnake.snake.*;
 import me.schawe.multijsnake.snake.ai.*;
+import me.schawe.multijsnake.util.IdGenerator;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
-public class GameStateMap {
+@Service
+@EnableScheduling
+public class GameService {
     private final WebSocketService webSocketService;
-    ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     private final ConcurrentHashMap<String, GameState> gameStateMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<PlayerId, PlayerInfo> playerInfoMap = new ConcurrentHashMap<>();
@@ -21,8 +28,7 @@ public class GameStateMap {
 
     private final Random random;
 
-
-    GameStateMap(WebSocketService webSocketService, ApplicationEventPublisher applicationEventPublisher) {
+    public GameService(WebSocketService webSocketService, ApplicationEventPublisher applicationEventPublisher) {
         this.webSocketService = webSocketService;
         this.applicationEventPublisher = applicationEventPublisher;
 
@@ -51,7 +57,7 @@ public class GameStateMap {
     }
 
     @Scheduled(fixedRate = 300)
-    void periodicUpdate() {
+    private void periodicUpdate() {
         ArrayList<String> abandoned = new ArrayList<>();
 
         for (String id : allIds()) {
@@ -84,7 +90,7 @@ public class GameStateMap {
         applicationEventPublisher.publishEvent(snakeDiesEvent);
     }
 
-    GameState idToGame(String id) {
+    public GameState idToGame(String id) {
         if(!gameStateMap.containsKey(id)) {
             throw new InvalidMapException(id);
         }
@@ -92,7 +98,7 @@ public class GameStateMap {
         return gameStateMap.get(id);
     }
 
-    void close(String id) {
+    public void close(String id) {
         gameStateMap.remove(id);
     }
 

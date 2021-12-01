@@ -1,5 +1,6 @@
 package me.schawe.multijsnake.snake.ai;
 
+import me.schawe.multijsnake.snake.exceptions.AutopilotException;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.modelimport.keras.KerasModelImport;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
@@ -8,12 +9,12 @@ import org.nd4j.common.io.ClassPathResource;
 import java.util.Random;
 
 // https://deeplearning4j.konduit.ai/deeplearning4j/how-to-guides/keras-import
-public abstract class KerasModel implements Autopilot {
+public abstract class KerasModelAutopilot implements Autopilot {
     protected final ComputationGraph modelFunctional;
     protected final MultiLayerNetwork modelSequential;
     protected final String pathToModel;
 
-    public KerasModel(String pathToModel, boolean isFunctional) {
+    public KerasModelAutopilot(String pathToModel, boolean isFunctional) {
         this.pathToModel = pathToModel;
 
         // load model

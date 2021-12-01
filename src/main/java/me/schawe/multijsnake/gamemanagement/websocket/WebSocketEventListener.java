@@ -1,5 +1,6 @@
-package me.schawe.multijsnake.gamemanagement;
+package me.schawe.multijsnake.gamemanagement.websocket;
 
+import me.schawe.multijsnake.gamemanagement.GameService;
 import me.schawe.multijsnake.snake.GameState;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -7,18 +8,18 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Component
 public class WebSocketEventListener {
-    private final GameStateMap gameStateMap;
+    private final GameService gameService;
     private final WebSocketService webSocketService;
 
-    public WebSocketEventListener(GameStateMap gameStateMap, WebSocketService webSocketService) {
-        this.gameStateMap = gameStateMap;
+    public WebSocketEventListener(GameService gameService, WebSocketService webSocketService) {
+        this.gameService = gameService;
         this.webSocketService = webSocketService;
     }
 
     @EventListener
     public void onDisconnectEvent(SessionDisconnectEvent event) {
-        gameStateMap.findPlayerBySession(event.getSessionId()).ifPresent(playerInfo -> {
-            GameState gameState = gameStateMap.idToGame(playerInfo.getGameId());
+        gameService.findPlayerBySession(event.getSessionId()).ifPresent(playerInfo -> {
+            GameState gameState = gameService.idToGame(playerInfo.getGameId());
             gameState.kill(playerInfo.getSnakeId());
             gameState.markForRemoval(playerInfo.getSnakeId());
             webSocketService.update(gameState);

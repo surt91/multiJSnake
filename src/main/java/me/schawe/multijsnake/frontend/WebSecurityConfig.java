@@ -27,7 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
 
-    WebSecurityConfig(
+    public WebSecurityConfig(
             UserDetailsServiceImpl userDetailsService,
             AuthEntryPointJwt unauthorizedHandler
     ) {

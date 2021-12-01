@@ -1,7 +1,7 @@
 package me.schawe.multijsnake.frontend;
 
-import me.schawe.multijsnake.gamemanagement.InvalidMapException;
-import me.schawe.multijsnake.snake.InvalidMoveException;
+import me.schawe.multijsnake.gamemanagement.exceptions.InvalidMapException;
+import me.schawe.multijsnake.snake.exceptions.InvalidMoveException;
 import me.schawe.multijsnake.usermanagement.ExceptionJson;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,14 +14,14 @@ public class ExceptionAdvice {
     @ResponseBody
     @ExceptionHandler(InvalidMoveException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ExceptionJson invalidMoveHandler(InvalidMoveException ex) {
+    public ExceptionJson invalidMoveHandler(InvalidMoveException ex) {
         return new ExceptionJson(ex.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(InvalidMapException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ExceptionJson invalidMapHandler(InvalidMapException ex) {
+    public ExceptionJson invalidMapHandler(InvalidMapException ex) {
         return new ExceptionJson(ex.getMessage());
     }
 }

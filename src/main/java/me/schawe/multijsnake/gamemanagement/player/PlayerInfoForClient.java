@@ -1,4 +1,4 @@
-package me.schawe.multijsnake.gamemanagement;
+package me.schawe.multijsnake.gamemanagement.player;
 
 public class PlayerInfoForClient {
     private final String playerId;
@@ -6,7 +6,7 @@ public class PlayerInfoForClient {
     private final int idx;
     private final String name;
 
-    PlayerInfoForClient(PlayerInfo playerInfo) {
+    public PlayerInfoForClient(PlayerInfo playerInfo) {
         this.playerId = playerInfo.getPlayerId().getId();
         this.gameId = playerInfo.getGameId();
         this.idx = playerInfo.getSnakeId().getIdx();

@@ -1,11 +1,11 @@
-package me.schawe.multijsnake.gamemanagement;
+package me.schawe.multijsnake.gamemanagement.player;
 
 import java.util.Objects;
 
 public class PlayerId {
     private final String id;
 
-    PlayerId(String id) {
+    public PlayerId(String id) {
         this.id = id;
     }
 

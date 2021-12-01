@@ -16,7 +16,7 @@ public class SnakeDiesEvent extends ApplicationEvent {
         return snake;
     }
 
-   public int getSize() {
+    public int getSize() {
         return size;
    }
 }

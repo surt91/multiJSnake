@@ -1,4 +1,4 @@
-package me.schawe.multijsnake.gamemanagement;
+package me.schawe.multijsnake.gamemanagement.player;
 
 import me.schawe.multijsnake.snake.SnakeId;
 
@@ -8,7 +8,7 @@ public class PlayerInfo {
     private final SnakeId snakeId;
     private final String name;
 
-    PlayerInfo(PlayerId playerId, SnakeId snakeId, String sessionId, String name) {
+    public PlayerInfo(PlayerId playerId, SnakeId snakeId, String sessionId, String name) {
         this.playerId = playerId;
         this.snakeId = snakeId;
         this.sessionId = sessionId;

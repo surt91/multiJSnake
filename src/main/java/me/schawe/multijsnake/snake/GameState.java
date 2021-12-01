@@ -1,7 +1,8 @@
 package me.schawe.multijsnake.snake;
 
-import me.schawe.multijsnake.gamemanagement.InvalidMapException;
+import me.schawe.multijsnake.gamemanagement.exceptions.InvalidMapException;
 import me.schawe.multijsnake.snake.ai.Autopilot;
+import me.schawe.multijsnake.util.IdGenerator;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -113,7 +114,7 @@ public class GameState {
     }
 
     public SnakeId addSnake() {
-        return addSnake(randomSite());
+        return addSnake(randomUnoccupiedSite());
     }
 
     public SnakeId addSnake(Coordinate coordinate) {
@@ -125,7 +126,7 @@ public class GameState {
     }
 
     public SnakeId addAISnake(Autopilot autopilot) {
-        return addSnake(randomSite(), Move.random(random), Optional.of(autopilot));
+        return addSnake(randomUnoccupiedSite(), Move.random(random), Optional.of(autopilot));
     }
 
     public SnakeId addSnake(Coordinate coordinate, Move direction, Optional<Autopilot> autopilot) {
@@ -154,7 +155,7 @@ public class GameState {
         return snake.getHead().equals(food);
     }
 
-    private Coordinate randomSite() {
+    private Coordinate randomUnoccupiedSite() {
         if(checkPerfectGame()) {
             // this should have been checked, and should therefore not happen
             throw new RuntimeException("Perfect Game!");
@@ -162,17 +163,17 @@ public class GameState {
 
         Coordinate site;
         do {
-            site = randomSiteAll();
+            site = randomSite();
         } while (isOccupied(site));
         return site;
     }
 
-    private Coordinate randomSiteAll() {
+    private Coordinate randomSite() {
         return new Coordinate((int) (random.nextFloat() * width), (int) (random.nextFloat() * height));
     }
 
     public void addFood() {
-        addFood(randomSite());
+        addFood(randomUnoccupiedSite());
     }
 
     public void addFood(Coordinate coordinate) {
@@ -228,7 +229,7 @@ public class GameState {
         toBeRemoved.clear();
 
         for(Snake snake : snakes.values()) {
-            snake.reset(randomSiteAll());
+            snake.reset(randomSite());
         }
         score = 0;
         addFood();

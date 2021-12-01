@@ -1,4 +1,4 @@
-package me.schawe.multijsnake.snake;
+package me.schawe.multijsnake.util;
 
 import java.util.Random;
 

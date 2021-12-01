@@ -8,7 +8,7 @@ public class AutopilotDescription {
     private final String input;
     private final String mode;
 
-    AutopilotDescription(String id, String modelPath, String input, String mode, String label, String description) {
+    public AutopilotDescription(String id, String modelPath, String input, String mode, String label, String description) {
         this.id = id;
         this.modelPath = modelPath;
         this.input = input;

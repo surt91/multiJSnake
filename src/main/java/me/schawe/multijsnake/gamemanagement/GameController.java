@@ -1,5 +1,6 @@
 package me.schawe.multijsnake.gamemanagement;
 
+import me.schawe.multijsnake.gamemanagement.player.PlayerId;
 import me.schawe.multijsnake.snake.Move;
 import me.schawe.multijsnake.snake.ai.AutopilotDescription;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +13,9 @@ import java.util.List;
 
 @RestController
 public class GameController {
-    private final GameStateMap map;
+    private final GameService map;
 
-    GameController(GameStateMap map) {
+    GameController(GameService map) {
         this.map = map;
     }
 

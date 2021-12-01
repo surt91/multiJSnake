@@ -1,5 +1,7 @@
-package me.schawe.multijsnake.gamemanagement;
+package me.schawe.multijsnake.gamemanagement.websocket;
 
+import me.schawe.multijsnake.gamemanagement.player.PlayerInfo;
+import me.schawe.multijsnake.gamemanagement.player.PlayerInfoForClient;
 import me.schawe.multijsnake.highscore.HighscoreRepository;
 import me.schawe.multijsnake.snake.GameState;
 import org.springframework.messaging.MessageHeaders;
@@ -8,7 +10,7 @@ import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
-import static me.schawe.multijsnake.gamemanagement.WebSocketConfiguration.MESSAGE_PREFIX;
+import static me.schawe.multijsnake.gamemanagement.websocket.WebSocketConfiguration.MESSAGE_PREFIX;
 
 @Component
 public class WebSocketService {

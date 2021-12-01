@@ -7,7 +7,7 @@ import me.schawe.multijsnake.snake.TrainingState;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-public class LocalDeepAutopilot extends KerasModel{
+public class LocalDeepAutopilot extends KerasModelAutopilot {
 
     public LocalDeepAutopilot(String pathToModel, boolean isFunctional) {
         super(pathToModel, isFunctional);

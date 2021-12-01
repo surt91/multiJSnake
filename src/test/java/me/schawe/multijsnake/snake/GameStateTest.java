@@ -3,6 +3,7 @@ package me.schawe.multijsnake.snake;
 import me.schawe.multijsnake.snake.ai.AutopilotFactory;
 import me.schawe.multijsnake.snake.ai.GreedyAutopilot;
 import me.schawe.multijsnake.snake.ai.RandomAutopilot;
+import me.schawe.multijsnake.util.IdGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

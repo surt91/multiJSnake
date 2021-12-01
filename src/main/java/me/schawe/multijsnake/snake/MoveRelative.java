@@ -1,5 +1,7 @@
 package me.schawe.multijsnake.snake;
 
+import me.schawe.multijsnake.snake.exceptions.InvalidMoveException;
+
 public enum MoveRelative {
     left,
     straight,

@@ -1,4 +1,4 @@
-package me.schawe.multijsnake.snake;
+package me.schawe.multijsnake.snake.exceptions;
 
 public class InvalidMoveException extends RuntimeException {
     public InvalidMoveException(String message) {

@@ -59,7 +59,7 @@ public class Snake {
         return new ArrayList<>(getTail());
     }
 
-    Snake(SnakeId id, Coordinate start, Move direction, Optional<Autopilot> autopilot) {
+    public Snake(SnakeId id, Coordinate start, Move direction, Optional<Autopilot> autopilot) {
         lastHeadDirection = direction;
         headDirection = direction;
         head = start;
@@ -75,19 +75,19 @@ public class Snake {
         autopilotOptional = autopilot;
     }
 
-    Snake(SnakeId id, Coordinate start){
+    public Snake(SnakeId id, Coordinate start){
         this(id, start, new Random());
     }
 
-    Snake(SnakeId id, Coordinate start, Move dir){
+    public Snake(SnakeId id, Coordinate start, Move dir){
         this(id, start, dir, Optional.empty());
     }
 
-    Snake(SnakeId id, Coordinate start, Random random){
+    public Snake(SnakeId id, Coordinate start, Random random){
         this(id, start, Move.random(random), Optional.empty());
     }
 
-    Snake(SnakeId id, Coordinate start, Random random, Autopilot autopilot){
+    public Snake(SnakeId id, Coordinate start, Random random, Autopilot autopilot){
         this(id, start, Move.random(random), Optional.of(autopilot));
     }
 

@@ -1,4 +1,4 @@
-package me.schawe.multijsnake.gamemanagement;
+package me.schawe.multijsnake.gamemanagement.exceptions;
 
 public class InvalidMapException extends RuntimeException {
     public InvalidMapException(String id) {

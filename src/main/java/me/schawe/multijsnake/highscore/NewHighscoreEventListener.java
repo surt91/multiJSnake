@@ -1,6 +1,6 @@
 package me.schawe.multijsnake.highscore;
 
-import me.schawe.multijsnake.gamemanagement.WebSocketService;
+import me.schawe.multijsnake.gamemanagement.websocket.WebSocketService;
 import me.schawe.multijsnake.snake.Snake;
 import me.schawe.multijsnake.snake.SnakeDiesEvent;
 import org.springframework.context.ApplicationListener;
