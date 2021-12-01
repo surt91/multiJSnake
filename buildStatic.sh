@@ -44,4 +44,6 @@ npm run build
 
 # TODO: test the static version
 
-# deploy the folder tmp/resources/static
+echo "build finished"
+echo "now deploy the folder `tmp/resources/static`"
+echo "or serve it locally: `python3 -m http.server 8080`"
