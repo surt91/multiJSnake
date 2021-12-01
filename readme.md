@@ -13,7 +13,7 @@ It also offers a static stand-alone mode to watch different neural net based aut
 
 ![A neural net trained on 50000 games](img/snake.gif)
 
-## :gear: Setup 
+## :gear: Setup
 
 You just need Java 11 to be installed on your system, other dependencies (Maven, NPM, ...)
 will be fetched by the build script. So just run
@@ -30,7 +30,11 @@ You can train a neural net to play the game with the scripts in [`src/main/py`](
 As prerequisites there must be Python 3.6+ available and the dependencies from `requirements.txt` need
 to be installed, e.g., with `pip install -r requirements.txt`.
 
-Training can be started and continued by changing into `src/main/py/` and executing the
+Also ensure that the java classes are are compiled (e.g. by executing the above step,)
+since the training will need them. More information about this curiosity can be found
+at [blog.codecentric.de/2021/11/java-klassen-python](https://blog.codecentric.de/2021/11/java-klassen-python/).
+
+The training can be started and continued by changing into `src/main/py/` and executing the
 `train_AC.py` and `train_convAC.py` scripts.
 
 For converting the file with the trained model into a format suitable for `tensorflowjs` use:
@@ -76,8 +80,7 @@ Just execute
 bash buildStatic.sh
 ```
 
-and copy the generated folder `tmp/resources/static` to the web, or serve it locally
-with
+and copy the generated folder `tmp/resources/static` to the web, or serve it locally with
 
 ```bash
 cd tmp/resources/static
@@ -89,7 +92,7 @@ Note that this does only include the AI demo and not the actual playable multipl
 ### On Heroku
 
 Heroku will automatically use the correct build pack to start and execute the server.
-However for data persistency, a Postgres database has to be created and the following
+However for data persistency a Postgres database has to be created and the following
 environment variables should be set:
 
 ```bash
