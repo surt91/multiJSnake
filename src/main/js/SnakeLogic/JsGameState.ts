@@ -221,43 +221,43 @@ class JsGameState {
         return rad;
     }
 
-    relativeAction(action: number): Direction {
+    relativeAction2Move(action: number) {
         const snake = this.snakes[0];
         switch(action) {
             case 0:
                 // left
-                return this.rLeft(snake.headDirection);
+                snake.headDirection = this.rLeft(snake.headDirection);
+                break;
             case 1:
                 // straight
-                return snake.headDirection;
+                break;
             case 2:
                 // right
-                return this.rRight(snake.headDirection);
+                snake.headDirection = this.rRight(snake.headDirection);
+                break;
         }
-        throw "Invalid action";
     }
 
-    absoluteAction(action: number): Direction {
+    absoluteAction2Move(action: number) {
+        const snake = this.snakes[0];
         switch (action) {
             case 0:
                 // north
-                return "up";
+                snake.headDirection = "up";
+                break;
             case 1:
                 // east
-                return "right";
+                snake.headDirection = "right";
+                break;
             case 2:
                 // south
-                return "down";
+                snake.headDirection = "down";
+                break;
             case 3:
                 // west
-                return "left";
+                snake.headDirection = "left";
+                break;
         }
-        throw "Invalid action";
-    }
-
-    setHeadDirection(dir: Direction) {
-        const snake = this.snakes[0];
-        snake.headDirection = dir;
     }
 
     next_site(site: Coordinate, direction: Direction) {

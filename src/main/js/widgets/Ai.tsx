@@ -36,37 +36,12 @@ export default function Ai() {
     const visOpts = defaultVisualizationOptions;
 
     // game is a mutable object, it will mutate itself and will not trigger re-rendering
-    const [game, ] = useState(new JsGameState(10, 10, (score) => gameOver(score)));
+    const [game, _] = useState(new JsGameState(10, 10, (score) => gameOver(score)));
     const [model, setModel] = useState<Model>({
         options: aiJsOptions[aiJsOptions.length - 1],
         model: undefined
     });
     const canvasRef = useRef<HTMLCanvasElement|null>(null);
-
-    // TODO: can we even buffer a few results?
-    function* predictionGenerator() {
-        if(model.model === undefined) {
-            return
-        }
-
-        while(true) {
-            engine().startScope()
-            if (model.options.input === "global") {
-                const state = tensor([game.trainingBitmap()]);
-                const out = model.model.predict(state);
-                // @ts-ignore
-                const action = out[0].argMax(1).arraySync()[0];
-                yield game.absoluteAction(action);
-            } else {
-                const state = tensor([game.trainingState()]);
-                const out = model.model.predict(state);
-                // @ts-ignore
-                const action = out[0].argMax(1).arraySync()[0];
-                yield game.relativeAction(action);
-            }
-            engine().endScope();
-        }
-    }
 
     useEffect(() => {
         // if we do not have a model, we don't need to try to step
@@ -74,14 +49,12 @@ export default function Ai() {
             return
         }
 
-        const predictionGeneratorObject = predictionGenerator();
-        const refresh = window.setInterval(() => step(predictionGeneratorObject), 30);
+        const refresh = window.setInterval(() => step(), 30);
 
         draw(getContext(), game, visOpts)
 
         return () => {
             window.clearInterval(refresh);
-            predictionGeneratorObject.return()
         };
     })
 
@@ -98,16 +71,29 @@ export default function Ai() {
     //     setGame(game);
     // }
 
-    function step(predictionGenerator: Generator<"up" | "down" | "left" | "right">) {
+    function step() {
         if(model.model === undefined) {
             return
         }
 
-        const nextDirection = predictionGenerator.next();
-        game.setHeadDirection(nextDirection.value);
-        game.update();
+        engine().startScope()
+        if(model.options.input === "global") {
+            const state = tensor([game.trainingBitmap()]);
+            const out = model.model.predict(state);
+            // @ts-ignore
+            const action = out[0].argMax(1).arraySync()[0];
+            game.absoluteAction2Move(action);
+        } else {
+            const state = tensor([game.trainingState()]);
+            const out = model.model.predict(state);
+            // @ts-ignore
+            const action = out[0].argMax(1).arraySync()[0];
+            game.relativeAction2Move(action);
+        }
+        engine().endScope();
 
-        draw(getContext(), game, visOpts);
+        game.update();
+        draw(getContext(), game, visOpts)
     }
 
     function getContext(): CanvasRenderingContext2D {
