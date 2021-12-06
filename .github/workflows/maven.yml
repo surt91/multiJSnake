@@ -23,7 +23,7 @@ jobs:
         cache: maven
 
     - name: Build and unit tests with Maven
-      run: ./mvnw -Djavacpp.platform=linux-x86_64 clean package test
+      run: ./mvnw -Djavacpp.platform=linux-x86_64 clean package test integration-test
 
     - name: Clean up node directory
       run: rm -rf target/node
@@ -32,23 +32,6 @@ jobs:
         name: multijsnake
         path: target/
         retention-days: 1
-
-  frontend:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-
-    - uses: actions/download-artifact@master
-      with:
-        name: multijsnake
-        path: target/
-
-    - name: Cypress tests
-      uses: cypress-io/github-action@v2
-      with:
-        start: java -jar target/multijsnake-0.0.1-SNAPSHOT.jar
-        wait-on: http://localhost:8080
 
   python:
     needs: build
