@@ -166,7 +166,7 @@
 							<goal>npm</goal>
 						</goals>
 						<configuration>
-							<arguments>run debug</arguments>
+							<arguments>run build</arguments>
 						</configuration>
 					</execution>
 					<execution>
