@@ -192,11 +192,14 @@
 					<configuration>
 						<excludeDefaultDirectories>true</excludeDefaultDirectories>
 						<filesets>
-						<fileset>
-							<directory>target</directory>
-							<excludes>
-								<exclude>*.jar</exclude>
-							</excludes>
+							<fileset>
+								<directory>target</directory>
+								<excludes>
+									<exclude>*.jar</exclude>
+								</excludes>
+							</fileset>
+							<fileset>
+								<directory>node_modules</directory>
 							</fileset>
 						</filesets>
 					</configuration>
