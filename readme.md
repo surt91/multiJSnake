@@ -58,7 +58,7 @@ There are unit tests of the backend and end-to-end tests using cypress. You can 
 
 Here are some options of how to deploy this server.
 
-### Local (for development and testing)
+### :computer: Local (for development and testing)
 
 Thanks to SpringBoot, this can be accomplished simply by executing
 
@@ -68,7 +68,7 @@ Thanks to SpringBoot, this can be accomplished simply by executing
 
 No database setup is required (it is using an in-memory database).
 
-### Static
+### :electric_plug: Static
 
 We can build a static version, which does not include any features needing
 the Java-Server, which can be deployed on any web space (e.g. GitHub pages or Netlify).
@@ -88,7 +88,7 @@ python3 -m http.server 8080
 
 Note that this does only include the AI demo and not the actual playable multiplayer game.
 
-### On Heroku
+### :cloud: On Heroku
 
 Heroku will automatically use the correct build pack to start and execute the server.
 However for data persistency a Postgres database has to be created and the following
@@ -108,7 +108,7 @@ SPRING_JPA_DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect
 SPRING_JPA_HIBERNATE_DDL-AUTO=update
 ```
 
-### With Docker/docker-compose
+### :whale: With Docker/docker-compose
 
 There is also a `Dockerfile` in this repository, which builds and executes the server on port 8080.
 This is used in the `docker-compose.yml`, which uses `nginx` as a reverse proxy and
