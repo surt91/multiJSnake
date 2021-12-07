@@ -123,12 +123,18 @@
 						<goals>
 							<goal>start</goal>
 						</goals>
+						<configuration>
+							<skip>${skipTests}</skip>
+						</configuration>
 					</execution>
 					<execution>
 						<id>post-integration-test</id>
 						<goals>
 							<goal>stop</goal>
 						</goals>
+						<configuration>
+							<skip>${skipTests}</skip>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
