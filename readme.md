@@ -51,8 +51,7 @@ tensorflowjs_converter --input_format=keras strippedModelFile.keras tfjs_model
 There are unit tests of the backend and end-to-end tests using cypress. You can run them via
 
 ```bash
-./mvnw test
-npm run cy
+./mvnw verify
 ```
 
 ## :hammer_and_wrench: Deployment
