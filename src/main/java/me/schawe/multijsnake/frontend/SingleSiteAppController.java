@@ -1,13 +1,12 @@
 package me.schawe.multijsnake.frontend;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class SingleSiteAppController {
-    @RequestMapping(value={"/", "/profile", "/ai"}, method = RequestMethod.GET)
+    @GetMapping({"/", "/profile", "/ai"})
     public String root() {
-        return "forward:/index.html";
+        return "main";
     }
 }
