@@ -10,7 +10,7 @@ import AuthService from "./auth/AuthService";
 
 // make sure to use https, otherwise the copy to clipboard will not work
 if (location.protocol !== 'https:' && location.hostname !== "localhost") {
-    location.replace(`https:${location.href.substring(location.protocol.length)}`);
+    location.href = location.href.replace("http://", "https://");
 }
 
 function App() {
