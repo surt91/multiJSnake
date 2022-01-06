@@ -4,12 +4,16 @@ import axios from "axios";
 
 const API_URL = "/api/auth/";
 
-// @ts-ignore
-const csrf_token = document.querySelector("meta[name='_csrf']").content;
-// @ts-ignore
-const csrf_header = document.querySelector("meta[name='_csrf_header']").content;
-// @ts-ignore
-axios.defaults.headers.post[csrf_header] = csrf_token;
+const csrf_meta = document.querySelector("meta[name='_csrf']");
+const csrf_header_meta = document.querySelector("meta[name='_csrf_header']");
+if (csrf_meta !== null && csrf_header_meta !== null) {
+    // @ts-ignore
+    const csrf_token = csrf_meta.content;
+    // @ts-ignore
+    const csrf_header = csrf_header_meta.content;
+    // @ts-ignore
+    axios.defaults.headers.post[csrf_header] = csrf_token;
+}
 
 class AuthService {
     login(username: string, password: string) {
