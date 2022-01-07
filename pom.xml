@@ -15,6 +15,13 @@
 	<description>Multiplayer Snake</description>
 	<properties>
 		<java.version>11</java.version>
+
+		<jacoco.unit-tests.limit.instruction-ratio>0.5</jacoco.unit-tests.limit.instruction-ratio>
+		<jacoco.unit-tests.limit.branch-ratio>0.5</jacoco.unit-tests.limit.branch-ratio>
+		<jacoco.unit-tests.limit.class-complexity>100</jacoco.unit-tests.limit.class-complexity>
+		<jacoco.unit-tests.limit.method-complexity>20</jacoco.unit-tests.limit.method-complexity>
+		<jacoco.aggregate.limit.instruction-ratio>0.8</jacoco.aggregate.limit.instruction-ratio>
+		<jacoco.aggregate.limit.branch-ratio>0.7</jacoco.aggregate.limit.branch-ratio>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -152,13 +159,21 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.8</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>${argLine}</jvmArguments>
+				</configuration>
 				<executions>
 					<execution>
 						<id>pre-integration-test</id>
@@ -230,7 +245,7 @@
 				</executions>
 			</plugin>
 			<plugin>
-			<artifactId>maven-clean-plugin</artifactId>
+				<artifactId>maven-clean-plugin</artifactId>
 				<version>3.0.0</version>
 				<executions>
 					<execution>
@@ -271,6 +286,151 @@
 						</goals>
 						<configuration>
 							<skip>${skipTests}</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.7</version>
+				<executions>
+					<execution>
+						<id>pre-unit-test</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>post-unit-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>check-unit-test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>INSTRUCTION</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.unit-tests.limit.instruction-ratio}</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.unit-tests.limit.branch-ratio}</minimum>
+										</limit>
+									</limits>
+								</rule>
+								<rule>
+									<element>CLASS</element>
+									<limits>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>TOTALCOUNT</value>
+											<maximum>${jacoco.unit-tests.limit.class-complexity}</maximum>
+										</limit>
+									</limits>
+								</rule>
+								<rule>
+									<element>METHOD</element>
+									<limits>
+										<limit>
+											<counter>COMPLEXITY</counter>
+											<value>TOTALCOUNT</value>
+											<maximum>${jacoco.unit-tests.limit.method-complexity}</maximum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>pre-integration-test</id>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>post-integration-test</id>
+						<goals>
+							<goal>report-integration</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>merge-results</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>merge</goal>
+						</goals>
+						<configuration>
+							<fileSets>
+								<fileSet>
+									<directory>${project.build.directory}</directory>
+									<includes>
+										<include>*.exec</include>
+									</includes>
+									<excludes>
+										<exclude>aggregate.exec</exclude>
+									</excludes>
+								</fileSet>
+							</fileSets>
+							<destFile>${project.build.directory}/aggregate.exec</destFile>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>post-merge-report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/aggregate.exec</dataFile>
+							<outputDirectory>${project.reporting.outputDirectory}/jacoco-aggregate</outputDirectory>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>check-aggregate</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/aggregate.exec</dataFile>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>INSTRUCTION</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.aggregate.limit.instruction-ratio}</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>${jacoco.aggregate.limit.branch-ratio}</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
 						</configuration>
 					</execution>
 				</executions>
