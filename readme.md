@@ -1,6 +1,7 @@
 # MultiJSnake :snake::snake::snake:
 
 [![Tests](https://github.com/surt91/multiJSnake/actions/workflows/maven.yml/badge.svg)](https://github.com/surt91/multiJSnake/actions/workflows/maven.yml)
+[![Coverage Backend](https://raw.githubusercontent.com/surt91/multiJSnake/badges/jacoco.svg)](https://github.com/surt91/multiJSnake/actions/workflows/maven.yml)
 
 Snake played on a server -- communication happens mostly via Websockets.
 Play it on [multijsnake.herokuapp.com](https://multijsnake.herokuapp.com/).
