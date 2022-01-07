@@ -57,7 +57,7 @@ public class GameService {
     }
 
     @Scheduled(fixedRate = 300)
-    private void periodicUpdate() {
+    public void periodicUpdate() {
         ArrayList<String> abandoned = new ArrayList<>();
 
         for (String id : allIds()) {
