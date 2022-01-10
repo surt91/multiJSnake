@@ -1,6 +1,7 @@
 package me.schawe.multijsnake.snake;
 
 import me.schawe.multijsnake.snake.ai.AutopilotFactory;
+import me.schawe.multijsnake.snake.ai.BoringAutopilot;
 import me.schawe.multijsnake.snake.ai.GreedyAutopilot;
 import me.schawe.multijsnake.snake.ai.RandomAutopilot;
 import me.schawe.multijsnake.util.IdGenerator;
@@ -74,11 +75,48 @@ class GameStateTest {
                 "isGameOver should work."
         );
         gameState.kill(id);
+        assertTrue(gameState.getSnake(id).isDead());
         gameState.update();
         assertTrue(
                 gameState.isGameOver(),
                 "isGameOver should work."
         );
+
+        gameState.kill(id);
+        assertTrue(gameState.getSnake(id).isDead());
+    }
+
+    @Test
+    void continueWithOneSnake() {
+        SnakeId id1 = gameState.addSnake();
+        SnakeId id2 = gameState.addSnake();
+        assertFalse(
+                gameState.isGameOver(),
+                "isGameOver should work."
+        );
+        gameState.kill(id1);
+        assertTrue(gameState.getSnake(id1).isDead());
+        gameState.update();
+        assertFalse(gameState.isGameOver());
+
+        gameState.kill(id2);
+        assertTrue(gameState.getSnake(id2).isDead());
+        gameState.update();
+        assertTrue(gameState.isGameOver());
+    }
+
+    @Test
+    void perfectGame() {
+        gameState = new GameState(10, 10, 42);
+        SnakeId id = gameState.addAISnake(new BoringAutopilot());
+        gameState.setPause(false);
+
+        while(!gameState.isGameOver()) {
+            gameState.update();
+        }
+
+        assertTrue(gameState.checkPerfectGame());
+        assertTrue(gameState.isGameOver());
     }
 
     @Test
@@ -90,6 +128,10 @@ class GameStateTest {
         assertFalse(gameState.isAbandoned());
         gameState.markForRemoval(id);
         assertTrue(gameState.isAbandoned());
+
+        assertEquals(gameState.getSnakeSet().size(), 2);
+        gameState.reset();
+        assertEquals(gameState.getSnakeSet().size(), 1);
     }
 
     @Test
@@ -274,6 +316,8 @@ class GameStateTest {
 
         assertTrue(snake.isDead(), "snake dies");
         assertTrue(gameState.isGameOver(), "game over");
+        gameState.update();
+        assertTrue(gameState.isGameOver());
 
         gameState.reset();
 
