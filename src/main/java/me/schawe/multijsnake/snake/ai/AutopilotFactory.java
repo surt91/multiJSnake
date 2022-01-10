@@ -25,6 +25,8 @@ public class AutopilotFactory {
             autopilot = new GreedyAutopilot();
         } else if(Objects.equals(desc.getModelPath(), "random")) {
             autopilot = new RandomAutopilot();
+        } else if(Objects.equals(desc.getModelPath(), "boring")) {
+            autopilot = new BoringAutopilot();
         } else if (desc.getInput().equals("local")) {
             autopilot = new LocalDeepAutopilot(desc.getModelPath(), desc.getMode().equals("functional"));
         } else if (desc.getInput().equals("global")) {

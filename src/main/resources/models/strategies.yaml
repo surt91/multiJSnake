@@ -12,6 +12,13 @@
     input: local
     mode: none
 
+-   id: boring
+    label: Boring
+    description: Go in a boring pattern, perfect on fields with even width.
+    model_path_java: boring
+    input: local
+    mode: none
+
 -   id: dqn_200
     label: Deep Q (n=200)
     description: A deep, fully connected network -- but in this case `deep` only means one hidden layer.
