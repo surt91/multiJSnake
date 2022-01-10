@@ -14,6 +14,10 @@ describe('Auth Test', () => {
         cy.get("input[id=password]").type("supersecret");
         cy.get("button[type=submit]").click();
 
+        cy.get('button:contains("Profile")').should("exist").click();
+        cy.contains("Your email is 'cypress@example.com'").should("exist");
+        cy.contains("Hi cypress!").should("exist");
+
         cy.get('button:contains("Logout")').should("exist").click();
     });
 
