@@ -88,4 +88,10 @@ class SnakeTest {
         snake.turnAbsolute(Move.down);
         assertEquals(snake.getHeadDirection(), Move.up);
     }
+
+    @Test
+    void constructorTest() {
+        SnakeId id = new SnakeId("id", 0);
+        Snake snake = new Snake(id, new Coordinate(42, 23));
+    }
 }

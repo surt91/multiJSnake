@@ -1,5 +1,6 @@
 package me.schawe.multijsnake.snake;
 
+import me.schawe.multijsnake.gamemanagement.exceptions.InvalidMapException;
 import me.schawe.multijsnake.snake.ai.AutopilotFactory;
 import me.schawe.multijsnake.snake.ai.BoringAutopilot;
 import me.schawe.multijsnake.snake.ai.GreedyAutopilot;
@@ -107,7 +108,7 @@ class GameStateTest {
 
     @Test
     void perfectGame() {
-        gameState = new GameState(10, 10, 42);
+        gameState = new GameState(10, 10);
         SnakeId id = gameState.addAISnake(new BoringAutopilot());
         gameState.setPause(false);
 
@@ -325,7 +326,6 @@ class GameStateTest {
         assertFalse(gameState.isGameOver(), "game running");
     }
 
-
     @Test
     void detectFood() {
         SnakeId id = gameState.addSnake(new Coordinate(5, 5), Move.down);
@@ -429,5 +429,35 @@ class GameStateTest {
         state = new TrainingState(gameState).vector(id);
         assertEquals(Geometry.angle(snake.getHead(), snake.getHeadDirection(), gameState.getFood()), 0);
         assertThat(state.subList(0, 4), contains(1, 0, 0, 0));
+    }
+
+    @Test
+    void nonExistentSnake() {
+        SnakeId id = gameState.addSnake(new Coordinate(28, 1), Move.down);
+        Snake snake = gameState.getSnake(id);
+        SnakeId wrong = new SnakeId("wrong", 0);
+        assertNotEquals(wrong, id);
+
+        Exception exception = assertThrows(InvalidMapException.class, () ->
+            gameState.getSnake(wrong)
+        );
+
+        String expectedMessage = "does not live in GameState";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
+    }
+
+    @Test
+    void deadSnakeDoesNotTurn() {
+        SnakeId id = gameState.addSnake(new Coordinate(28, 1), Move.right);
+        Snake snake = gameState.getSnake(id);
+
+        gameState.turn(id, Move.up);
+        assertEquals(snake.getHeadDirection(), Move.up);
+        gameState.kill(id);
+
+        gameState.turn(id, Move.right);
+        assertEquals(snake.getHeadDirection(), Move.up);
     }
 }
