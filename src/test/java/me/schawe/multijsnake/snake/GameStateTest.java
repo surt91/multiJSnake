@@ -38,17 +38,14 @@ class GameStateTest {
         assertEquals(
                 23,
                 gameState.getHeight(),
-                "getWidth should work."
+                "getHeight should work."
         );
     }
 
     @Test
     void getFood() {
         gameState.addFood(new Coordinate(30, 1));
-        assertTrue(
-                gameState.getFood().equals(new Coordinate(30, 1)),
-                "getFood should work."
-        );
+        assertEquals(gameState.getFood(), new Coordinate(30, 1), "getFood should work.");
     }
 
     @Test
@@ -146,10 +143,10 @@ class GameStateTest {
         Snake snake = gameState.getSnake(id);
 
         assertEquals(Move.down, snake.getHeadDirection());
-        assertTrue(snake.getHead().equals(new Coordinate(28, 1)));
+        assertEquals(snake.getHead(), new Coordinate(28, 1));
         gameState.update();
-        assertTrue(new Coordinate(28, 2).equals(new Coordinate(28, 1).add(Move.down.toCoord())));
-        assertTrue(snake.getHead().equals(new Coordinate(28, 2)));
+        assertEquals(new Coordinate(28, 2), new Coordinate(28, 1).add(Move.down.toCoord()));
+        assertEquals(snake.getHead(), new Coordinate(28, 2));
     }
 
     @Test
@@ -161,14 +158,14 @@ class GameStateTest {
 
         assertEquals(2, snake.getLength(), "initial length");
         assertEquals(Move.down, snake.getHeadDirection(), "initial direction");
-        assertTrue(snake.getHead().equals(new Coordinate(28, 1)), "initial position");
-        assertTrue(gameState.getFood().equals(new Coordinate(30, 1)), "initial food position");
+        assertEquals(snake.getHead(), new Coordinate(28, 1), "initial position");
+        assertEquals(gameState.getFood(), new Coordinate(30, 1), "initial food position");
         gameState.turn(id, Move.right);
         gameState.update();
         gameState.update();
-        assertTrue(snake.getHead().equals(new Coordinate(30, 1)), "food reached");
+        assertEquals(snake.getHead(), new Coordinate(30, 1), "food reached");
         gameState.update();
-        assertFalse(gameState.getFood().equals(new Coordinate(30, 1)), "new food");
+        assertNotEquals(gameState.getFood(), new Coordinate(30, 1), "new food");
         assertEquals(3, snake.getLength(), "growth");
     }
 
@@ -179,12 +176,12 @@ class GameStateTest {
         Snake snake = gameState.getSnake(id);
 
         assertEquals(Move.down, snake.getHeadDirection(), "initial direction");
-        assertTrue(snake.getHead().equals(new Coordinate(28, 1)), "initial position");
+        assertEquals(snake.getHead(), new Coordinate(28, 1), "initial position");
         gameState.turn(id, Move.left);
         gameState.update();
         gameState.turn(id, Move.up);
         gameState.update();
-        assertTrue(snake.getHead().equals(new Coordinate(27, 0)), "intermediate position");
+        assertEquals(snake.getHead(), new Coordinate(27, 0), "intermediate position");
         assertFalse(snake.isDead());
         gameState.update();
         assertTrue(snake.isDead());
@@ -226,14 +223,14 @@ class GameStateTest {
 
         assertEquals(Move.down, snake.getHeadDirection(), "initial direction");
         assertEquals(Move.left, other.getHeadDirection(), "initial direction other");
-        assertTrue(snake.getHead().equals(new Coordinate(28, 1)), "initial position");
-        assertTrue(other.getHead().equals(new Coordinate(39, 6)), "initial position other");
+        assertEquals(snake.getHead(), new Coordinate(28, 1), "initial position");
+        assertEquals(other.getHead(), new Coordinate(39, 6), "initial position other");
         for(int i=0; i<10; ++i){
             gameState.update();
         }
         assertFalse(snake.isDead());
         assertFalse(other.isDead());
-        assertTrue(other.getHead().equals(new Coordinate(29, 6)), "intermediate position other");
+        assertEquals(other.getHead(), new Coordinate(29, 6), "intermediate position other");
         gameState.update();
         assertFalse(snake.isDead());
         assertTrue(other.isDead());
@@ -266,12 +263,12 @@ class GameStateTest {
         Snake snake = gameState.getSnake(id);
 
         assertEquals(Move.down, snake.getHeadDirection(), "initial direction");
-        assertTrue(snake.getHead().equals(new Coordinate(28, 1)), "initial position");
+        assertEquals(snake.getHead(), new Coordinate(28, 1), "initial position");
         gameState.turn(id, Move.left);
         gameState.update();
         gameState.turn(id, Move.up);
         gameState.update();
-        assertTrue(snake.getHead().equals(new Coordinate(27, 0)), "intermediate position");
+        assertEquals(snake.getHead(), new Coordinate(27, 0), "intermediate position");
         assertFalse(snake.isDead(), "snake alive");
         gameState.update();
 

@@ -140,4 +140,19 @@ public class Snake {
 
         headDirection = direction;
     }
+
+    public Coordinate step() {
+        Coordinate offset = getHeadDirection().toCoord();
+        lastHeadDirection = headDirection;
+
+        tail.add(head.copy());
+
+        while (tail.size() >= length + 1) {
+            tail.remove();
+        }
+
+        head = head.add(offset);
+
+        return head;
+    }
 }

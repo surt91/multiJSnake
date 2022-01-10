@@ -140,7 +140,7 @@ public class GameState {
     // TODO: replace by a cheaper method (hashmap of occupied sites?) But probably does not matter for performance
     public boolean isOccupied(Coordinate site) {
         return snakes.values().stream().anyMatch(snake ->
-            snake.getTail().stream().anyMatch(c -> c.equals(site)) || snake.getHead().equals(site)
+            snake.getTail().stream().anyMatch(c -> c.equals(site))
         );
     }
 
@@ -254,27 +254,17 @@ public class GameState {
 
                 snake.ai().ifPresent(autopilot -> snake.setHeadDirection(autopilot.suggest(this, snake)));
 
-                Coordinate offset = snake.getHeadDirection().toCoord();
-                snake.setLastHeadDirection(snake.getHeadDirection());
-
-                snake.getTail().add(snake.getHead().copy());
-
                 if (isEating(snake)) {
                     addFood();
                     snake.incrementLength();
                     score += 1;
                 }
 
-                while (snake.getTail().size() >= snake.getLength() + 1) {
-                    snake.getTail().remove();
-                }
+                Coordinate next = snake.step();
 
-                Coordinate next = snake.getHead().add(offset);
                 if (isWall(next) || isOccupied(next)) {
                     kill(snake.getId());
                 }
-
-                snake.setHead(next);
             }
         }
 
