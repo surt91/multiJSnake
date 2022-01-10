@@ -5,11 +5,17 @@
 # copy sources
 rm -rf tmp/
 mkdir tmp/
+
 cp -r src/main/js/ tmp/
 cp webpack.config.js package.json tsconfig.json package-lock.json cypress.json tmp/
+
 mkdir tmp/resources/
 cp -r src/main/resources/{models,static} tmp/resources/
 cp src/main/resources/templates/main.html tmp/resources/static/index.html
+
+# copy e2e tests, but delete those which depend on the backend
+cp -r cypress tmp/
+rm tmp/cypress/integration/{auth,canvas,steering}.js
 
 # patch the main component
 cd tmp || exit 1
@@ -20,6 +26,8 @@ sed -i 's|./src/main/js/App.tsx|./js/App.tsx|g' webpack.config.js
 sed -i 's|path: __dirname + "/src/main/resources/static/built"|path: __dirname + "/resources/static/built"|g' webpack.config.js
 sed -i 's|xmlns:th="http://www.thymeleaf.org"||g' resources/static/index.html
 sed -i '/th:content/d' resources/static/index.html
+
+sed -i 's|cy.visit("/ai");|cy.visit("/");|'g cypress/integration/ai.js
 
 python3 << EOF
 def snip(filename):
@@ -41,10 +49,8 @@ for file in glob("js/**/*.[tj]s*", recursive=True):
 EOF
 
 # build
-npm install
-npm run build
-
-# TODO: test the static version
+npm install || exit 1
+npm run build || exit 1
 
 echo "build finished"
 echo "now deploy the folder 'tmp/resources/static'"
