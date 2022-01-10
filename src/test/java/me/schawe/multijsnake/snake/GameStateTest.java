@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -109,7 +110,7 @@ class GameStateTest {
     @Test
     void perfectGame() {
         gameState = new GameState(10, 10);
-        SnakeId id = gameState.addAISnake(new BoringAutopilot());
+        SnakeId id = gameState.addSnake(new Coordinate(0, 0), Move.down, Optional.of(new BoringAutopilot()));
         gameState.setPause(false);
 
         while(!gameState.isGameOver()) {

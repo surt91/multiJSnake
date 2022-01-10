@@ -17,7 +17,6 @@ public class BoringAutopilot implements Autopilot {
 
     @Override
     public Move suggest(GameState gameState, Snake snake) {
-        List<Move> moves = possibleMoves(gameState, snake);
         if (snake.getHead().getY() == 0 && isSafeMove(gameState, snake, Move.left)) {
             return Move.left;
         } else if(isSafeMove(gameState, snake, Move.down)) {
