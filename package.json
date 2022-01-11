@@ -17,12 +17,14 @@
   },
   "scripts": {
     "watch": "webpack --watch --mode development -d eval-source-map",
-    "debug": "webpack --mode development -d eval-source-map",
+    "debug": "webpack --mode development -d eval-source-map --config ./webpack.dev.config.js",
     "build": "webpack --mode production",
     "cy": "./node_modules/.bin/cypress run",
     "cy-record": "./node_modules/.bin/cypress run --env type=base --config screenshotsFolder=cypress/snapshots/base,testFiles=\\\"canvas.js\\\"\n"
   },
   "devDependencies": {
+    "@cypress/code-coverage": "^3.9.12",
+    "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "@types/node": "^16.11.7",
     "@types/react": "^17.0.35",
     "@types/react-dom": "^17.0.11",
@@ -38,5 +40,8 @@
     "typescript": "^4.5.2",
     "webpack": "^5.57.1",
     "webpack-cli": "^4.8.0"
+  },
+  "nyc": {
+    "report-dir": "target/cypress-coverage"
   }
 }

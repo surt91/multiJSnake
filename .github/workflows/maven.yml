@@ -41,7 +41,7 @@ jobs:
         path: target/
         retention-days: 1
 
-  coverage:
+  jacoco:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +66,7 @@ jobs:
     - name: Upload JaCoCo coverage report
       uses: actions/upload-artifact@v2
       with:
-        name: jacoco-report
+        name: backend-coverage-report
         path: target/site/jacoco-aggregate/
 
   python:
@@ -91,6 +91,41 @@ jobs:
     - name: Run one training iteration
       run: cd src/main/py ; python train_AC.py --test ; python train_convAC.py --test
 
+  cypress-coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@master
+      with:
+        name: multijsnake
+        path: target/
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: maven
+
+    - name: install node
+      uses: actions/setup-node@v2
+    - run: npm install
+
+    - name: Instrument js for cypress coverage
+      run: npm run debug
+
+    - name: Cypress run
+      uses: cypress-io/github-action@v2
+      with:
+        start: mvn -DskipTests -Dskip.npm -Djavacpp.platform=linux-x86_64 spring-boot:run
+
+    - name: Upload Istanbul coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: frontend-coverage-report
+        path: target/cypress-coverage/
+
   static:
     runs-on: ubuntu-latest
     steps:
@@ -98,8 +133,6 @@ jobs:
 
     - name: install node
       uses: actions/setup-node@v2
-      with:
-        node-version: '14'
 
     - name: Set up Python
       uses: actions/setup-python@v2

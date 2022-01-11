@@ -16,4 +16,6 @@ const getCompareSnapshotsPlugin = require('cypress-visual-regression/dist/plugin
 
 module.exports = (on, config) => {
     getCompareSnapshotsPlugin(on, config);
+    require('@cypress/code-coverage/task')(on, config)
+    return config
 };
