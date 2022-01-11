@@ -2,6 +2,7 @@
   "baseUrl": "http://localhost:8080",
   "screenshotsFolder": "./cypress/snapshots/actual",
   "trashAssetsBeforeRuns": true,
+  "video": false,
   "env": {
     "failSilently": false
   }
