@@ -83,8 +83,7 @@ bash buildStatic.sh
 and copy the generated folder `tmp/resources/static` to the web, or serve it locally with
 
 ```bash
-cd tmp/resources/static
-python3 -m http.server 8080
+python3 -m http.server 8080 -d tmp/resources/static
 ```
 
 Note that this does only include the AI demo and not the actual playable multiplayer game.
