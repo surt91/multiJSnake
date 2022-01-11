@@ -3,6 +3,7 @@ const zlib = require("zlib");
 
 module.exports = {
     entry: './src/main/js/App.tsx',
+    mode: "production",
     cache: true,
     output: {
         path: __dirname + "/src/main/resources/static/built",

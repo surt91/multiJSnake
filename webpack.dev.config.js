@@ -1,5 +1,7 @@
 module.exports = {
     entry: './src/main/js/App.tsx',
+    mode: "development",
+    devtool: "inline-source-map",
     cache: true,
     output: {
         path: __dirname + "/src/main/resources/static/built",
@@ -11,10 +13,9 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 use: [
-                    '@jsdevtools/coverage-istanbul-loader',
-                    'ts-loader'
+                    'babel-loader'
                 ],
-                exclude: /node_modules/,
+                exclude: /node_modules/
             },
             {
                 test: /\.yaml$/i,

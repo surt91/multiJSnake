@@ -17,14 +17,19 @@
   },
   "scripts": {
     "watch": "webpack --watch --mode development -d eval-source-map",
-    "debug": "webpack --mode development -d eval-source-map --config ./webpack.dev.config.js",
+    "debug": "webpack --config ./webpack.dev.config.js",
     "build": "webpack --mode production",
     "cy": "./node_modules/.bin/cypress run",
     "cy-record": "./node_modules/.bin/cypress run --env type=base --config screenshotsFolder=cypress/snapshots/base,testFiles=\\\"canvas.js\\\"\n"
   },
   "devDependencies": {
+    "@babel/core": "^7.16.7",
+    "@babel/preset-env": "^7.16.7",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "babel-loader": "^8.2.3",
+    "babel-plugin-istanbul": "^6.1.1",
     "@cypress/code-coverage": "^3.9.12",
-    "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
     "@types/node": "^16.11.7",
     "@types/react": "^17.0.35",
     "@types/react-dom": "^17.0.11",
@@ -43,5 +48,13 @@
   },
   "nyc": {
     "report-dir": "target/cypress-coverage"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react",
+      "@babel/preset-typescript"
+    ],
+    "plugins": ["istanbul"]
   }
 }
