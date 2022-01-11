@@ -57,20 +57,19 @@ jobs:
       uses: cicirello/jacoco-badge-generator@v2
       with:
         jacoco-csv-file: target/site/jacoco-aggregate/jacoco.csv
-
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: .github/badges/
-        publish_branch: badges
-        force_orphan: true
+        badges-directory: ./
 
     - name: Upload JaCoCo coverage report
       uses: actions/upload-artifact@v2
       with:
         name: backend-coverage-report
         path: target/site/jacoco-aggregate/
+
+    - name: Upload Badge
+      uses: actions/upload-artifact@v2
+      with:
+        name: backend-coverage-badge
+        path: jacoco.svg
 
   python:
     needs: build
@@ -129,6 +128,20 @@ jobs:
         name: frontend-coverage-report
         path: target/cypress-coverage/
 
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: get badge
+      run: python3 coverage2badge.py
+
+    - name: Upload Badge
+      uses: actions/upload-artifact@v2
+      with:
+        name: frontend-coverage-badge
+        path: frontend_coverage.svg
+
   static:
     runs-on: ubuntu-latest
     steps:
@@ -164,6 +177,16 @@ jobs:
       with:
         name: backend-coverage-report
         path: backend/
+
+    - uses: actions/download-artifact@master
+      with:
+        name: frontend-coverage-badge
+        path: badges/
+
+    - uses: actions/download-artifact@master
+      with:
+        name: backend-coverage-badge
+        path: badges/
 
     - run: echo "<p><a href='frontend/lcov-report/index.html'>Frontend</a></p>" > index.html
     - run: echo "<p><a href='backend/index.html'>Backend</a></p>" >> index.html
