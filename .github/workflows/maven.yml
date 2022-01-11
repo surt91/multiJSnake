@@ -41,6 +41,11 @@ jobs:
         path: target/
         retention-days: 1
 
+    - uses: actions/upload-artifact@master
+      with:
+        name: cypress
+        path: cypress/videos
+
   jacoco:
     needs: build
     runs-on: ubuntu-latest
