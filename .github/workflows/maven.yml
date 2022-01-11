@@ -69,6 +69,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .github/badges/
         publish_branch: badges
+        force_orphan: true
 
     - name: Upload JaCoCo coverage report
       uses: actions/upload-artifact@v2
@@ -154,3 +155,27 @@ jobs:
       with:
         working-directory: tmp/
         start: python3 -m http.server 8080 -d resources/static/
+
+  publish-coverage:
+    needs: [jacoco, cypress-coverage]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@master
+      with:
+        name: frontend-coverage-report
+        path: frontend/
+
+    - uses: actions/download-artifact@master
+      with:
+        name: backend-coverage-report
+        path: backend/
+
+    - run: echo "<p><a href='frontend/lcov-report/index.html'>Frontend</a></p>" > index.html
+    - run: echo "<p><a href='backend/index.html'>Backend</a></p>" >> index.html
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
+        force_orphan: true
