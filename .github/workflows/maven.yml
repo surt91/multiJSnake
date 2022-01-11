@@ -35,6 +35,8 @@ jobs:
 
     - name: Clean up node directory
       run: rm -rf target/node
+    - run: rm -rf target/*.jar*
+
     - uses: actions/upload-artifact@master
       with:
         name: multijsnake
