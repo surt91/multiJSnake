@@ -121,6 +121,7 @@ jobs:
       uses: cypress-io/github-action@v2
       with:
         start: mvn -DskipTests -Dskip.npm -Djavacpp.platform=linux-x86_64 spring-boot:run
+        wait-on: 'http://localhost:8080'
 
     - name: Upload Istanbul coverage report
       uses: actions/upload-artifact@v2
