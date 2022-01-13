@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import {registerTouch, unregisterTouch} from "../registerTouch";
 import {registerStomp, WebsocketMessage} from "../websockets/websocket-listener";
 import {
     Container,
@@ -59,18 +58,15 @@ export default function GameView(props: Props) {
     const [stompClient, setStompClient] = useState<BufferedStompClient|undefined>(undefined);
     const [playerId, setPlayerId] = useState<string|undefined>(undefined);
 
+    const [touchDown, setTouchDown] = useState<[number, number]|[null, null]>([null, null]);
+
     useEffect(() => {
         init(game.width, game.height);
-        registerTouch((dir: Direction) => move(dir), () => unpause());
 
         axios.get("/api/listAi")
             .then(response => {
                 setAiOptions(response.data);
             });
-
-        return () => {
-            unregisterTouch();
-        }
     }, []);
 
     useEffect(() => {
@@ -289,6 +285,48 @@ export default function GameView(props: Props) {
         }
     }
 
+    function handleTouchStart(e: TouchEvent) {
+        console.log(e);
+
+        setTouchDown([
+            e.touches[0].clientX,
+            e.touches[0].clientY
+        ])
+    };
+
+    function handleTouchMove(e: TouchEvent) {
+        const [xDown, yDown] = touchDown;
+        if (xDown == null || yDown == null) {
+            return;
+        }
+
+        const xUp = e.touches[0].clientX;
+        const yUp = e.touches[0].clientY;
+
+        const xDiff = xDown - xUp;
+        const yDiff = yDown - yUp;
+
+        // which component is longer
+        if (Math.abs(xDiff) > Math.abs(yDiff)) {
+            if (xDiff > 0) {
+                move("left");
+            } else {
+                move("right");
+            }
+        } else {
+            if (yDiff > 0) {
+                move("up");
+            } else {
+                move("down");
+            }
+        }
+
+        unpause();
+
+        setTouchDown([null, null]);
+        e.preventDefault();
+    };
+
     function handleNameCommit(newName: string) {
         setPlayerName(newName);
     }
@@ -317,6 +355,8 @@ export default function GameView(props: Props) {
                         height={game.height * visOpts.scale}
                         tabIndex={-1}
                         onKeyDown={(e: KeyboardEvent) => handleKeydown(e)}
+                        onTouchStart={(e: TouchEvent) => handleTouchStart(e)}
+                        onTouchMove={(e: TouchEvent) => handleTouchMove(e)}
                         focused={b => setVisOpts({...visOpts, blurred: !b})}
                         sx={{ mx: "auto" }}
                     />

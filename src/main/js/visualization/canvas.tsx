@@ -8,7 +8,9 @@ type Props = {
     // style from MUI
     sx?: any,
     tabIndex?: number,
-    onKeyDown?: (e: KeyboardEvent) => void
+    onKeyDown?: (e: KeyboardEvent) => void,
+    onTouchStart?: (e: TouchEvent) => void,
+    onTouchMove?: (e: TouchEvent) => void
 };
 
 // https://medium.com/@pdx.lucasm/canvas-with-react-js-32e133c05258
