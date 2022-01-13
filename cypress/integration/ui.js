@@ -18,6 +18,13 @@ describe('UI Test', () => {
         cy.get('canvas').trigger('keydown', { code: "KeyD"});
         cy.wait(300);
         cy.get('canvas').trigger('keydown', { code: "KeyW"});
+        cy.get('canvas').trigger('keydown', { code: "KeyA"});
+        cy.get('canvas').trigger('keydown', { code: "KeyD"});
+
+        cy.get('canvas').trigger('keydown', { code: "ArrowUp"});
+        cy.get('canvas').trigger('keydown', { code: "ArrowLeft"});
+        cy.get('canvas').trigger('keydown', { code: "ArrowRight"});
+        cy.get('canvas').trigger('keydown', { code: "ArrowDown"});
     })
 
     it("add AI does not lead to errors", () => {
@@ -49,33 +56,49 @@ describe('UI Test', () => {
         cy.get("#playerNameView").contains("Anon 1").should("exist");
         cy.get("#playerNameView").parent().find("button").click();
         cy.get("#playerNameView").parent().find("input").clear().type("Cypress");
-        cy.get("#playerNameView").parent().find("button[aria-label='done']").click();
+        cy.get("#playerNameView").parent().find("button[data-test=player-name-accept]").click();
         cy.get("#playerNameView").contains("Cypress").should("exist");
+
+        cy.get("#playerNameView").contains("Cypress").should("exist");
+        cy.get("#playerNameView").parent().find("button").click();
+        cy.get("#playerNameView").parent().find("input").clear().type("WillBeReverted");
+        cy.get("#playerNameView").parent().find("button[data-test=player-name-revert]").click();
+        cy.get("#playerNameView").contains("WillBeReverted").should("not.exist");
     });
 
     it('Touch controls', () => {
         cy.visit('/');
+        const moves = [
+            [100, 10, 100, 100],
+            [100, 100, 100, 10],
+            [10, 100, 100, 100],
+            [100, 100, 10, 100],
+        ];
 
-        cy.get("button").contains("Pause").should("not.exist");
-        cy.get("canvas").trigger("touchstart", 100, 10, {
-            touches: [
-                {
-                    clientX: 100,
-                    clientY: 10,
-                },
-            ],
+        cy.wrap(moves).each((coords) => {
+            const [x1, y1, x2, y2] = coords;
+
+            cy.get("button").contains("Pause").should("not.exist");
+            cy.get("canvas").trigger("touchstart", x1, y1, {
+                touches: [
+                    {
+                        clientX: x1,
+                        clientY: y1,
+                    },
+                ],
+            });
+            cy.get("canvas").trigger("touchmove", x2, y2, {
+                touches: [
+                    {
+                        clientX: x2,
+                        clientY: y2,
+                    },
+                ],
+            });
+            // just test that touch leads to an unpause,
+            // instead of checking movement in the right direction
+            cy.get("button").contains("Pause").should("exist").click();
         });
-        cy.get("canvas").trigger("touchmove", 100, 100, {
-            touches: [
-                {
-                    clientX: 100,
-                    clientY: 100,
-                },
-            ],
-        });
-        // just test that touch leads to an unpause,
-        // instead of checking movement in the right direction
-        cy.get("button").contains("Pause").should("exist");
     });
 
     it('Share ID', () => {

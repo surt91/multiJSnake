@@ -57,5 +57,8 @@ describe('AI Test', () => {
         cy.get('#snakeCanvas').screenshot('fourth');
 
         ensureChange("third", "fourth");
+
+        cy.get("#aiChooser").click();
+        cy.contains("Global Actor-Critic (n=10000)").click();
     })
 })

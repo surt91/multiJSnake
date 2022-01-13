@@ -54,6 +54,7 @@ export default function PlayerName(props: Props) {
                 {!props.loggedIn && editMode &&
                 <IconButton
                     aria-label="done"
+                    data-test="player-name-accept"
                     onClick={onAccept}
                 >
                     <DoneIcon/>
@@ -62,6 +63,7 @@ export default function PlayerName(props: Props) {
                 {!props.loggedIn && editMode &&
                 <IconButton
                     aria-label="revert"
+                    data-test="player-name-revert"
                     onClick={onRevert}
                 >
                     <RevertIcon/>

@@ -23,8 +23,14 @@ describe('Canvas Test', () => {
 
         cy.get("button").contains("Unpause").click();
         cy.get('canvas').compareSnapshot('canvas-clicked-unpause', 0.0);
-        cy.get("button").contains("Pause").click();
+        cy.get("button").contains("Pause").should('exist');
         cy.get('canvas').click();
+
+        cy.wait(2000);
+        cy.get('canvas').compareSnapshot('canvas-game-over', 0.0);
+
+        cy.get('canvas').trigger('keydown', { code: "KeyR"});
+        cy.get('canvas').compareSnapshot('canvas-reset', 0.0);
     })
 
     it("is autopilot moving", {
