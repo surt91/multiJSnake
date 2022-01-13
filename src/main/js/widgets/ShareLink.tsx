@@ -16,6 +16,7 @@ export default function ShareLink(props: Props) {
                 <TextField
                     variant="outlined"
                     label="sharable link"
+                    data-test="sharable-link"
                     value={props.link}
                     onClick={() => {
                         navigator.clipboard.writeText(props.link);

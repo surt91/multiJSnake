@@ -20,6 +20,7 @@
     "debug": "webpack --config ./webpack.dev.config.js",
     "build": "webpack --mode production",
     "cy": "./node_modules/.bin/cypress run",
+    "cy-open": "./node_modules/.bin/cypress open",
     "cy-record": "./node_modules/.bin/cypress run --env type=base --config screenshotsFolder=cypress/snapshots/base,testFiles=\\\"canvas.js\\\"\n"
   },
   "devDependencies": {

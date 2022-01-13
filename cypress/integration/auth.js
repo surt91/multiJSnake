@@ -18,7 +18,31 @@ describe('Auth Test', () => {
         cy.contains("Your email is 'cypress@example.com'").should("exist");
         cy.contains("Hi cypress!").should("exist");
 
+        cy.get('button:contains("Logout")').should("exist");
+
+        cy.clock().tick(60*60*1000);
+
         cy.get('button:contains("Logout")').should("exist").click();
+    });
+
+    it('Login fails', () => {
+        cy.visit('/');
+        cy.get('button:contains("Login")').should("exist").click();
+        cy.get("input[id=username]").type("cypress");
+        cy.get("input[id=password]").type("wrongpassword");
+        cy.get("button[type=submit]").click();
+        cy.get("form").contains("The user does not exist ...").should("exist");
+        cy.get("form").contains("... or the password is wrong").should("exist");
+        cy.get('button:contains("Logout")').should("not.exist");
+
+        cy.get("button").contains("Cancel").click();
+        cy.get("form").contains("Enter your username").should("not.exist");
+
+        cy.get('button:contains("Login")').should("exist").click();
+        cy.get("input[id=username]").type("wronguser");
+        cy.get("input[id=password]").type("wrongpassword");
+        cy.get("form").type("{enter}");
+        cy.get("form").type("{Esc}");
     });
 
     it('Registration fails', () => {

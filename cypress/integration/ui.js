@@ -52,4 +52,49 @@ describe('UI Test', () => {
         cy.get("#playerNameView").parent().find("button[aria-label='done']").click();
         cy.get("#playerNameView").contains("Cypress").should("exist");
     });
+
+    it('Touch controls', () => {
+        cy.visit('/');
+
+        cy.get("button").contains("Pause").should("not.exist");
+        cy.get("canvas").trigger("touchstart", 100, 10, {
+            touches: [
+                {
+                    clientX: 100,
+                    clientY: 10,
+                },
+            ],
+        });
+        cy.get("canvas").trigger("touchmove", 100, 100, {
+            touches: [
+                {
+                    clientX: 100,
+                    clientY: 100,
+                },
+            ],
+        });
+        // just test that touch leads to an unpause,
+        // instead of checking movement in the right direction
+        cy.get("button").contains("Pause").should("exist");
+    });
+
+    it('Share ID', () => {
+        cy.visit('/');
+        cy.get("div[data-test=sharable-link]")
+            .find("input")
+            .should(($input) => {
+                const val = $input.val()
+                expect(val).to.include("http://localhost:8080?id=")
+            });
+        cy.get("div[data-test=sharable-link]").find("input").click().then(()=>{
+            cy.window().then((win) => {
+                // this fails if the F12 developer tools are open ... for some reason
+                win.navigator.clipboard.readText().then((text) => {
+                    expect(text).to.contain('http://localhost:8080?id=');
+                });
+            });
+        });
+        cy.contains("Copied!").should("exist");
+
+    });
 })

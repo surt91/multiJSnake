@@ -15,7 +15,7 @@ cp src/main/resources/templates/main.html tmp/resources/static/index.html
 
 # copy e2e tests, but delete those which depend on the backend
 cp -r cypress tmp/
-rm tmp/cypress/integration/{auth,canvas,steering}.js
+rm tmp/cypress/integration/{auth,canvas,ui}.js
 
 # patch the main component
 cd tmp || exit 1
