@@ -95,7 +95,7 @@ jobs:
       run: npm run debug
 
     - name: Unit and Integration Tests
-      run: mvn -DskipNodeCompile -Djavacpp.platform=linux-x86_64 verify
+      run: mvn -DskipNodeCompile -Djavacpp.platform=linux-x86_64 -Ddependency-check.skip=true verify
 
     - name: collect reports and badges
       run: mkdir -p out/badges
