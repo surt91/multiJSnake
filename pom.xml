@@ -159,12 +159,12 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.2.8</version>
 		</dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -221,6 +221,7 @@
 						</goals>
 						<configuration>
 							<arguments>install</arguments>
+							<skip>${skipNodeCompile}</skip>
 						</configuration>
 					</execution>
 					<execution>
@@ -229,7 +230,10 @@
 							<goal>npm</goal>
 						</goals>
 						<configuration>
+							<!-- Usually we want the production build. For the Debug Build use `run debug` -->
+<!--							<arguments>run build</arguments>-->
 							<arguments>run build</arguments>
+							<skip>${skipNodeCompile}</skip>
 						</configuration>
 					</execution>
 					<execution>
