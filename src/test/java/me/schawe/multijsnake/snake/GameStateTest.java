@@ -110,7 +110,7 @@ class GameStateTest {
     @Test
     void perfectGame() {
         gameState = new GameState(10, 10);
-        SnakeId id = gameState.addSnake(new Coordinate(0, 0), Move.down, Optional.of(new BoringAutopilot()));
+        SnakeId id = gameState.addSnake(new Coordinate(0, 0), Move.down, new BoringAutopilot());
         gameState.setPause(false);
 
         while(!gameState.isGameOver()) {

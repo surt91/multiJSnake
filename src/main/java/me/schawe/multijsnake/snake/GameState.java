@@ -6,6 +6,7 @@ import me.schawe.multijsnake.util.IdGenerator;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class GameState {
     private final String id;
@@ -74,11 +75,8 @@ public class GameState {
     }
 
     public Map<Integer, Snake> getSnakes() {
-        Map<Integer, Snake> out = new HashMap<>();
-        for(Map.Entry<SnakeId, Snake> entry : snakes.entrySet()) {
-            out.put(entry.getKey().getIdx(), entry.getValue());
-        }
-        return out;
+        return snakes.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().getIdx(), Map.Entry::getValue));
     }
 
     public Collection<Snake> getSnakeSet() {
@@ -122,14 +120,14 @@ public class GameState {
     }
 
     public SnakeId addSnake(Coordinate coordinate, Move direction) {
-        return addSnake(coordinate, direction, Optional.empty());
+        return addSnake(coordinate, direction, null);
     }
 
     public SnakeId addAISnake(Autopilot autopilot) {
-        return addSnake(randomUnoccupiedSite(), Move.random(random), Optional.of(autopilot));
+        return addSnake(randomUnoccupiedSite(), Move.random(random), autopilot);
     }
 
-    public SnakeId addSnake(Coordinate coordinate, Move direction, Optional<Autopilot> autopilot) {
+    public SnakeId addSnake(Coordinate coordinate, Move direction, Autopilot autopilot) {
         int idx = monotonousSnakeCounter++;
         SnakeId snakeId = new SnakeId(this.id, idx);
         Snake snake = new Snake(snakeId, coordinate, direction, autopilot);

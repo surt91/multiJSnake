@@ -13,7 +13,7 @@ public class Snake {
     private final SnakeId id;
     private boolean dead;
     private String name;
-    private final Optional<Autopilot> autopilotOptional;
+    private final Autopilot autopilot;
 
     public Coordinate getHead() {
         return head;
@@ -59,7 +59,7 @@ public class Snake {
         return new ArrayList<>(getTail());
     }
 
-    public Snake(SnakeId id, Coordinate start, Move direction, Optional<Autopilot> autopilot) {
+    public Snake(SnakeId id, Coordinate start, Move direction, Autopilot autopilot) {
         lastHeadDirection = direction;
         headDirection = direction;
         head = start;
@@ -67,12 +67,8 @@ public class Snake {
         length = 2;
         this.id = id;
         dead = false;
-        if(autopilot.isPresent()) {
-            name = autopilot.get().generateName();
-        } else {
-            name = "Anon " + (id.getIdx() + 1);
-        }
-        autopilotOptional = autopilot;
+        name = Optional.ofNullable(autopilot).map(Autopilot::generateName).orElseGet(() -> "Anon " + (id.getIdx() + 1));
+        this.autopilot = autopilot;
     }
 
     public Snake(SnakeId id, Coordinate start){
@@ -80,15 +76,15 @@ public class Snake {
     }
 
     public Snake(SnakeId id, Coordinate start, Move dir){
-        this(id, start, dir, Optional.empty());
+        this(id, start, dir, null);
     }
 
     public Snake(SnakeId id, Coordinate start, Random random){
-        this(id, start, Move.random(random), Optional.empty());
+        this(id, start, Move.random(random), null);
     }
 
     public Snake(SnakeId id, Coordinate start, Random random, Autopilot autopilot){
-        this(id, start, Move.random(random), Optional.of(autopilot));
+        this(id, start, Move.random(random), autopilot);
     }
 
     public void reset(Coordinate start) {
@@ -106,7 +102,7 @@ public class Snake {
     }
 
     public Optional<Autopilot> ai() {
-        return autopilotOptional;
+        return Optional.ofNullable(autopilot);
     }
 
     public void incrementLength() {
