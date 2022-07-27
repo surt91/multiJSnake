@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AutopilotDescription.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">MultiJSnake</a> &gt; <a href="index.source.html" class="el_package">me.schawe.multijsnake.snake.ai</a> &gt; <span class="el_source">AutopilotDescription.java</span></div><h1>AutopilotDescription.java</h1><pre class="source lang-java linenums">package me.schawe.multijsnake.snake.ai;
+
+public class AutopilotDescription {
+    private final String id;
+    private final String modelPath;
+    private final String label;
+    private final String description;
+    private final String input;
+    private final String mode;
+
+<span class="fc" id="L11">    public AutopilotDescription(String id, String modelPath, String input, String mode, String label, String description) {</span>
+<span class="fc" id="L12">        this.id = id;</span>
+<span class="fc" id="L13">        this.modelPath = modelPath;</span>
+<span class="fc" id="L14">        this.input = input;</span>
+<span class="fc" id="L15">        this.mode = mode;</span>
+<span class="fc" id="L16">        this.label = label;</span>
+<span class="fc" id="L17">        this.description = description;</span>
+<span class="fc" id="L18">    }</span>
+
+    public String getLabel() {
+<span class="fc" id="L21">        return label;</span>
+    }
+
+    public String getDescription() {
+<span class="fc" id="L25">        return description;</span>
+    }
+
+    public String getId() {
+<span class="fc" id="L29">        return id;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L34">        return &quot;AutopilotDescription{&quot; +</span>
+                &quot;id='&quot; + id + '\'' +
+                &quot;, model_path='&quot; + modelPath + '\'' +
+                &quot;, label='&quot; + label + '\'' +
+                &quot;, description='&quot; + description + '\'' +
+                &quot;, input='&quot; + input + '\'' +
+                &quot;, mode='&quot; + mode + '\'' +
+                '}';
+    }
+
+    public String getModelPath() {
+<span class="fc" id="L45">        return modelPath;</span>
+    }
+
+    public String getInput() {
+<span class="fc" id="L49">        return input;</span>
+    }
+
+    public String getMode() {
+<span class="fc" id="L53">        return mode;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
