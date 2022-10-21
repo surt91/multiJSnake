@@ -72,6 +72,7 @@ class GameStateTest {
     @Test
     void isGameOver() {
         SnakeId id = gameState.addSnake();
+        gameState.setPause(false);
         assertFalse(
                 gameState.isGameOver(),
                 "isGameOver should work."
@@ -92,6 +93,7 @@ class GameStateTest {
     void continueWithOneSnake() {
         SnakeId id1 = gameState.addSnake();
         SnakeId id2 = gameState.addSnake();
+        gameState.setPause(false);
         assertFalse(
                 gameState.isGameOver(),
                 "isGameOver should work."

@@ -7,9 +7,11 @@ import me.schawe.multijsnake.util.IdGenerator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -21,6 +23,7 @@ public class GameState {
     private final int height;
     private Coordinate food;
     private final Map<SnakeId, Snake> snakes;
+    private Set<Coordinate> occupationMap;
     private int score;
     private boolean paused;
     private boolean gameOver;
@@ -39,6 +42,7 @@ public class GameState {
 
         score = 0;
         snakes = new HashMap<>();
+        occupationMap = new HashSet<>();
         toBeRemoved = new ArrayList<>();
         addFood();
         paused = true;
@@ -153,13 +157,29 @@ public class GameState {
         }
     }
 
-    // TODO: replace by a cheaper method (hashmap of occupied sites?) But probably does not matter for performance
+    // signal if a site is occupied by either tail or head
     public boolean isOccupied(Coordinate site) {
         rwLock.readLock().lock();
         try {
-            return snakes.values().stream().anyMatch(snake ->
-                snake.getTail().stream().anyMatch(c -> c.equals(site))
-            );
+            Set<Coordinate> heads = snakes.values().stream()
+                    .map(Snake::getHead)
+                    .collect(Collectors.toSet());
+            return occupationMap.contains(site) || heads.contains(site);
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    // signal if a site is occupied for the specified snake by either tail or head, except its own head
+    public boolean isOccupied(Coordinate site, Snake snake) {
+        rwLock.readLock().lock();
+        try {
+            Set<Coordinate> otherHeads = snakes.values().stream()
+                    .filter(s -> !s.equals(snake))
+                    .map(Snake::getHead)
+                    .collect(Collectors.toSet());
+
+            return occupationMap.contains(site) || otherHeads.contains(site);
         } finally {
             rwLock.readLock().unlock();
         }
@@ -319,25 +339,36 @@ public class GameState {
                 return;
             }
 
-            if(!paused) {
-                for (Snake snake : snakes.values()) {
-                    if (snake.isDead()) {
-                        continue;
-                    }
+            if(paused) {
+                return;
+            }
 
-                    snake.ai().ifPresent(autopilot -> snake.setHeadDirection(autopilot.suggest(this, snake)));
+            for (Snake snake : snakes.values()) {
+                if (snake.isDead()) {
+                    continue;
+                }
 
-                    if (isEating(snake)) {
-                        addFood();
-                        snake.incrementLength();
-                        score += 1;
-                    }
+                snake.ai().ifPresent(autopilot -> snake.setHeadDirection(autopilot.suggest(this, snake)));
 
-                    Coordinate next = snake.step();
+                if (isEating(snake)) {
+                    addFood();
+                    snake.incrementLength();
+                    score += 1;
+                }
 
-                    if (isWall(next) || isOccupied(next)) {
-                        kill(snake.getId());
-                    }
+                snake.step();
+            }
+
+            // update the occupation map after movement
+            occupationMap = snakes.values().stream()
+                .flatMap(snake -> snake.getTail().stream())
+                .collect(Collectors.toSet());
+
+            // check if any snakes stepped on occupied sites
+            for (Snake snake : snakes.values()) {
+                Coordinate head = snake.getHead();
+                if (isWall(head) || isOccupied(head, snake)) {
+                    kill(snake.getId());
                 }
             }
 
