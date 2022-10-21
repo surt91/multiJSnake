@@ -4,7 +4,14 @@ import me.schawe.multijsnake.gamemanagement.exceptions.InvalidMapException;
 import me.schawe.multijsnake.snake.ai.Autopilot;
 import me.schawe.multijsnake.util.IdGenerator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -13,7 +20,7 @@ public class GameState {
     private final int width;
     private final int height;
     private Coordinate food;
-    private final HashMap<SnakeId, Snake> snakes;
+    private final Map<SnakeId, Snake> snakes;
     private int score;
     private boolean paused;
     private boolean gameOver;
@@ -22,6 +29,7 @@ public class GameState {
     private Consumer<Snake> snakeDiesCallback;
     private final Random random;
     private int monotonousSnakeCounter;
+    private final ReadWriteLock rwLock = new ReentrantReadWriteLock();
 
     public GameState(int width, int height, Random random, String id) {
         this.id = id;
@@ -75,8 +83,13 @@ public class GameState {
     }
 
     public Map<Integer, Snake> getSnakes() {
-        return snakes.entrySet().stream()
-                .collect(Collectors.toMap(entry -> entry.getKey().getIdx(), Map.Entry::getValue));
+        rwLock.readLock().lock();
+        try {
+            return snakes.entrySet().stream()
+                    .collect(Collectors.toMap(entry -> entry.getKey().getIdx(), Map.Entry::getValue));
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     public Collection<Snake> getSnakeSet() {
@@ -128,42 +141,67 @@ public class GameState {
     }
 
     public SnakeId addSnake(Coordinate coordinate, Move direction, Autopilot autopilot) {
-        int idx = monotonousSnakeCounter++;
-        SnakeId snakeId = new SnakeId(this.id, idx);
-        Snake snake = new Snake(snakeId, coordinate, direction, autopilot);
-        snakes.put(snakeId, snake);
-        return snakeId;
+        rwLock.writeLock().lock();
+        try {
+            int idx = monotonousSnakeCounter++;
+            SnakeId snakeId = new SnakeId(this.id, idx);
+            Snake snake = new Snake(snakeId, coordinate, direction, autopilot);
+            snakes.put(snakeId, snake);
+            return snakeId;
+        } finally {
+            rwLock.writeLock().unlock();
+        }
     }
 
     // TODO: replace by a cheaper method (hashmap of occupied sites?) But probably does not matter for performance
     public boolean isOccupied(Coordinate site) {
-        return snakes.values().stream().anyMatch(snake ->
-            snake.getTail().stream().anyMatch(c -> c.equals(site))
-        );
+        rwLock.readLock().lock();
+        try {
+            return snakes.values().stream().anyMatch(snake ->
+                snake.getTail().stream().anyMatch(c -> c.equals(site))
+            );
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     public boolean isWall(Coordinate coordinate) {
-        return coordinate.getX() < 0
-                || coordinate.getX() >= width
-                || coordinate.getY() < 0
-                || coordinate.getY() >= height;
+        rwLock.readLock().lock();
+        try {
+            return coordinate.getX() < 0
+                    || coordinate.getX() >= width
+                    || coordinate.getY() < 0
+                    || coordinate.getY() >= height;
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     public boolean isEating(Snake snake) {
-        return snake.getHead().equals(food);
+        rwLock.readLock().lock();
+        try {
+            return snake.getHead().equals(food);
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     private Coordinate randomUnoccupiedSite() {
-        if(checkPerfectGame()) {
-            // this should have been checked, and should therefore not happen
-            throw new RuntimeException("Perfect Game!");
-        }
+        rwLock.readLock().lock();
+        try {
+            if(checkPerfectGame()) {
+                // this should have been checked, and should therefore not happen
+                throw new RuntimeException("Perfect Game!");
+            }
 
-        Coordinate site;
-        do {
-            site = randomSite();
-        } while (isOccupied(site));
-        return site;
+            Coordinate site;
+            do {
+                site = randomSite();
+            } while (isOccupied(site));
+            return site;
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     private Coordinate randomSite() {
@@ -175,99 +213,139 @@ public class GameState {
     }
 
     public void addFood(Coordinate coordinate) {
-        food = coordinate;
+        rwLock.writeLock().lock();
+        try {
+            food = coordinate;
+        } finally {
+            rwLock.writeLock().unlock();
+        }
     }
 
     // TODO: call turn method on snake?
     public void turn(SnakeId id, Move move) {
-        Snake snake = getSnake(id);
-        if(!snake.isDead()) {
-            snake.setHeadDirection(
-                    move.toNext(snake.getLastHeadDirection())
-                        .orElse(snake.getHeadDirection())
-            );
+        rwLock.writeLock().lock();
+        try {
+            Snake snake = getSnake(id);
+            if(!snake.isDead()) {
+                snake.setHeadDirection(
+                        move.toNext(snake.getLastHeadDirection())
+                            .orElse(snake.getHeadDirection())
+                );
+            }
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 
     public boolean checkPerfectGame() {
-        int occupied_fields = snakes.values().stream()
-                .map(snake -> snake.getLength() + 1)  // +1 for the heads
-                .mapToInt(Integer::intValue)
-                .sum();
-        return occupied_fields == width * height - 1; // -1 to place new food
+        rwLock.readLock().lock();
+        try {
+            int occupied_fields = snakes.values().stream()
+                    .map(snake -> snake.getLength() + 1)  // +1 for the heads
+                    .mapToInt(Integer::intValue)
+                    .sum();
+            return occupied_fields == width * height - 1; // -1 to place new food
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     public void kill(SnakeId id) {
-        Snake snake = getSnake(id);
-        // killing snakes twice would lead to double highscores
-        if (!snake.isDead()) {
-            snake.kill();
-            snakeDiesCallback.accept(snake);
+        rwLock.writeLock().lock();
+        try {
+            Snake snake = getSnake(id);
+            // killing snakes twice would lead to double highscores
+            if (!snake.isDead()) {
+                snake.kill();
+                snakeDiesCallback.accept(snake);
+            }
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 
     // check whether this game was abandoned by all human players
     public boolean isAbandoned() {
-        long numActivePlayers = snakes.values().stream()
-                .filter(snake -> snake.ai().isEmpty() && !toBeRemoved.contains(snake.getId()))
-                .count();
+        rwLock.readLock().lock();
+        try {
+            long numActivePlayers = snakes.values().stream()
+                    .filter(snake -> snake.ai().isEmpty() && !toBeRemoved.contains(snake.getId()))
+                    .count();
 
-        // games can only be created by joining, so if there are no active players, it is abandoned
-        return numActivePlayers == 0;
+            // games can only be created by joining, so if there are no active players, it is abandoned
+            return numActivePlayers == 0;
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     public void markForRemoval(SnakeId id) {
-        toBeRemoved.add(id);
+        rwLock.writeLock().lock();
+        try {
+            toBeRemoved.add(id);
+        } finally {
+            rwLock.writeLock().unlock();
+        }
     }
 
     public void reset() {
-        for(SnakeId snakeId : toBeRemoved) {
-            snakes.remove(snakeId);
-        }
-        toBeRemoved.clear();
+        rwLock.writeLock().lock();
+        try {
+            for(SnakeId snakeId : toBeRemoved) {
+                snakes.remove(snakeId);
+            }
+            toBeRemoved.clear();
 
-        for(Snake snake : snakes.values()) {
-            snake.reset(randomSite());
+            for(Snake snake : snakes.values()) {
+                snake.reset(randomSite());
+            }
+            score = 0;
+            addFood();
+            paused = true;
+            gameOver = false;
+        } finally {
+            rwLock.writeLock().unlock();
         }
-        score = 0;
-        addFood();
-        paused = true;
-        gameOver = false;
     }
 
     public void update() {
-        if(checkPerfectGame()) {
-            gameOver = true;
-        }
+        rwLock.writeLock().lock();
+        try {
+            if(checkPerfectGame()) {
+                gameOver = true;
+            }
 
-        if(gameOver) {
-            return;
-        }
+            if(gameOver) {
+                return;
+            }
 
-        if(!paused) {
-            for (Snake snake : snakes.values()) {
-                if (snake.isDead()) {
-                    continue;
-                }
+            if(!paused) {
+                for (Snake snake : snakes.values()) {
+                    if (snake.isDead()) {
+                        continue;
+                    }
 
-                snake.ai().ifPresent(autopilot -> snake.setHeadDirection(autopilot.suggest(this, snake)));
+                    snake.ai().ifPresent(autopilot -> snake.setHeadDirection(autopilot.suggest(this, snake)));
 
-                if (isEating(snake)) {
-                    addFood();
-                    snake.incrementLength();
-                    score += 1;
-                }
+                    if (isEating(snake)) {
+                        addFood();
+                        snake.incrementLength();
+                        score += 1;
+                    }
 
-                Coordinate next = snake.step();
+                    Coordinate next = snake.step();
 
-                if (isWall(next) || isOccupied(next)) {
-                    kill(snake.getId());
+                    if (isWall(next) || isOccupied(next)) {
+                        kill(snake.getId());
+                    }
                 }
             }
-        }
 
-        if(snakes.values().stream().allMatch(Snake::isDead)) {
-            gameOver = true;
+            if(snakes.values().stream().allMatch(Snake::isDead)) {
+                gameOver = true;
+            }
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 }
