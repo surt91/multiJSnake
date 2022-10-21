@@ -5,7 +5,7 @@
 [![Coverage Frontend](https://surt91.github.io/multiJSnake/badges/frontend_coverage.svg)](https://surt91.github.io/multiJSnake/frontend/lcov-report/)
 
 Snake played on a server -- communication happens mostly via Websockets.
-Play it on [multijsnake.herokuapp.com](https://multijsnake.herokuapp.com/).
+[https://multijsnake-prod-main-0wuwfu.mo4.mogenius.io](Play it in your browser).
 Either alone, with friends (via an invite link) or against computer players.
 
 ![Multiple snakes playing against each other](img/multisnake.gif)
@@ -89,11 +89,14 @@ python3 -m http.server 8080 -d tmp/resources/static
 
 Note that this does only include the AI demo and not the actual playable multiplayer game.
 
-### :cloud: On Heroku
+### :cloud: On Mogenius (or other) 
 
 Heroku will automatically use the correct build pack to start and execute the server.
-However for data persistency a Postgres database has to be created and the following
-environment variables should be set:
+
+Mogenius will automatically detect the Dockerfile and run.
+
+However, for data persistency a Postgres database has to be created (possibly via a third party, eg. ElephantSQL) 
+and the following environment variables should be set:
 
 ```bash
 # Do not store the native libraries for all platforms, but only the relevant platform (otherwise the artifact is too large for Heroku)
