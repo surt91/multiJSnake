@@ -1,17 +1,6 @@
 package me.schawe.multijsnake.gamemanagement.player;
 
-import java.util.Objects;
-
-public class PlayerId {
-    private final String id;
-
-    public PlayerId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
+public record PlayerId(String id) {
 
     @Override
     public String toString() {
@@ -28,8 +17,4 @@ public class PlayerId {
         return id.equals(playerId.id);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }

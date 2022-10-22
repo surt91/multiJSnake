@@ -48,8 +48,8 @@ public class GameServiceTest {
         Mockito.verify(webSocketServiceMock).notifyJoined(argumentCaptor.capture());
         PlayerInfo capturedArgument = argumentCaptor.getValue();
         assertEquals(capturedArgument.getGameId(), gameId);
-        assertEquals(capturedArgument.getPlayerId(), playerId);
-        assertEquals(capturedArgument.getSessionId(), sessionId);
+        assertEquals(capturedArgument.playerId(), playerId);
+        assertEquals(capturedArgument.sessionId(), sessionId);
     }
 
     @Test
@@ -124,7 +124,6 @@ public class GameServiceTest {
         int w = 10, h = 10;
         String sessionId = "sessionId";
         String gameId = "gameId";
-        String name = "newName";
 
         PlayerId playerId = gameService.joinNewGame(sessionId, gameId, w, h);
 
@@ -144,7 +143,6 @@ public class GameServiceTest {
         int w = 10, h = 10;
         String sessionId = "sessionId";
         String gameId = "gameId";
-        String name = "newName";
 
         PlayerId playerId = gameService.joinNewGame(sessionId, gameId, w, h);
 
@@ -163,7 +161,6 @@ public class GameServiceTest {
         int w = 10, h = 10;
         String sessionId = "sessionId";
         String gameId = "gameId";
-        String name = "newName";
 
         PlayerId playerId = gameService.joinNewGame(sessionId, gameId, w, h);
 

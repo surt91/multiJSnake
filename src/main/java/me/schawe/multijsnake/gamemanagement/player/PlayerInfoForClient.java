@@ -7,10 +7,10 @@ public class PlayerInfoForClient {
     private final String name;
 
     public PlayerInfoForClient(PlayerInfo playerInfo) {
-        this.playerId = playerInfo.getPlayerId().getId();
+        this.playerId = playerInfo.playerId().id();
         this.gameId = playerInfo.getGameId();
-        this.idx = playerInfo.getSnakeId().getIdx();
-        this.name = playerInfo.getName();
+        this.idx = playerInfo.snakeId().getIdx();
+        this.name = playerInfo.name();
     }
 
     public String getPlayerId() {

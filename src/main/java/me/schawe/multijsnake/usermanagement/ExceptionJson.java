@@ -1,7 +1,7 @@
 package me.schawe.multijsnake.usermanagement;
 
 public class ExceptionJson {
-    String error;
+    private final String error;
 
     public ExceptionJson(String error) {
         this.error = error;

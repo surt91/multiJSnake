@@ -41,10 +41,10 @@ public class WebSocketService {
         PlayerInfoForClient payload = new PlayerInfoForClient(playerInfo);
         System.out.println("notify" + playerInfo);
         this.websocket.convertAndSendToUser(
-                playerInfo.getSessionId(),
+                playerInfo.sessionId(),
                 "/queue/joined",
                 payload,
-                createHeaders(playerInfo.getSessionId())
+                createHeaders(playerInfo.sessionId())
         );
     }
 

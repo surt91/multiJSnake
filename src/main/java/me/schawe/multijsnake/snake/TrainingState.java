@@ -125,37 +125,21 @@ public class TrainingState {
     }
 
     public static Move relativeAction2Move(int action, Move lastHeadDirection) {
-        switch(action) {
-            case 0:
-                // left
-                return lastHeadDirection.rLeft();
-            case 1:
-                // straight
-                return lastHeadDirection.straight();
-            case 2:
-                // right
-                return lastHeadDirection.rRight();
-            default:
-                throw new InvalidMoveException("invalid relative direction: " + action);
-        }
+        return switch (action) {
+            case 0 -> lastHeadDirection.rLeft();
+            case 1 -> lastHeadDirection.straight();
+            case 2 -> lastHeadDirection.rRight();
+            default -> throw new InvalidMoveException("invalid relative direction: " + action);
+        };
     }
 
     public static Move absoluteAction2Move(int action) {
-        switch (action) {
-            case 0:
-                // north
-                return Move.up;
-            case 1:
-                // east
-                return Move.right;
-            case 2:
-                // south
-                return Move.down;
-            case 3:
-                // west
-                return Move.left;
-            default:
-                throw new InvalidMoveException("invalid absolute direction: " + action);
-        }
+        return switch (action) {
+            case 0 -> Move.up;
+            case 1 -> Move.right;
+            case 2 -> Move.down;
+            case 3 -> Move.left;
+            default -> throw new InvalidMoveException("invalid absolute direction: " + action);
+        };
     }
 }

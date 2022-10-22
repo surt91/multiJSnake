@@ -21,16 +21,16 @@ public class AutopilotFactory {
         AutopilotDescription desc = autopilots.get(id);
 
         Autopilot autopilot;
-        if(Objects.equals(desc.getModelPath(), "greedy")) {
+        if(Objects.equals(desc.modelPath(), "greedy")) {
             autopilot = new GreedyAutopilot();
-        } else if(Objects.equals(desc.getModelPath(), "random")) {
+        } else if(Objects.equals(desc.modelPath(), "random")) {
             autopilot = new RandomAutopilot();
-        } else if(Objects.equals(desc.getModelPath(), "boring")) {
+        } else if(Objects.equals(desc.modelPath(), "boring")) {
             autopilot = new BoringAutopilot();
-        } else if (desc.getInput().equals("local")) {
-            autopilot = new LocalDeepAutopilot(desc.getModelPath(), desc.getMode().equals("functional"));
-        } else if (desc.getInput().equals("global")) {
-            autopilot = new GlobalDeepAutopilot(desc.getModelPath(), desc.getMode().equals("functional"));
+        } else if (desc.input().equals("local")) {
+            autopilot = new LocalDeepAutopilot(desc.modelPath(), desc.mode().equals("functional"));
+        } else if (desc.input().equals("global")) {
+            autopilot = new GlobalDeepAutopilot(desc.modelPath(), desc.mode().equals("functional"));
         } else {
             // TODO: handle the unexpected input
             autopilot = new RandomAutopilot();

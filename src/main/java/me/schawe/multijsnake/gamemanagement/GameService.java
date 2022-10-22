@@ -108,10 +108,10 @@ public class GameService {
 
     private SnakeId playerToSnake(PlayerId playerId) {
         if(!playerInfoMap.containsKey(playerId)) {
-            throw new InvalidMapException("PlayerId: " + playerId.getId());
+            throw new InvalidMapException("PlayerId: " + playerId.id());
         }
 
-        return playerInfoMap.get(playerId).getSnakeId();
+        return playerInfoMap.get(playerId).snakeId();
     }
 
     public Set<String> allIds() {
@@ -199,6 +199,6 @@ public class GameService {
     }
 
     public Optional<PlayerInfo> findPlayerBySession(String sessionId) {
-        return playerInfoMap.values().stream().filter(info -> info.getSessionId().equals(sessionId)).findFirst();
+        return playerInfoMap.values().stream().filter(info -> info.sessionId().equals(sessionId)).findFirst();
     }
 }

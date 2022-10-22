@@ -20,8 +20,8 @@ public class WebSocketEventListener {
     public void onDisconnectEvent(SessionDisconnectEvent event) {
         gameService.findPlayerBySession(event.getSessionId()).ifPresent(playerInfo -> {
             GameState gameState = gameService.idToGame(playerInfo.getGameId());
-            gameState.kill(playerInfo.getSnakeId());
-            gameState.markForRemoval(playerInfo.getSnakeId());
+            gameState.kill(playerInfo.snakeId());
+            gameState.markForRemoval(playerInfo.snakeId());
             webSocketService.update(gameState);
         });
     }

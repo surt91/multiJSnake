@@ -3,8 +3,8 @@ package me.schawe.multijsnake.snake;
 import java.util.Objects;
 
 public class SnakeId {
-    private String id;
-    private int idx;
+    private final String id;
+    private final int idx;
 
     public SnakeId(String id, int idx) {
         this.id = id;
