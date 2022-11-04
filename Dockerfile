@@ -9,8 +9,8 @@ RUN cd build && mvn -Djavacpp.platform=linux-x86_64 -DskipTests package
 RUN rm -rf build/target/node build/target/classes
 
 # Package stage
-FROM openjdk:17
-RUN addgroup spring && adduser spring --ingroup spring --gecos "" --disabled-password
+FROM openjdk:17-slim
+RUN adduser --group spring && adduser spring --ingroup spring --gecos "" --disabled-password
 USER spring:spring
 COPY --from=build ./build/target/*.jar app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
