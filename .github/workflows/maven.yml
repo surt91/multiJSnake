@@ -67,7 +67,7 @@ jobs:
         python-version: '3.10'
 
     - name: Install Python dependencies
-      uses: py-actions/py-dependency-install@v3
+      uses: py-actions/py-dependency-install@v4
 
     - name: Run one training iteration
       run: cd src/main/py ; python train_AC.py --test ; python train_convAC.py --test

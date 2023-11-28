@@ -6,10 +6,10 @@ async function ensureChange(name1, name2) {
     const pixelmatch = require('pixelmatch');
 
     cy.readFile(
-        './cypress/snapshots/actual/ai.js/' + name1 + '.png', 'base64'
+        './cypress/snapshots/actual/ai.cy.js/' + name1 + '.png', 'base64'
     ).then(first =>
         cy.readFile(
-            './cypress/snapshots/actual/ai.js/' + name2 + '.png', 'base64'
+            './cypress/snapshots/actual/ai.cy.js/' + name2 + '.png', 'base64'
         ).then(second => {
             // load both pictures
             const img1 = PNG.sync.read(Buffer.from(first, 'base64'));

@@ -7,7 +7,7 @@ rm -rf tmp/
 mkdir tmp/
 
 cp -r src/main/js/ tmp/
-cp webpack.config.js package.json tsconfig.json package-lock.json cypress.json tmp/
+cp webpack.config.js package.json tsconfig.json package-lock.json cypress.config.ts tmp/
 
 mkdir tmp/resources/
 cp -r src/main/resources/{models,static} tmp/resources/
@@ -15,7 +15,7 @@ cp src/main/resources/templates/main.html tmp/resources/static/index.html
 
 # copy e2e tests, but delete those which depend on the backend
 cp -r cypress tmp/
-rm tmp/cypress/integration/{auth,canvas,ui}.js
+rm tmp/cypress/e2e/{auth,canvas,ui}.cy.js
 
 # patch the main component
 cd tmp || exit 1
@@ -27,7 +27,7 @@ sed -i 's|path: __dirname + "/src/main/resources/static/built"|path: __dirname +
 sed -i 's|xmlns:th="http://www.thymeleaf.org"||g' resources/static/index.html
 sed -i '/th:content/d' resources/static/index.html
 
-sed -i 's|cy.visit("/ai");|cy.visit("/");|'g cypress/integration/ai.js
+sed -i 's|cy.visit("/ai");|cy.visit("/");|'g cypress/e2e/ai.cy.js
 
 python3 << EOF
 def snip(filename):
