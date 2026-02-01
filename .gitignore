@@ -6,6 +6,8 @@ target/
 coverage
 .nyc_output
 
+.venv
+
 ### STS ###
 .apt_generated
 .classpath

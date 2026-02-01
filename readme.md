@@ -29,8 +29,8 @@ And the server will be compiled and started on `http://localhost:8080`.
 ## :robot: Training an autopilot
 
 You can train a neural net to play the game with the scripts in [`src/main/py`](/tree/main/src/main/py).
-As prerequisites there must be Python 3.6+ available and the dependencies from `requirements.txt` need
-to be installed, e.g., with `pip install -r requirements.txt`.
+As prerequisites there must be Python 3.8+ available and the dependencies from `pyproject.toml` need
+to be installed, e.g., with `uv sync`.
 
 Also ensure that the java classes are are compiled (e.g. by executing the above step,)
 since the training will need them. More information about this curiosity can be found
@@ -89,13 +89,13 @@ python3 -m http.server 8080 -d tmp/resources/static
 
 Note that this does only include the AI demo and not the actual playable multiplayer game.
 
-### :cloud: On Mogenius (or other) 
+### :cloud: On Mogenius (or other)
 
 Heroku will automatically use the correct build pack to start and execute the server.
 
 Mogenius will automatically detect the Dockerfile and run.
 
-However, for data persistency a Postgres database has to be created (possibly via a third party, eg. ElephantSQL) 
+However, for data persistency a Postgres database has to be created (possibly via a third party, eg. ElephantSQL)
 and the following environment variables should be set:
 
 ```bash
