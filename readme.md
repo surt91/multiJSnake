@@ -1,12 +1,8 @@
 # MultiJSnake :snake::snake::snake:
 
-[![Tests](https://github.com/surt91/multiJSnake/actions/workflows/maven.yml/badge.svg)](https://github.com/surt91/multiJSnake/actions/workflows/maven.yml)
-[![Coverage Backend](https://surt91.github.io/multiJSnake/badges/jacoco.svg)](https://surt91.github.io/multiJSnake/backend/)
-[![Coverage Frontend](https://surt91.github.io/multiJSnake/badges/frontend_coverage.svg)](https://surt91.github.io/multiJSnake/frontend/lcov-report/)
 
 Snake played on a server -- communication happens mostly via Websockets.
-[https://multijsnake-prod-main-0wuwfu.mo4.mogenius.io](Play it in your browser).
-Either alone, with friends (via an invite link) or against computer players.
+Play it either alone, with friends (via an invite link) or against computer players.
 
 ![Multiple snakes playing against each other](img/multisnake.gif)
 
@@ -37,7 +33,7 @@ since the training will need them. More information about this curiosity can be 
 at [blog.codecentric.de/2021/11/java-klassen-python](https://blog.codecentric.de/2021/11/java-klassen-python/).
 
 The training can be started and continued by changing into `src/main/py/` and executing the
-`train_AC.py` and `train_convAC.py` scripts.
+`train_AC.py` and `train_convAC.py` scripts with `uv train_AC.py`.
 
 For converting the file with the trained model into a format suitable for `tensorflowjs` use:
 
@@ -89,28 +85,6 @@ python3 -m http.server 8080 -d tmp/resources/static
 
 Note that this does only include the AI demo and not the actual playable multiplayer game.
 
-### :cloud: On Mogenius (or other)
-
-Heroku will automatically use the correct build pack to start and execute the server.
-
-Mogenius will automatically detect the Dockerfile and run.
-
-However, for data persistency a Postgres database has to be created (possibly via a third party, eg. ElephantSQL)
-and the following environment variables should be set:
-
-```bash
-# Do not store the native libraries for all platforms, but only the relevant platform (otherwise the artifact is too large for Heroku)
-MAVEN_CUSTOM_OPTS=-DskipTests=true -Djavacpp.platform=linux-x86_64
-# configure the Postgres DB, these variables are all that is needed to switch from H2 to Postgres
-# placeholders for secret values are marked here with []
-SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
-SPRING_DATASOURCE_PASSWORD=[password]
-SPRING_DATASOURCE_TYPE=org.apache.tomcat.jdbc.pool.DataSource
-SPRING_DATASOURCE_URL=jdbc:postgresql://[server]:[port]/[database]?sslmode=require
-SPRING_DATASOURCE_USERNAME=[user]
-SPRING_JPA_DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect
-SPRING_JPA_HIBERNATE_DDL-AUTO=update
-```
 
 ### :whale: With Docker/docker-compose
 
@@ -131,4 +105,20 @@ Then the containers can be built and started with:
 ```bash
 docker-compose build
 docker-compose up
+```
+
+If you want to run it with an external database for data persistency with the following env variables.
+
+```bash
+# Do not store the native libraries for all platforms, but only the relevant platform (otherwise the artifact is very large)
+MAVEN_CUSTOM_OPTS=-DskipTests=true -Djavacpp.platform=linux-x86_64
+# configure the Postgres DB, these variables are all that is needed to switch from H2 to Postgres
+# placeholders for secret values are marked here with []
+SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
+SPRING_DATASOURCE_PASSWORD=[password]
+SPRING_DATASOURCE_TYPE=org.apache.tomcat.jdbc.pool.DataSource
+SPRING_DATASOURCE_URL=jdbc:postgresql://[server]:[port]/[database]?sslmode=require
+SPRING_DATASOURCE_USERNAME=[user]
+SPRING_JPA_DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+SPRING_JPA_HIBERNATE_DDL-AUTO=update
 ```
