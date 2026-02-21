@@ -106,6 +106,15 @@ jobs:
     - name: Unit and Integration Tests
       run: mvn -DskipNodeCompile -Djavacpp.platform=linux-x86_64 -Ddependency-check.skip=true verify
 
+    - name: Upload Cypress artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@master
+      with:
+        name: cypress-artifacts
+        path: |
+          cypress/snapshots/
+          cypress/videos/
+
     - name: collect reports and badges
       run: mkdir -p out/badges
 
