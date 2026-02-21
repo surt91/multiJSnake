@@ -67,7 +67,7 @@ jobs:
         python-version: '3.12'
 
     - name: Install Python dependencies
-      uses: uses: astral-sh/setup-uv@v1
+      uses: astral-sh/setup-uv@v1
     - name: Install Python dependencies with uv
       run: uv sync
 
