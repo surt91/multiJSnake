@@ -24,7 +24,7 @@
     "cy-record": "./node_modules/.bin/cypress run --env visualRegressionType=base --spec cypress/e2e/canvas.cy.js\n"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.7",
+    "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.16.7",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
