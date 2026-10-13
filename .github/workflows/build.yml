@@ -104,7 +104,7 @@ jobs:
       run: npm run debug
 
     - name: Unit and Integration Tests
-      run: mvn -DskipNodeCompile -Djavacpp.platform=linux-x86_64 -Ddependency-check.skip=true verify
+      run: ./mvnw -DskipNodeCompile -Djavacpp.platform=linux-x86_64 -Ddependency-check.skip=true verify
 
     - name: Upload Cypress artifacts on failure
       if: failure()
