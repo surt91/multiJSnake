@@ -42,6 +42,8 @@ export default function Ai() {
         model: undefined
     });
     const canvasRef = useRef<HTMLCanvasElement|null>(null);
+    // number of steps taken so far, exposed as `data-steps` on the canvas for the e2e tests
+    const stepCount = useRef(0);
 
     useEffect(() => {
         // if we do not have a model, we don't need to try to step
@@ -94,6 +96,9 @@ export default function Ai() {
 
         game.update();
         draw(getContext(), game, visOpts)
+
+        stepCount.current += 1;
+        canvasRef.current?.setAttribute("data-steps", String(stepCount.current));
     }
 
     function getContext(): CanvasRenderingContext2D {
