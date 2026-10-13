@@ -1,3 +1,8 @@
+// The game runs in real time on the server, so snapshots taken while the snake can move
+// may be offset by one step depending on timing. One cell of the 10x10 grid is 1% of the
+// canvas, so allow up to 2% difference for those snapshots. Static (paused) states stay exact.
+const TIMING_TOLERANCE = 0.02;
+
 describe('Canvas Test', () => {
     it("visual test of the canvas", () => {
         cy.visit('/');
@@ -8,7 +13,7 @@ describe('Canvas Test', () => {
         // wait until initialization
         cy.get("#currentScores").find('tr').should('have.length', 1);
 
-        cy.get('canvas').compareSnapshot('canvas-inital', 0.0);
+        cy.get('canvas').compareSnapshot('canvas-inital', TIMING_TOLERANCE);
 
         cy.get('#currentScores').click();
         cy.get('canvas').compareSnapshot('canvas-paused-unfocused', 0.0);
@@ -22,15 +27,15 @@ describe('Canvas Test', () => {
         cy.get('canvas').compareSnapshot('canvas-up', 0.0);
 
         cy.get("button").contains("Unpause").click();
-        cy.get('canvas').compareSnapshot('canvas-clicked-unpause', 0.0);
+        cy.get('canvas').compareSnapshot('canvas-clicked-unpause', TIMING_TOLERANCE);
         cy.get("button").contains("Pause").should('exist');
         cy.get('canvas').click();
 
         cy.wait(2000);
-        cy.get('canvas').compareSnapshot('canvas-game-over', 0.0);
+        cy.get('canvas').compareSnapshot('canvas-game-over', TIMING_TOLERANCE);
 
         cy.get('canvas').trigger('keydown', { code: "KeyR"});
-        cy.get('canvas').compareSnapshot('canvas-reset', 0.0);
+        cy.get('canvas').compareSnapshot('canvas-reset', TIMING_TOLERANCE);
     })
 
     it("is autopilot moving", {
@@ -65,6 +70,6 @@ describe('Canvas Test', () => {
 
         cy.get("button").contains("Unpause").click();
         cy.wait(200);
-        cy.get('canvas').compareSnapshot('canvas-ai-step', 0.0);
+        cy.get('canvas').compareSnapshot('canvas-ai-step', TIMING_TOLERANCE);
     })
 })
